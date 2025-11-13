@@ -52,6 +52,7 @@ npm run dev
 # http://localhost:3000 (sirve /public) | API en /api/*
 
 🗂️ Estructura de carpetas
+
 HabitApp/
 ├─ public/                 # Frontend estático (Bootstrap, JS del cliente)
 │  ├─ css/
