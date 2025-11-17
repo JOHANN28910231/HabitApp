@@ -101,6 +101,9 @@ app.use((req, res, next) => {
 app.use('/public', express.static(publicDir));
 app.use(express.static(publicDir));
 
+// Servir uploads (avatars) como estático
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+
 // Rutas amigables para UI
 app.get('/register', (req, res) => res.sendFile(path.join(publicDir, 'register.html')));
 app.get('/login', (req, res) => res.sendFile(indexPath));
