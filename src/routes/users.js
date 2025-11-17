@@ -39,6 +39,14 @@ router.get('/:id', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// PUT /me -> actualizar el propio perfil (requiere autenticación)
+router.put('/me', requireAuth, upload.single('foto'), async (req, res, next) => {
+  try {
+    // El controlador usa req.user.id si no hay req.params.id
+    return usersCtrl.update(req, res, next);
+  } catch (err) { next(err); }
+});
+
 // PUT /:id -> actualizar (controlador maneja permisos). Acepta archivo 'foto'
 router.put('/:id', requireAuth, upload.single('foto'), async (req, res, next) => {
   try {
