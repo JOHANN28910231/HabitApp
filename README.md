@@ -28,38 +28,45 @@ MySQL 8.x
 Windows (recomendado): nvm-windows con NVM_HOME=C:\nvm y NVM_SYMLINK=C:\nvm\nodejs.
 Activa Developer Mode en Windows para que nvm cree symlinks sin admin.
 
-#🚀 Inicio rápido
+🚀## Inicio rápido
  1) Clonar
-git clone https://github.com/JOHANN28910231/HabitApp.git
-cd HabitApp
+
+- git clone https://github.com/JOHANN28910231/HabitApp.git
+
+- cd HabitApp
 
 2) Node (usa la versión del proyecto)
-nvm install
-nvm use
+- nvm install
+
+- nvm use
 
 3) Dependencias
-npm i
+- npm i
 
 4) Variables de entorno
-cp .env.example .env
- -> Edita .env con tus credenciales locales de MySQL
+- cp .env.example .env
+- -> Edita .env con tus credenciales locales de MySQL
 
 5) Crear la base de datos y las tablas en MySQL Workbench
 
-Abran MySQL Workbench y conéctense.
-Menú File → Open SQL Script…
-Busquen dentro del proyecto: HabitApp/db/init.sql.
-Den clic en el botón de rayo ⚡ para ejecutarlo.
-Verificar que aparece el esquema habitapp con todas las tablas.
-Cargar datos de prueba (seed)
-En Workbench, File → Open SQL Script…
-Abran HabitApp/db/seed.sql.
-Ejecuten ⚡.
+- Abran MySQL Workbench y conéctense.
+- Menú File → Open SQL Script…
+- Busquen dentro del proyecto: HabitApp/db/init.sql.
+- Den clic en el botón de rayo ⚡ para ejecutarlo.
+- Verificar que aparece el esquema habitapp con todas las tablas.
+- Cargar datos de prueba (seed)
+- En Workbench, File → Open SQL Script…
+- Abran HabitApp/db/seed.sql.
+- Ejecuten ⚡.
 
 Verifiquen con algunos SELECT:
+
 SELECT * FROM usuarios;
+
 SELECT * FROM propiedades;
+
 SELECT * FROM habitacion;
+
 SELECT * FROM reservaciones;
 
 
@@ -67,23 +74,23 @@ SELECT * FROM reservaciones;
 
 De nuevo en PowerShell, dentro de la carpeta HabitApp:
 
-nvm use 20.11.1
-npm run dev
+- nvm use 20.11.1
+- npm run dev
 
 La app se levantará en http://localhost:3000.
 
 ## Instrucciones adicionales
 Ya con eso listo, cada uno puede:
-Crear una rama para su módulo:
-git checkout -b feat/mi-modulo
-Programar su parte en src/.
-Probar con el npm run dev usando la BD llena con seed.sql.
+- Crear una rama para su módulo:
+- git checkout -b feat/mi-modulo
+- Programar su parte en src/.
+- Probar con el npm run dev usando la BD llena con seed.sql.
 
 Hacer:
 
-git add .
-git commit -m "feat: descripcion de lo que hice"
-git push origin feat/mi-modulo
+- git add .
+- git commit -m "feat: descripcion de lo que hice"
+- git push origin feat/mi-modulo
 
 
 Y abrir un Pull Request hacia main
