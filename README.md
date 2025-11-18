@@ -53,27 +53,9 @@ npm run dev
 
 🗂️ Estructura de carpetas
 
-HabitApp/
-├─ public/                 # Frontend estático (Bootstrap, JS del cliente)
-│  ├─ css/
-│  ├─ js/
-│  └─ index.html
-├─ db/
-│  ├─ init.sql             # Esquema "habitapp" (pega aquí el SQL del proyecto)
-│  └─ seed.sql             # Semillas: roles y datos mínimos
-├─ src/
-│  ├─ app.js               # Config principal de Express (middlewares, rutas, estáticos)
-│  ├─ server.js            # Punto de entrada
-│  ├─ middlewares/         # auth.js (sesión, roles)
-│  ├─ utils/               # db.js (pool MySQL), calc.js (cálculos noche/semana/mes)
-│  ├─ models/              # Acceso a MySQL por entidad (usuarios, propiedades, etc.)
-│  ├─ controllers/         # Lógica de endpoints
-│  └─ routes/              # Definición de endpoints (por módulo)
-├─ scripts/                # utilidades (reset BD, etc.)
-├─ .nvmrc
-├─ .env.example
-├─ .gitignore
-└─ package.json
+<img width="754" height="500" alt="image" src="https://github.com/user-attachments/assets/a7b7ba5c-5036-48c4-9456-7f08c3164ab9" />
+
+
 
 🔧 Configuración de entorno
 
