@@ -3,7 +3,13 @@ Proyecto Final Quinto Semestre
 AppTiziHause (HabitApp)
 
 Proyecto estilo Airbnb con Node.js + Express, MySQL y Frontend estático (HTML/CSS/JS/Bootstrap).
+
 Cumple los RF/RNF definidos (autenticación, roles, búsqueda, reservas, pagos simulados, reseñas, reportes, notificaciones).
+
+## Documento de requerimientos
+A continuación, se presenta el documento de Requerimientos Funcionales(RF) y Requerimientos No Funcionales(RNF) del sistema AppTiziHause
+- [Especificación de Requerimientos de Software.pdf](https://github.com/user-attachments/files/23600934/Especificacion.de.Requerimientos.de.Software.pdf)
+
 
 ## Stack
 
@@ -174,25 +180,11 @@ mes = ceil(noches/30) * precio_por_mes
 
 Disponibilidad (RF014, RF017): comprobar solapes en reservaciones + habitacion_bloqueo.
 
-👥 Flujo de trabajo del equipo (5 personas)
+👥 División de carga de trabajo para cada integrante (5)
+A continuación, en el siguiente archivo pdf podrán encontrar de manera detallada lo que tienen que hacer, hay algunas secciones donde dice "opcional" pero de preferencia háganlo para mejorar el flujo de trabajo.
+- [DivisiónCargaTrabajo.pdf](https://github.com/user-attachments/files/23600819/DivisionCargaTrabajo.pdf)
 
-Ramas: main (estable), dev (integración), feat/* por módulo.
 
-Antes de push: npm run format && npm run lint.
-
-PRs de feat/* → dev. Tras pruebas manuales → merge a main.
-
-Sugerencia de asignación:
-
-A: Autenticación/Sesiones/Usuarios (RF01–RF07)
-
-B: Propiedades/Habitaciones/Fotos/Servicios (RF08–RF010)
-
-C: Búsqueda/Disponibilidad/Calendario (RF012–RF014)
-
-D: Reservas/Pagos (mock)/Comprobante (RF015–RF024)
-
-E: Reseñas/Reportes (RF011, RF025–RF027)
 
 🧹 Estilo y calidad
 
