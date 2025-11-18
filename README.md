@@ -35,7 +35,7 @@ MySQL 8.x
 Windows (recomendado): nvm-windows con NVM_HOME=C:\nvm y NVM_SYMLINK=C:\nvm\nodejs.
 Activa Developer Mode en Windows para que nvm cree symlinks sin admin.
 
-🚀## Inicio rápido
+🚀 Inicio rápido
  1) Clonar
 
 - git clone https://github.com/JOHANN28910231/HabitApp.git
@@ -103,7 +103,7 @@ Hacer:
 Y abrir un Pull Request hacia main
 
 
-🗂️ Estructura de carpetas
+🗂️ Estructura de carpetas 
 
 <img width="754" height="500" alt="image" src="https://github.com/user-attachments/assets/a7b7ba5c-5036-48c4-9456-7f08c3164ab9" />
 
