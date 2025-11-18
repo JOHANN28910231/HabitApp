@@ -32,7 +32,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (user.foto_url) {
                 const p = document.getElementById('fotoPreview');
-                p.innerHTML = `<img src="${user.foto_url}" alt="foto" style="max-width:120px;max-height:120px;border-radius:50%;">`;
+                p.innerHTML = `<img src="${user.foto_url}" alt="foto">`;
+                const headerAvatar = document.getElementById('headerAvatar');
+                if (headerAvatar) headerAvatar.innerHTML = `<img src="${user.foto_url}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+            }
+            if (user.nombre_completo) {
+                const headerName = document.getElementById('headerName');
+                if (headerName) headerName.textContent = user.nombre_completo;
             }
         } catch (err) {
             console.error('prefill error', err);
