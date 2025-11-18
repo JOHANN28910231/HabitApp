@@ -83,6 +83,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             result.textContent = JSON.stringify(data, null, 2);
+            // Si el servidor devolvió la URL de la foto, actualizar avatar del header y preview
+            try {
+                const u = data && (data.user || data);
+                const foto = u && (u.foto_url || u.fotoUrl || (u.user && u.user.foto_url));
+                const nombre = u && (u.nombre_completo || (u.user && u.user.nombre_completo));
+                            if (foto) {
+                                const headerAvatar = document.getElementById('headerAvatar');
+                                if (headerAvatar) {
+                                    // crear imagen para transición fade
+                                    const img = document.createElement('img');
+                                    img.src = foto;
+                                    img.alt = 'avatar';
+                                    img.style.width = '100%';
+                                    img.style.height = '100%';
+                                    img.style.objectFit = 'cover';
+                                    img.style.borderRadius = '50%';
+                                    img.style.opacity = '0';
+                                    img.style.transition = 'opacity 320ms ease';
+                                    // limpiar y añadir nueva imagen
+                                    headerAvatar.innerHTML = '';
+                                    headerAvatar.appendChild(img);
+                                    img.onload = () => { requestAnimationFrame(() => img.style.opacity = '1'); };
+                                }
+                                const p = document.getElementById('fotoPreview');
+                                if (p) p.innerHTML = `<img src="${foto}" alt="foto">`;
+                            }
+                if (nombre) {
+                    const headerName = document.getElementById('headerName');
+                    if (headerName) headerName.textContent = nombre;
+                }
+            } catch (e) { console.error('update UI after save error', e); }
             alert('Perfil actualizado');
         } catch (err) {
             console.error(err);
