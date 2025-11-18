@@ -7,6 +7,7 @@ Proyecto estilo Airbnb con Node.js + Express, MySQL y Frontend estático (HTML/C
 Cumple los RF/RNF definidos (autenticación, roles, búsqueda, reservas, pagos simulados, reseñas, reportes, notificaciones).
 
 ## Documento de requerimientos
+
 A continuación, se presenta el documento de Requerimientos Funcionales(RF) y Requerimientos No Funcionales(RNF) del sistema AppTiziHause
 - [Especificación de Requerimientos de Software.pdf](https://github.com/user-attachments/files/23600934/Especificacion.de.Requerimientos.de.Software.pdf)
 
@@ -180,13 +181,14 @@ mes = ceil(noches/30) * precio_por_mes
 
 Disponibilidad (RF014, RF017): comprobar solapes en reservaciones + habitacion_bloqueo.
 
-👥 División de carga de trabajo para cada integrante (5)
+👥 ## División de carga de trabajo para cada integrante (5)
+
 A continuación, en el siguiente archivo pdf podrán encontrar de manera detallada lo que tienen que hacer, hay algunas secciones donde dice "opcional" pero de preferencia háganlo para mejorar el flujo de trabajo.
 - [DivisiónCargaTrabajo.pdf](https://github.com/user-attachments/files/23600819/DivisionCargaTrabajo.pdf)
 
 
 
-🧹 Estilo y calidad
+🧹 ## Estilo y calidad
 
 ESLint + Prettier incluidos.
 
