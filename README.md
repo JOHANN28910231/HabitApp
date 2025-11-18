@@ -169,7 +169,7 @@ Reseñas: /api/resenas (RF011)
 
 Reportes: /api/reportes (diario/semanal/mensual/anual + descarga PDF, RF025–RF027)
 
-🧮 Cálculos clave
+## Cálculos clave
 
 Precio (RF013, RF016): src/utils/calc.js
 
@@ -181,14 +181,14 @@ mes = ceil(noches/30) * precio_por_mes
 
 Disponibilidad (RF014, RF017): comprobar solapes en reservaciones + habitacion_bloqueo.
 
-👥 ## División de carga de trabajo para cada integrante (5)
+## División de carga de trabajo para cada integrante
 
 A continuación, en el siguiente archivo pdf podrán encontrar de manera detallada lo que tienen que hacer, hay algunas secciones donde dice "opcional" pero de preferencia háganlo para mejorar el flujo de trabajo.
 - [DivisiónCargaTrabajo.pdf](https://github.com/user-attachments/files/23600819/DivisionCargaTrabajo.pdf)
 
 
 
-🧹 ## Estilo y calidad
+## Estilo y calidad
 
 ESLint + Prettier incluidos.
 
