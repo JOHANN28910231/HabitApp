@@ -1,35 +1,84 @@
 <!doctype html>
 <html lang="es">
+
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Editar perfil — TiziHause (prueba)</title>
-  <link rel="stylesheet" href="/css/styles.css">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Editar perfil — TiziHause (prueba)</title>
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
+
 <body class="bg-site">
-  <main class="container py-5">
-    <h2 class="h4 mb-3">Editar perfil (prueba)</h2>
-    <form id="profileForm">
-      <div class="mb-3">
-        <label for="userId">ID usuario</label>
-        <input id="userId" name="id" type="number" value="1" class="form-control" required>
-      </div>
-      <div class="mb-3">
-        <label for="nombre">Nombre completo</label>
-        <input id="nombre" name="nombre_completo" type="text" class="form-control">
-      </div>
-      <div class="mb-3">
-        <label for="foto">Foto (jpg/png, &lt;5MB)</label>
-        <input id="foto" name="foto" type="file" accept="image/*" class="form-control">
-      </div>
-      <div class="d-grid">
-        <button type="submit" class="btn btn-accent">Actualizar perfil</button>
-      </div>
-    </form>
+    <main class="container py-5">
+        <h2 class="h4 mb-3">Editar perfil (prueba)</h2>
+        <form id="profileForm">
+            <div class="mb-3">
+                <label for="userId">ID usuario</label>
+                <input id="userId" name="id" type="number" value="1" class="form-control" readonly>
+            </div>
 
-    <pre id="result" class="mt-3 small"></pre>
-  </main>
+            <div class="mb-3">
+                <label for="nombre">Nombre completo</label>
+                <input id="nombre" name="nombre_completo" type="text" class="form-control">
+            </div>
 
-  <script src="/js/profile_edit.js" defer></script>
+            <div class="row">
+                <div class="col-6 mb-3">
+                    <label for="telefono">Teléfono</label>
+                    <input id="telefono" name="telefono" type="tel" class="form-control">
+                </div>
+                <div class="col-6 mb-3">
+                    <label for="nacionalidad">Nacionalidad</label>
+                    <input id="nacionalidad" name="nacionalidad" type="text" class="form-control">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-4 mb-3">
+                    <label for="genero">Género</label>
+                    <select id="genero" name="genero" class="form-control">
+                        <option value="">(no especificado)</option>
+                        <option value="masculino">Masculino</option>
+                        <option value="femenino">Femenino</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+                <div class="col-4 mb-3">
+                    <label for="municipio">Municipio</label>
+                    <input id="municipio" name="municipio" type="text" class="form-control">
+                </div>
+                <div class="col-4 mb-3">
+                    <label for="estado">Estado</label>
+                    <input id="estado" name="estado" type="text" class="form-control">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-6 mb-3">
+                    <label for="fecha_nacimiento">Fecha de nacimiento</label>
+                    <input id="fecha_nacimiento" name="fecha_nacimiento" type="date" class="form-control">
+                </div>
+                <div class="col-6 mb-3">
+                    <label for="password">Contraseña (dejar vacío para no cambiar)</label>
+                    <input id="password" name="password" type="password" class="form-control">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="foto">Foto (jpg/png, &lt;5MB)</label>
+                <input id="foto" name="foto" type="file" accept="image/*" class="form-control">
+                <div id="fotoPreview" class="mt-2"></div>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-accent">Actualizar perfil</button>
+            </div>
+        </form>
+
+        <pre id="result" class="mt-3 small"></pre>
+    </main>
+
+    <script src="/js/profile_edit.js" defer></script>
 </body>
+
 </html>
