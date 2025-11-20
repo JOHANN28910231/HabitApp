@@ -78,7 +78,7 @@ app.use(session({
 
 // Directorio público
 const publicDir = path.join(__dirname, '..', 'public');
-const indexPath = path.join(publicDir, 'index.html');
+const indexPath = path.join(publicDir, 'login.html');
 
 // Servir archivos estáticos
 // - mantengo '/public' para compatibilidad con enlaces actuales
@@ -106,7 +106,7 @@ app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 // Rutas amigables para UI
 app.get('/register', (req, res) => res.sendFile(path.join(publicDir, 'register.html')));
-app.get('/login', (req, res) => res.sendFile(indexPath));
+app.get('/login', (req, res) => res.sendFile(path.join(publicDir, 'login.html')));
 
 // Rutas API
 app.use('/api/auth', authRoutes);
@@ -118,7 +118,7 @@ app.get(/.*/, (req, res, next) => {
   // Solo manejar GET para servir recursos estáticos / SPA
   if (req.method !== 'GET') return next();
 
-  // Si el cliente acepta HTML, devolver index.html (SPA)
+  // Si el cliente acepta HTML, devolver login.html (SPA)
   if (req.accepts('html')) {
     return res.sendFile(indexPath, err => {
       // si falla (archivo no existe u otro error), continuar al handler de 404/error

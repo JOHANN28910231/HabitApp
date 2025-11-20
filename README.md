@@ -57,7 +57,7 @@ HabitApp/
 ├─ public/                 # Frontend estático (Bootstrap, JS del cliente)
 │  ├─ css/
 │  ├─ js/
-│  └─ index.html
+│  └─ login.html
 ├─ db/
 │  ├─ init.sql             # Esquema "habitapp" (pega aquí el SQL del proyecto)
 │  └─ seed.sql             # Semillas: roles y datos mínimos
