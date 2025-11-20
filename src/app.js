@@ -1,0 +1,89 @@
+require('dotenv').config();
+const express = require('express');
+const path = require('path');
+const helmet = require('helmet');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const session = require('express-session');
+
+// ⬅️ IMPORTA LA CONEXIÓN A LA BD
+const pool = require('./utils/db');
+
+const paymentsRoutes = require('./routes/payments.routes');
+const reportsRoutes = require('./routes/reports.routes');
+
+const app = express();
+
+app.use(helmet({
+    contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+            "default-src": ["'self'"],
+            "script-src": [
+                "'self'",
+                "'unsafe-inline'",
+                "https://cdn.jsdelivr.net"
+            ],
+            "style-src": [
+                "'self'",
+                "'unsafe-inline'",
+                "https://cdn.jsdelivr.net"
+            ],
+            "img-src": ["'self'", "data:", "blob:"],
+            "font-src": ["'self'", "https://cdn.jsdelivr.net"],
+        }
+    }
+}));
+
+app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 1000 * 60 * 60 * 8 }
+}));
+
+app.use(express.static(path.join(__dirname, '..', 'public')));
+
+app.use('/api/payments', paymentsRoutes);
+app.use('/api/reports', reportsRoutes);
+
+app.get('/api/health', (req, res) => res.json({ ok: true }));
+
+// =====================================
+// 🚀 ENDPOINT PARA OBTENER VENTAS DE HOST
+// =====================================
+app.get('/api/host/:id/ventas', async (req, res) => {
+    const hostId = req.params.id;
+
+    try {
+        const [rows] = await pool.query(`
+            SELECT
+                p.nombre_propiedad AS propiedad,
+                h.descripcion AS cuarto,
+                CONCAT(c.nombre_completo) AS cliente,
+                r.fecha_inicio AS fecha_entrada,
+                r.fecha_salida AS fecha_salida,
+                r.monto_total AS total
+            FROM reservaciones r
+                     INNER JOIN habitacion h ON h.id_habitacion = r.id_habitacion
+                     INNER JOIN propiedades p ON p.id_propiedad = h.id_propiedad
+                     INNER JOIN usuarios c ON c.id_usuario = r.id_huesped
+            WHERE p.id_anfitrion = ?
+            ORDER BY r.fecha_reserva DESC
+        `, [hostId]);
+
+        res.json(rows);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Error obteniendo ventas" });
+    }
+});
+// =====================================
+// FIN DEL ENDPOINT
+// =====================================
+
+module.exports = app;

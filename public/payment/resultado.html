@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Resultado de pago — HabitApp</title>
+    <link href="../css/styles.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-site">
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg site-header shadow-sm">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <img src="/assets/logo.png" class="brand-img" alt="logo">
+        </a>
+    </div>
+</nav>
+
+<!-- MAIN -->
+<main class="container py-5">
+    <div class="auth-card p-4 mx-auto" style="max-width: 520px;">
+        <h3 class="text-center mb-4 section-title">Resultado del Pago</h3>
+
+        <div id="content" class="text-center"></div>
+    </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer text-center">
+    HabitApp © <span id="year"></span>
+</footer>
+
+<script>
+    // Año
+    const yearEl = document.getElementById("year");
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+    // Lógica original que tú tenías
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('status');
+    const ref = params.get('ref');
+    const amount = params.get('amount');
+    const rid = params.get('rid');
+
+    const el = document.getElementById('content');
+
+    if (status === 'aprobado') {
+        el.innerHTML = `
+            <div class="alert alert-success">
+                Pago aprobado.<br>Ref: <strong>${ref}</strong><br>
+                Monto: <strong>${amount}</strong><br>
+                Reservación: <strong>${rid}</strong>
+            </div>
+            <a href="/" class="btn btn-accent mt-3">Volver al inicio</a>
+        `;
+    } else {
+        el.innerHTML = `
+            <div class="alert alert-danger">
+                Pago rechazado.<br>
+                Ref: <strong>${ref}</strong>
+            </div>
+            <a href="/payment/checkout.html" class="btn btn-outline-secondary mt-3">Intentar de nuevo</a>
+        `;
+    }
+</script>
+
+</body>
+</html>
