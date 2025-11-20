@@ -6,19 +6,123 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Editar perfil — TiziHause (prueba)</title>
     <link rel="stylesheet" href="/css/styles.css">
-        <style>
-        .profile-header { display:flex; justify-content:space-between; align-items:center; background:#f5f3ef; padding:18px; border-radius:6px; }
-        .profile-left { display:flex; gap:16px; align-items:center }
-        .avatar-large { width:88px; height:88px; border-radius:50%; background:#e6f3e6; display:flex; align-items:center; justify-content:center; font-size:36px; }
-        .profile-name { font-size:28px; font-weight:700; letter-spacing:1px }
-        .profile-form { background:white; padding:18px; margin-top:18px; border-radius:6px }
-        .profile-form .row { gap:12px }
-        .profile-actions { display:flex; justify-content:flex-end; margin-top:18px }
-        #fotoPreview img { max-width:120px; max-height:120px; border-radius:50% }
-        @media (min-width: 992px) {
-            .profile-form { display:block }
+
+    <style>
+        /* Header */
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #e9f6e9;
+            /* soft green */
+            padding: 22px;
+            border-radius: 6px;
         }
-        </style>
+
+        .profile-left {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+        }
+
+        /* purple framed square around circular avatar */
+        #headerAvatar {
+            width: 96px;
+            height: 96px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #dff6df;
+            border: 6px solid rebeccapurple;
+            border-radius: 10px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        #headerAvatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            display: block;
+        }
+
+        .profile-name {
+            font-size: 30px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-left: 6px;
+        }
+
+        .profile-form {
+            background: white;
+            padding: 22px;
+            margin-top: 18px;
+            border-radius: 6px;
+        }
+
+        /* grid form: two columns of fields */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px 22px;
+            align-items: center;
+        }
+
+        .form-grid .full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        input.form-control,
+        select.form-control {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #d1d1d1;
+        }
+
+        .profile-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 18px;
+        }
+
+        .btn-accent {
+            background: #a7de9a;
+            border: none;
+            color: #fff;
+            padding: 12px 22px;
+            border-radius: 22px;
+            font-weight: 700;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        /* header 'Inicio' button: scale down ~20% from previous size */
+        .profile-header .profile-right .btn-accent {
+            font-size: 16px;
+            /* ~5% smaller than 17px */
+            padding: 13px 25px;
+            /* ~5% smaller than previous padding */
+            border-radius: 20px;
+        }
+
+        @media (max-width: 700px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            #headerAvatar {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
 </head>
 
 <body class="bg-site">
@@ -32,34 +136,49 @@
                 </div>
             </div>
             <div class="profile-right">
-                <a href="/profile_edit.html" class="small">Editar Perfil</a>
+                <a href="/" class="btn-accent" style="text-decoration:none;">Inicio</a>
             </div>
         </header>
 
         <form id="profileForm" class="profile-form">
-            <div class="mb-3">
-                <label for="userId">ID usuario</label>
-                <input id="userId" name="id" type="number" value="1" class="form-control" readonly>
-            </div>
+            <div class="form-grid">
+                <div class="full">
+                    <label for="userId">ID usuario</label>
+                    <input id="userId" name="id" type="number" value="1" class="form-control" readonly>
+                </div>
 
-            <div class="mb-3">
-                <label for="nombre">Nombre completo</label>
-                <input id="nombre" name="nombre_completo" type="text" class="form-control">
-            </div>
-
-            <div class="row">
-                <div class="col-6 mb-3">
+                <div>
+                    <label for="nombre">Nombre completo</label>
+                    <input id="nombre" name="nombre_completo" type="text" class="form-control">
+                </div>
+                <div>
                     <label for="telefono">Teléfono</label>
                     <input id="telefono" name="telefono" type="tel" class="form-control">
                 </div>
-                <div class="col-6 mb-3">
+
+                <div>
+                    <label for="email">Correo electrónico</label>
+                    <input id="email" name="email" type="email" class="form-control">
+                </div>
+                <div>
                     <label for="nacionalidad">Nacionalidad</label>
                     <input id="nacionalidad" name="nacionalidad" type="text" class="form-control">
                 </div>
-            </div>
 
-            <div class="row">
-                <div class="col-4 mb-3">
+                <div>
+                    <label for="fecha_nacimiento">Fecha de nacimiento</label>
+                    <input id="fecha_nacimiento" name="fecha_nacimiento" type="date" class="form-control">
+                </div>
+                <div>
+                    <label for="municipio">Municipio</label>
+                    <input id="municipio" name="municipio" type="text" class="form-control">
+                </div>
+
+                <div>
+                    <label for="password">Contraseña</label>
+                    <input id="password" name="password" type="password" class="form-control">
+                </div>
+                <div>
                     <label for="genero">Género</label>
                     <select id="genero" name="genero" class="form-control">
                         <option value="">(no especificado)</option>
@@ -68,35 +187,19 @@
                         <option value="otro">Otro</option>
                     </select>
                 </div>
-                <div class="col-4 mb-3">
-                    <label for="municipio">Municipio</label>
-                    <input id="municipio" name="municipio" type="text" class="form-control">
-                </div>
-                <div class="col-4 mb-3">
+
+                <div>
                     <label for="estado">Estado</label>
                     <input id="estado" name="estado" type="text" class="form-control">
                 </div>
-            </div>
-
-            <div class="row">
-                <div class="col-6 mb-3">
-                    <label for="fecha_nacimiento">Fecha de nacimiento</label>
-                    <input id="fecha_nacimiento" name="fecha_nacimiento" type="date" class="form-control">
+                <div class="full">
+                    <label for="foto">Foto (jpg/png, &lt;5MB)</label>
+                    <input id="foto" name="foto" type="file" accept="image/*" class="form-control">
                 </div>
-                <div class="col-6 mb-3">
-                    <label for="password">Contraseña (dejar vacío para no cambiar)</label>
-                    <input id="password" name="password" type="password" class="form-control">
+
+                <div class="full profile-actions">
+                    <button type="submit" class="btn btn-accent">Actualizar perfil</button>
                 </div>
-            </div>
-
-            <div class="mb-3">
-                <label for="foto">Foto (jpg/png, &lt;5MB)</label>
-                <input id="foto" name="foto" type="file" accept="image/*" class="form-control">
-                <div id="fotoPreview" class="mt-2"></div>
-            </div>
-
-            <div class="profile-actions">
-                <button type="submit" class="btn btn-accent">Actualizar perfil</button>
             </div>
         </form>
 

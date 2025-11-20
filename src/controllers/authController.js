@@ -1,5 +1,4 @@
-﻿// FILE: src/controllers/authController.js
-const bcrypt = require('bcryptjs');
+﻿const bcrypt = require('bcryptjs');
 const { findByEmail, create, addRole } = require('../models/user');
 const { setAccountState } = require('../models/user');
 

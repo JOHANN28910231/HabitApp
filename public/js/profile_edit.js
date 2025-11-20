@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!user) return;
             document.getElementById('userId').value = user.id || user.id_usuario || '';
             if (user.nombre_completo) document.getElementById('nombre').value = user.nombre_completo;
+            if (user.email) document.getElementById('email').value = user.email;
             if (user.telefono) document.getElementById('telefono').value = user.telefono;
             if (user.nacionalidad) document.getElementById('nacionalidad').value = user.nacionalidad;
             if (user.genero) document.getElementById('genero').value = user.genero;
@@ -31,8 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             if (user.foto_url) {
-                const p = document.getElementById('fotoPreview');
-                p.innerHTML = `<img src="${user.foto_url}" alt="foto">`;
                 const headerAvatar = document.getElementById('headerAvatar');
                 if (headerAvatar) headerAvatar.innerHTML = `<img src="${user.foto_url}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
             }
@@ -50,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         result.textContent = 'Enviando...';
         // Usar endpoint /api/users/me para que el servidor use req.user.id
         const nombre = document.getElementById('nombre').value;
+        const email = document.getElementById('email').value;
         const telefono = document.getElementById('telefono').value;
         const nacionalidad = document.getElementById('nacionalidad').value;
         const genero = document.getElementById('genero').value;
@@ -68,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (estado) fd.append('estado', estado);
         if (fecha_nacimiento) fd.append('fecha_nacimiento', fecha_nacimiento);
         if (password) fd.append('password', password);
+        if (email) fd.append('email', email);
         if (fotoInput && fotoInput.files && fotoInput.files.length > 0) fd.append('foto', fotoInput.files[0]);
 
         try {
@@ -88,27 +89,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 const u = data && (data.user || data);
                 const foto = u && (u.foto_url || u.fotoUrl || (u.user && u.user.foto_url));
                 const nombre = u && (u.nombre_completo || (u.user && u.user.nombre_completo));
-                            if (foto) {
-                                const headerAvatar = document.getElementById('headerAvatar');
-                                if (headerAvatar) {
-                                    // crear imagen para transición fade
-                                    const img = document.createElement('img');
-                                    img.src = foto;
-                                    img.alt = 'avatar';
-                                    img.style.width = '100%';
-                                    img.style.height = '100%';
-                                    img.style.objectFit = 'cover';
-                                    img.style.borderRadius = '50%';
-                                    img.style.opacity = '0';
-                                    img.style.transition = 'opacity 320ms ease';
-                                    // limpiar y añadir nueva imagen
-                                    headerAvatar.innerHTML = '';
-                                    headerAvatar.appendChild(img);
-                                    img.onload = () => { requestAnimationFrame(() => img.style.opacity = '1'); };
-                                }
-                                const p = document.getElementById('fotoPreview');
-                                if (p) p.innerHTML = `<img src="${foto}" alt="foto">`;
-                            }
+                if (foto) {
+                    const headerAvatar = document.getElementById('headerAvatar');
+                    if (headerAvatar) {
+                        const img = document.createElement('img');
+                        img.src = foto;
+                        img.alt = 'avatar';
+                        img.style.width = '100%';
+                        img.style.height = '100%';
+                        img.style.objectFit = 'cover';
+                        img.style.borderRadius = '50%';
+                        img.style.opacity = '0';
+                        img.style.transition = 'opacity 320ms ease';
+                        headerAvatar.innerHTML = '';
+                        headerAvatar.appendChild(img);
+                        img.onload = () => { requestAnimationFrame(() => img.style.opacity = '1'); };
+                    }
+                }
                 if (nombre) {
                     const headerName = document.getElementById('headerName');
                     if (headerName) headerName.textContent = nombre;
