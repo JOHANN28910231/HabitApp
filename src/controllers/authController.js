@@ -1,6 +1,5 @@
 ﻿const bcrypt = require('bcryptjs');
-const { findByEmail, create, addRole } = require('../models/user');
-const { setAccountState } = require('../models/user');
+const { findByEmail, create, addRole, getRoles, setAccountState } = require('../models/user');
 
 async function register(req, res, next) {
   try {
@@ -30,8 +29,12 @@ async function register(req, res, next) {
     });
     try { await addRole(user.id_usuario, roleToAssign); } catch (e) { /* ignorar si rol no existe */ }
 
+    // Obtener roles y guardar información esencial en la sesión para RF07
+    const roles = await getRoles(user.id_usuario).catch(() => []);
     req.session.userId = user.id_usuario;
-    res.status(201).json({ user: { id: user.id_usuario, nombre_completo: user.nombre_completo, email: user.email } });
+    req.session.user = { id_usuario: user.id_usuario, nombre_completo: user.nombre_completo, roles };
+
+    res.status(201).json({ user: { id: user.id_usuario, nombre_completo: user.nombre_completo, email: user.email, roles } });
   } catch (err) {
     next(err);
   }
@@ -53,8 +56,11 @@ async function login(req, res, next) {
     const ok = await bcrypt.compare(password, userRow.password_hash);
     if (!ok) return res.status(401).json({ error: 'Credenciales inválidas' });
 
+    const roles = await getRoles(userRow.id_usuario).catch(() => []);
     req.session.userId = userRow.id_usuario;
-    res.json({ user: { id: userRow.id_usuario, nombre_completo: userRow.nombre_completo, email: userRow.email } });
+    req.session.user = { id_usuario: userRow.id_usuario, nombre_completo: userRow.nombre_completo, roles };
+
+    res.json({ user: { id: userRow.id_usuario, nombre_completo: userRow.nombre_completo, email: userRow.email, roles } });
   } catch (err) {
     next(err);
   }
