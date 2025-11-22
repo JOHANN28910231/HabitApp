@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ﻿-- =========================================================
+=======
+-- =========================================================
+>>>>>>> origin/main
 --  SEMILLA DE DATOS PARA DESARROLLO - AppTiziHause
 --  Este script limpia tablas y genera datos de prueba ÚNICAMENTE durante desarrollo.
 -- =========================================================
@@ -18,22 +22,10 @@ TRUNCATE TABLE habitacion_bloqueo;
 TRUNCATE TABLE habitacion_servicio;
 TRUNCATE TABLE habitacion_foto;
 TRUNCATE TABLE habitacion;
-TRUNCATE TABLE propiedades;
-TRUNCATE TABLE usuario_rol;
-TRUNCATE TABLE usuarios;
-TRUNCATE TABLE servicios;
-
--- NO truncamos 'roles' porque ya se llena en init.sql
-
-SET FOREIGN_KEY_CHECKS = 1;
-
 -- ---------------------------------------------------------
 -- 2) Usuarios de ejemplo
 --    Nota: Los password_hash son de ejemplo (no funcionan
 --    para login real). Sirven para pruebas de joins, reportes.
--- ---------------------------------------------------------
-INSERT INTO usuarios (
-  nombre_completo,
   email,
   password_hash,
   telefono,
@@ -48,15 +40,9 @@ INSERT INTO usuarios (
   ('Admin Global', 'admin.global@example.com', '$2b$10$dummyhashparaPRUEBA1234567890123456789012', '9993334455', 'Masculino', 'Tizimín', 'Yucatán', 'Mexicana', '1990-01-01');
 
 -- ---------------------------------------------------------
--- 3) Asignar roles a usuarios (usa subconsultas para no
 --    depender de IDs fijos)
 --    roles: huesped, anfitrion, admin_global, admin_secundario
 -- ---------------------------------------------------------
-INSERT INTO usuario_rol (id_usuario, id_rol)
-SELECT u.id_usuario, r.id_rol
-FROM usuarios u
-JOIN roles r ON r.nombre = 'huesped'
-WHERE u.email = 'ana.huesped@example.com';
 
 INSERT INTO usuario_rol (id_usuario, id_rol)
 SELECT u.id_usuario, r.id_rol
@@ -72,11 +58,6 @@ WHERE u.email = 'admin.global@example.com';
 
 -- ---------------------------------------------------------
 -- 4) Servicios de ejemplo (catálogo)
--- ---------------------------------------------------------
-INSERT INTO servicios (nombre) VALUES
-  ('WiFi'),
-  ('Aire acondicionado'),
-  ('Ventilador'),
   ('Cama matrimonial'),
   ('Televisión'),
   ('Refrigerador'),
@@ -95,9 +76,6 @@ INSERT INTO propiedades (
   direccion,
   codigo_postal,
   municipio,
-  estado,
-  ubicacion_url,
-  descripcion,
   politicas_hospedaje,
   fecha_registro,
   estado_propiedad
@@ -110,9 +88,6 @@ INSERT INTO propiedades (
   '97700',
   'Tizimín',
   'Yucatán',
-  'https://maps.google.com/?q=Tizimin+Cabaña+Buen+Viaje',
-  'Cabaña acogedora con jardín y alberca compartida.',
-  'No se permiten fiestas. Mascotas bajo solicitud.',
   CURDATE(),
   'activa'
 ),
@@ -156,9 +131,6 @@ INSERT INTO habitacion (
   (SELECT id_propiedad FROM propiedades WHERE nombre_propiedad = 'Cabaña Buen Viaje'),
   'Habitación secundaria con dos camas individuales.',
   3,
-  600.00,
-  3800.00,
-  14000.00,
   'activa'
 ),
 (
@@ -196,9 +168,6 @@ SELECT h.id_habitacion,
 FROM habitacion h
 JOIN propiedades p ON p.id_propiedad = h.id_propiedad
 WHERE p.nombre_propiedad = 'Loft Centro Mérida';
-
--- ---------------------------------------------------------
--- 8) Asignar servicios a habitaciones (relación N:M)
 -- ---------------------------------------------------------
 
 -- Helper: función mental -> usamos subconsultas sencillas
@@ -222,13 +191,8 @@ WHERE p.nombre_propiedad = 'Cabaña Buen Viaje'
   AND h.descripcion LIKE 'Habitación secundaria%';
 
 -- Loft Centro Mérida
-INSERT INTO habitacion_servicio (id_habitacion, id_servicio)
-SELECT h.id_habitacion, s.id_servicio
-FROM habitacion h
 JOIN propiedades p ON p.id_propiedad = h.id_propiedad
-JOIN servicios s ON s.nombre IN ('WiFi', 'Aire acondicionado', 'Cama matrimonial', 'Televisión', 'Refrigerador', 'Estufa', 'Vajilla')
 WHERE p.nombre_propiedad = 'Loft Centro Mérida';
-
 -- ---------------------------------------------------------
 -- 9) Reservación de ejemplo (Ana Huésped reserva en Cabaña)
 -- ---------------------------------------------------------
@@ -237,7 +201,6 @@ INSERT INTO reservaciones (
   id_huesped,
   estado_reserva,
   fecha_reserva,
-  fecha_inicio,
   fecha_salida,
   monto_total
 ) VALUES
@@ -246,7 +209,6 @@ INSERT INTO reservaciones (
    FROM habitacion h
    JOIN propiedades p ON p.id_propiedad = h.id_propiedad
    WHERE p.nombre_propiedad = 'Cabaña Buen Viaje'
-     AND h.descripcion LIKE 'Habitación principal%'
    LIMIT 1),
   (SELECT id_usuario FROM usuarios WHERE email = 'ana.huesped@example.com'),
   'reservado',
@@ -254,9 +216,6 @@ INSERT INTO reservaciones (
   DATE_ADD(CURDATE(), INTERVAL 7 DAY),   -- inicio en 7 días
   DATE_ADD(CURDATE(), INTERVAL 10 DAY),  -- salida en 10 días
   2400.00                                -- 3 noches * 800
-);
-
--- ---------------------------------------------------------
 -- 10) Pago de ejemplo para esa reservación
 -- ---------------------------------------------------------
 INSERT INTO pagos (
@@ -281,9 +240,6 @@ INSERT INTO pagos (
 -- ---------------------------------------------------------
 INSERT INTO habitacion_bloqueo (
   id_habitacion,
-  fecha_inicio,
-  fecha_fin,
-  motivo
 ) VALUES
 (
   (SELECT h.id_habitacion
@@ -301,9 +257,6 @@ INSERT INTO habitacion_bloqueo (
 -- ---------------------------------------------------------
 INSERT INTO resenas (
   id_huesped,
-  id_habitacion,
-  id_propiedad,
-  rating,
   titulo,
   comentario,
   visible
@@ -322,3 +275,4 @@ INSERT INTO resenas (
   'La cabaña está muy limpia, cómoda y la alberca es perfecta para relajarse.',
   1
 );
+>>>>>>> origin/main

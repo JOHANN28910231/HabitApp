@@ -3,9 +3,16 @@ Proyecto Final Quinto Semestre
 AppTiziHause (HabitApp)
 
 Proyecto estilo Airbnb con Node.js + Express, MySQL y Frontend estático (HTML/CSS/JS/Bootstrap).
+
 Cumple los RF/RNF definidos (autenticación, roles, búsqueda, reservas, pagos simulados, reseñas, reportes, notificaciones).
 
-🧱 Stack
+## Documento de requerimientos
+
+A continuación, se presenta el documento de Requerimientos Funcionales(RF) y Requerimientos No Funcionales(RNF) del sistema AppTiziHause
+- [Especificación de Requerimientos de Software.pdf](https://github.com/user-attachments/files/23600934/Especificacion.de.Requerimientos.de.Software.pdf)
+
+
+## Stack
 
 Frontend: HTML5, CSS3, JavaScript, Bootstrap (estático servido por Express)
 
@@ -28,30 +35,77 @@ MySQL 8.x
 Windows (recomendado): nvm-windows con NVM_HOME=C:\nvm y NVM_SYMLINK=C:\nvm\nodejs.
 Activa Developer Mode en Windows para que nvm cree symlinks sin admin.
 
-🚀 Inicio rápido (3 minutos)
-# 1) Clonar
-git clone https://github.com/JOHANN28910231/HabitApp.git
-cd HabitApp
+🚀 Inicio rápido
+ 1) Clonar
 
-# 2) Node (usa la versión del proyecto)
-nvm install
-nvm use
+- git clone https://github.com/JOHANN28910231/HabitApp.git
 
-# 3) Dependencias
-npm i
+- cd HabitApp
 
-# 4) Variables de entorno
-cp .env.example .env
-# -> Edita .env con tus credenciales locales de MySQL
+2) Node (usa la versión del proyecto)
+- nvm install
 
-# 5) Base de datos (una vez)
-# Importa db/init.sql y luego db/seed.sql en tu MySQL (Workbench o CLI)
+- nvm use
 
-# 6) Correr en desarrollo
-npm run dev
-# http://localhost:3000 (sirve /public) | API en /api/*
+3) Dependencias
+- npm i
 
-🗂️ Estructura de carpetas
+4) Variables de entorno
+- cp .env.example .env
+- -> Edita .env con tus credenciales locales de MySQL
+
+5) Crear la base de datos y las tablas en MySQL Workbench
+
+- Abran MySQL Workbench y conéctense.
+- Menú File → Open SQL Script…
+- Busquen dentro del proyecto: HabitApp/db/init.sql.
+- Den clic en el botón de rayo ⚡ para ejecutarlo.
+- Verificar que aparece el esquema habitapp con todas las tablas.
+- Cargar datos de prueba (seed)
+- En Workbench, File → Open SQL Script…
+- Abran HabitApp/db/seed.sql.
+- Ejecuten ⚡.
+
+Verifiquen con algunos SELECT:
+
+SELECT * FROM usuarios;
+
+SELECT * FROM propiedades;
+
+SELECT * FROM habitacion;
+
+SELECT * FROM reservaciones;
+
+
+6) Levantar el servidor
+
+De nuevo en PowerShell, dentro de la carpeta HabitApp:
+
+- nvm use 20.11.1
+- npm run dev
+
+La app se levantará en http://localhost:3000.
+
+## Instrucciones adicionales
+Ya con eso listo, cada uno puede:
+- Crear una rama para su módulo:
+- git checkout -b feat/mi-modulo
+- Programar su parte en src/.
+- Probar con el npm run dev usando la BD llena con seed.sql.
+
+Hacer:
+
+- git add .
+- git commit -m "feat: descripcion de lo que hice"
+- git push origin feat/mi-modulo
+
+
+Y abrir un Pull Request hacia main
+
+
+🗂️ Estructura de carpetas 
+
+<img width="754" height="500" alt="image" src="https://github.com/user-attachments/assets/a7b7ba5c-5036-48c4-9456-7f08c3164ab9" />
 
 HabitApp/
 ├─ public/                 # Frontend estático (Bootstrap, JS del cliente)
@@ -85,11 +139,11 @@ Variables: copia .env.example a .env y edita:
 
 DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME=habitapp
 
-SESSION_SECRET (pon uno largo y aleatorio)
+SESSION_SECRET (pongan uno largo y aleatorio)
 
 MySQL:
 
-Crea usuario de desarrollo (sugerido): dev_user/dev_pass
+Crea usuario de desarrollo en MYSQL (sugerido): dev_user/dev_pass
 
 Importa db/init.sql y db/seed.sql
 
@@ -113,7 +167,7 @@ helmet, cors, rate-limit activados (aporta a RF031/RNF05).
 
 En producción, sirve detrás de HTTPS (Nginx/Reverse Proxy).
 
-📚 Rutas base (resumen)
+📚 Rutas base 
 
 Los módulos se dividen por responsabilidad. Algunos ejemplos:
 
@@ -135,7 +189,7 @@ Reseñas: /api/resenas (RF011)
 
 Reportes: /api/reportes (diario/semanal/mensual/anual + descarga PDF, RF025–RF027)
 
-🧮 Cálculos clave
+## Cálculos clave
 
 Precio (RF013, RF016): src/utils/calc.js
 
@@ -147,27 +201,14 @@ mes = ceil(noches/30) * precio_por_mes
 
 Disponibilidad (RF014, RF017): comprobar solapes en reservaciones + habitacion_bloqueo.
 
-👥 Flujo de trabajo del equipo (5 personas)
+## División de carga de trabajo para cada integrante
 
-Ramas: main (estable), dev (integración), feat/* por módulo.
+A continuación, en el siguiente archivo pdf podrán encontrar de manera detallada lo que tienen que hacer, hay algunas secciones donde dice "opcional" pero de preferencia háganlo para mejorar el flujo de trabajo.
+- [DivisiónCargaTrabajo.pdf](https://github.com/user-attachments/files/23600819/DivisionCargaTrabajo.pdf)
 
-Antes de push: npm run format && npm run lint.
 
-PRs de feat/* → dev. Tras pruebas manuales → merge a main.
 
-Sugerencia de asignación:
-
-A: Autenticación/Sesiones/Usuarios (RF01–RF07)
-
-B: Propiedades/Habitaciones/Fotos/Servicios (RF08–RF010)
-
-C: Búsqueda/Disponibilidad/Calendario (RF012–RF014)
-
-D: Reservas/Pagos (mock)/Comprobante (RF015–RF024)
-
-E: Reseñas/Reportes (RF011, RF025–RF027)
-
-🧹 Estilo y calidad
+## Estilo y calidad
 
 ESLint + Prettier incluidos.
 
