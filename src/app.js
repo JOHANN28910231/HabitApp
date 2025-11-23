@@ -6,29 +6,25 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 
-// ⬅️ IMPORTA LA CONEXIÓN A LA BD
-const pool = require('./utils/db');
-
-const paymentsRoutes = require('./routes/payments.routes');
-const reportsRoutes = require('./routes/reports.routes');
-
 const app = express();
 
+// =====================================
+// 🗄 BD & ROUTES
+// =====================================
+const pool = require('./utils/db');
+const reportsRoutes = require('./routes/reports.routes');
+const paymentsRoutes = require('./routes/payments.routes');
+
+// =====================================
+// 🔐 Seguridad
+// =====================================
 app.use(helmet({
     contentSecurityPolicy: {
         useDefaults: true,
         directives: {
             "default-src": ["'self'"],
-            "script-src": [
-                "'self'",
-                "'unsafe-inline'",
-                "https://cdn.jsdelivr.net"
-            ],
-            "style-src": [
-                "'self'",
-                "'unsafe-inline'",
-                "https://cdn.jsdelivr.net"
-            ],
+            "script-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+            "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
             "img-src": ["'self'", "data:", "blob:"],
             "font-src": ["'self'", "https://cdn.jsdelivr.net"],
         }
@@ -46,19 +42,23 @@ app.use(session({
     cookie: { maxAge: 1000 * 60 * 60 * 8 }
 }));
 
+// =====================================
+// 🌐 Archivos estáticos (frontend)
+// =====================================
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
+// =====================================
+// 🛣 RUTAS CORRECTAS
+// =====================================
 app.use('/api/payments', paymentsRoutes);
-app.use('/api/reports', reportsRoutes);
-
-app.get('/api/health', (req, res) => res.json({ ok: true }));
+app.use('/api', reportsRoutes);
 
 // =====================================
-// 🚀 ENDPOINT PARA OBTENER VENTAS DE HOST
+// 🚀 ENDPOINT PARA OBTENER VENTAS DE HOST (solo mostrar todas las ventas)
 // =====================================
+// Endpoint para mostrar todas las ventas del host (tab Ventas)
 app.get('/api/host/:id/ventas', async (req, res) => {
     const hostId = req.params.id;
-
     try {
         const [rows] = await pool.query(`
             SELECT
@@ -78,12 +78,13 @@ app.get('/api/host/:id/ventas', async (req, res) => {
 
         res.json(rows);
     } catch (err) {
-        console.log(err);
+        console.error(err);
         res.status(500).json({ error: "Error obteniendo ventas" });
     }
 });
+
+
 // =====================================
-// FIN DEL ENDPOINT
-// =====================================
+app.get('/api/health', (req, res) => res.json({ ok: true }));
 
 module.exports = app;
