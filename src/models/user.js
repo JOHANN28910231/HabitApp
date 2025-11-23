@@ -2,7 +2,7 @@
 
 async function findById(id) {
   const [rows] = await pool.query(
-    `SELECT id_usuario, nombre_completo, email, telefono, genero, municipio, estado, nacionalidad, fecha_nacimiento, fecha_registro, estado_cuenta
+    `SELECT id_usuario, nombre_completo, email, telefono, genero, municipio, estado, nacionalidad, fecha_nacimiento, fecha_registro, estado_cuenta, foto_url
      FROM usuarios WHERE id_usuario = ?`,
     [id]
   );
@@ -29,7 +29,7 @@ async function create({ email, nombre_completo, password_hash, telefono, genero 
 async function updateProfile(id, data) {
   const fields = [];
   const params = [];
-  ['nombre_completo', 'telefono', 'genero', 'municipio', 'estado', 'nacionalidad', 'fecha_nacimiento'].forEach(k => {
+  ['nombre_completo', 'telefono', 'genero', 'municipio', 'estado', 'nacionalidad', 'fecha_nacimiento', 'foto_url'].forEach(k => {
     if (data[k] !== undefined) { fields.push(`${k} = ?`); params.push(data[k]); }
   });
   if (fields.length === 0) return findById(id);

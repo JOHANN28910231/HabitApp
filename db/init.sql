@@ -228,5 +228,4 @@ CREATE INDEX idx_propiedad_estado
 -- =====================================================================
 INSERT INTO roles (nombre) VALUES
   ('huesped'), ('anfitrion'), ('admin_global')
-
 ON DUPLICATE KEY UPDATE nombre = VALUES(nombre);

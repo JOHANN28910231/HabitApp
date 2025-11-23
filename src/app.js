@@ -1,9 +1,10 @@
+// Merged app.js — combina mejoras de HEAD y origin/main
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const helmet = require('helmet');
 const cors = require('cors');
-const bodyParser = require('body-parser');
+const morgan = require('morgan');
 const session = require('express-session');
 
 const app = express();
@@ -14,77 +15,117 @@ const app = express();
 const pool = require('./utils/db');
 const reportsRoutes = require('./routes/reports.routes');
 const paymentsRoutes = require('./routes/payments.routes');
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
 
 // =====================================
-// 🔐 Seguridad
+// 🔐 Seguridad / Logs / Parseo
 // =====================================
 app.use(helmet({
-    contentSecurityPolicy: {
-        useDefaults: true,
-        directives: {
-            "default-src": ["'self'"],
-            "script-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
-            "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
-            "img-src": ["'self'", "data:", "blob:"],
-            "font-src": ["'self'", "https://cdn.jsdelivr.net"],
-        }
+  contentSecurityPolicy: {
+    useDefaults: true,
+    directives: {
+      "default-src": ["'self'"],
+      "script-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      "img-src": ["'self'", "data:", "blob:"],
+      "font-src": ["'self'", "https://cdn.jsdelivr.net"],
     }
+  }
 }));
 
-app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+if (process.env.NODE_ENV !== 'test') {
+  app.use(morgan('dev'));
+}
+
+if (process.env.CORS_ORIGIN) {
+  app.use(cors({ origin: process.env.CORS_ORIGIN.split(',').map(s => s.trim()), credentials: true }));
+} else {
+  app.use(cors());
+}
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// =====================================
+// Sesión (express-mysql-session si está disponible)
+// =====================================
+let sessionStore;
+try {
+  const MySQLStoreFactory = require('express-mysql-session')(session);
+  const mysql = require('mysql2');
+  const { DB_HOST = '127.0.0.1', DB_PORT = 3306, DB_USER = 'root', DB_PASS = '', DB_NAME = 'habitapp' } = process.env;
+  const sessionPool = mysql.createPool({ host: DB_HOST, port: Number(DB_PORT), user: DB_USER, password: DB_PASS, database: DB_NAME, waitForConnections: true, connectionLimit: 5, charset: 'utf8mb4' });
+  sessionStore = new MySQLStoreFactory({}, sessionPool);
+} catch (err) {
+  // fallback to MemoryStore
+}
 
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { maxAge: 1000 * 60 * 60 * 8 }
+  name: process.env.SESSION_NAME || 'habitapp.sid',
+  secret: process.env.SESSION_SECRET || 'dev-secret-change',
+  resave: false,
+  saveUninitialized: false,
+  store: sessionStore,
+  cookie: { maxAge: Number(process.env.SESSION_MAX_AGE || 24 * 60 * 60 * 1000), sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', secure: process.env.NODE_ENV === 'production' }
 }));
 
 // =====================================
-// 🌐 Archivos estáticos (frontend)
+// Archivos estáticos y rutas públicas
 // =====================================
-app.use(express.static(path.join(__dirname, '..', 'public')));
+const publicDir = path.join(__dirname, '..', 'public');
+app.use('/public', express.static(publicDir));
+app.use(express.static(publicDir));
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+
+// Rutas UI simples
+app.get('/register', (req, res) => res.sendFile(path.join(publicDir, 'register.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(publicDir, 'login.html')));
 
 // =====================================
-// 🛣 RUTAS CORRECTAS
+// Rutas API
 // =====================================
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api', reportsRoutes);
 
-// =====================================
-// 🚀 ENDPOINT PARA OBTENER VENTAS DE HOST (solo mostrar todas las ventas)
-// =====================================
-// Endpoint para mostrar todas las ventas del host (tab Ventas)
+// Endpoint para mostrar todas las ventas del host (compatibilidad)
 app.get('/api/host/:id/ventas', async (req, res) => {
-    const hostId = req.params.id;
-    try {
-        const [rows] = await pool.query(`
-            SELECT
-                p.nombre_propiedad AS propiedad,
-                h.descripcion AS cuarto,
-                CONCAT(c.nombre_completo) AS cliente,
-                r.fecha_inicio AS fecha_entrada,
-                r.fecha_salida AS fecha_salida,
-                r.monto_total AS total
-            FROM reservaciones r
-                     INNER JOIN habitacion h ON h.id_habitacion = r.id_habitacion
-                     INNER JOIN propiedades p ON p.id_propiedad = h.id_propiedad
-                     INNER JOIN usuarios c ON c.id_usuario = r.id_huesped
-            WHERE p.id_anfitrion = ?
-            ORDER BY r.fecha_reserva DESC
-        `, [hostId]);
-
-        res.json(rows);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Error obteniendo ventas" });
-    }
+  const hostId = req.params.id;
+  try {
+    const [rows] = await pool.query(`
+      SELECT p.nombre_propiedad AS propiedad, h.descripcion AS cuarto, CONCAT(u.nombre_completo) AS cliente, r.fecha_inicio AS fecha_entrada, r.fecha_salida AS fecha_salida, r.monto_total AS total
+      FROM reservaciones r
+        INNER JOIN habitacion h ON h.id_habitacion = r.id_habitacion
+        INNER JOIN propiedades p ON p.id_propiedad = h.id_propiedad
+        INNER JOIN usuarios u ON u.id_usuario = r.id_huesped
+      WHERE p.id_anfitrion = ?
+      ORDER BY r.fecha_reserva DESC
+    `, [hostId]);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error obteniendo ventas' });
+  }
 });
 
-
-// =====================================
+// Health
 app.get('/api/health', (req, res) => res.json({ ok: true }));
+
+// Fallback SPA / 404
+const indexPath = path.join(publicDir, 'login.html');
+app.get(/.*/, (req, res, next) => {
+  if (req.method !== 'GET') return next();
+  if (req.accepts('html')) return res.sendFile(indexPath, err => { if (err) return next(err); });
+  if (req.accepts('json')) return res.status(404).json({ error: 'Recurso no encontrado' });
+  res.status(404).type('txt').send('Recurso no encontrado');
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(err.status || 500).json({ error: err.message || 'Error interno' });
+});
 
 module.exports = app;

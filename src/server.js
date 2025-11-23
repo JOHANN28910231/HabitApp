@@ -1,22 +1,28 @@
-// File: `src/server.js`
+// Merged server.js — provide graceful shutdown and export server
+require('dotenv').config();
 const app = require('./app');
-const PORT = process.env.PORT || 3000;
+const http = require('http');
 
-const server = app.listen(PORT, () => {
-    console.log(`Servidor escuchando en puerto ${PORT}`);
+const PORT = Number(process.env.PORT || 3000);
+const server = http.createServer(app);
+
+server.listen(PORT, () => {
+  console.log('Server running on port', PORT);
 });
 
-// Apagado ordenado
-function shutdown(signal) {
-    console.log(`Recibido ${signal}, cerrando servidor...`);
-    server.close(err => {
-        if (err) {
-            console.error('Error al cerrar servidor:', err);
-            process.exit(1);
-        }
-        process.exit(0);
-    });
-}
+const shutdown = (signal) => {
+  console.log(`Received ${signal}. Shutting down gracefully...`);
+  server.close(err => {
+    if (err) {
+      console.error('Error during server close:', err);
+      process.exit(1);
+    }
+    console.log('Server closed.');
+    process.exit(0);
+  });
+};
 
 process.on('SIGINT', () => shutdown('SIGINT'));
 process.on('SIGTERM', () => shutdown('SIGTERM'));
+
+module.exports = server;

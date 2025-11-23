@@ -17,6 +17,7 @@ async function requireAuth(req, res, next) {
       estado: user.estado,
       nacionalidad: user.nacionalidad,
       fecha_nacimiento: user.fecha_nacimiento,
+      foto_url: user.foto_url,
       fecha_registro: user.fecha_registro,
       estado_cuenta: user.estado_cuenta,
       roles: user.roles
