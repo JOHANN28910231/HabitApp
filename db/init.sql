@@ -26,6 +26,7 @@ CREATE TABLE usuarios (
   fecha_nacimiento DATE,
   fecha_registro   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   estado_cuenta    ENUM('activo','bloqueado') NOT NULL DEFAULT 'activo',
+  foto_url         VARCHAR(255) NULL,
   INDEX idx_usuarios_municipio_estado (municipio, estado)
 ) ENGINE=InnoDB;
 

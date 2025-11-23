@@ -117,7 +117,7 @@ function drawTable(doc, headers, rows, x, y, totalWidth) {
 }
 
 // -----------------------------------------------------------
-// ENDPOINTS JSON — AHORA INCLUYEN FECHA DE PAGO
+// ENDPOINTS JSON — FILTRADO POR FECHA DE PAGO
 // -----------------------------------------------------------
 exports.ventasPorRango = async (req, res) => {
     try {
@@ -126,6 +126,7 @@ exports.ventasPorRango = async (req, res) => {
 
         const [rows] = await db.execute(`
             SELECT p.nombre_propiedad AS propiedad,
+                   p.descripcion AS propiedad_descripcion,
                    h.descripcion AS cuarto,
                    u.nombre_completo AS cliente,
                    r.fecha_inicio AS fecha_entrada,
@@ -133,13 +134,14 @@ exports.ventasPorRango = async (req, res) => {
                    pag.fecha_pago AS fecha_pago,
                    pag.monto AS total
             FROM reservaciones r
-                     JOIN habitacion h ON h.id_habitacion = r.id_habitacion
-                     JOIN propiedades p ON p.id_propiedad = h.id_propiedad
-                     JOIN usuarios u ON u.id_usuario = r.id_huesped
-                     JOIN pagos pag ON pag.id_reservacion = r.id_reservacion
-                AND pag.estado_pago='aprobado'
-            WHERE p.id_anfitrion = ? AND DATE(r.fecha_reserva) BETWEEN ? AND ?
-            ORDER BY r.fecha_reserva ASC
+                 JOIN habitacion h ON h.id_habitacion = r.id_habitacion
+                 JOIN propiedades p ON p.id_propiedad = h.id_propiedad
+                 JOIN usuarios u ON u.id_usuario = r.id_huesped
+                 JOIN pagos pag ON pag.id_reservacion = r.id_reservacion
+            WHERE p.id_anfitrion = ? 
+              AND pag.estado_pago='aprobado'
+              AND DATE(pag.fecha_pago) BETWEEN ? AND ?
+            ORDER BY pag.fecha_pago ASC
         `, [hostId, from, to]);
 
         res.json(rows);
@@ -154,16 +156,17 @@ exports.ventasPorPeriodo = async (req, res) => {
         const hostId = Number(req.params.hostId);
         const { year, month } = req.query;
 
-        let where = "YEAR(r.fecha_reserva) = ?";
+        let where = "YEAR(pag.fecha_pago) = ?";
         const params = [year];
 
         if (month) {
-            where += " AND MONTH(r.fecha_reserva) = ?";
+            where += " AND MONTH(pag.fecha_pago) = ?";
             params.push(month);
         }
 
         const [rows] = await db.execute(`
             SELECT p.nombre_propiedad AS propiedad,
+                   p.descripcion AS propiedad_descripcion,
                    h.descripcion AS cuarto,
                    u.nombre_completo AS cliente,
                    r.fecha_inicio AS fecha_entrada,
@@ -171,13 +174,14 @@ exports.ventasPorPeriodo = async (req, res) => {
                    pag.fecha_pago AS fecha_pago,
                    pag.monto AS total
             FROM reservaciones r
-                     JOIN habitacion h ON h.id_habitacion = r.id_habitacion
-                     JOIN propiedades p ON p.id_propiedad = h.id_propiedad
-                     JOIN usuarios u ON u.id_usuario = r.id_huesped
-                     JOIN pagos pag ON pag.id_reservacion = r.id_reservacion
-                AND pag.estado_pago='aprobado'
-            WHERE p.id_anfitrion = ? AND ${where}
-            ORDER BY r.fecha_reserva ASC
+                 JOIN habitacion h ON h.id_habitacion = r.id_habitacion
+                 JOIN propiedades p ON p.id_propiedad = h.id_propiedad
+                 JOIN usuarios u ON u.id_usuario = r.id_huesped
+                 JOIN pagos pag ON pag.id_reservacion = r.id_reservacion
+            WHERE p.id_anfitrion = ? 
+              AND pag.estado_pago='aprobado'
+              AND ${where}
+            ORDER BY pag.fecha_pago ASC
         `, [hostId, ...params]);
 
         res.json(rows);
@@ -188,7 +192,7 @@ exports.ventasPorPeriodo = async (req, res) => {
 };
 
 // -----------------------------------------------------------
-// PDF — RANGO (NO CAMBIADO)
+// PDF — RANGO
 // -----------------------------------------------------------
 exports.ventasRangoPdf = async (req, res) => {
     const hostId = Number(req.params.hostId);
@@ -196,6 +200,7 @@ exports.ventasRangoPdf = async (req, res) => {
 
     const [rows] = await db.execute(`
         SELECT p.nombre_propiedad AS propiedad,
+               p.descripcion AS propiedad_descripcion,
                h.descripcion AS cuarto,
                u.nombre_completo AS cliente,
                r.fecha_inicio AS fecha_entrada,
@@ -203,13 +208,14 @@ exports.ventasRangoPdf = async (req, res) => {
                pag.fecha_pago AS fecha_pago,
                pag.monto AS total
         FROM reservaciones r
-                 JOIN habitacion h ON h.id_habitacion = r.id_habitacion
-                 JOIN propiedades p ON p.id_propiedad = h.id_propiedad
-                 JOIN usuarios u ON u.id_usuario = r.id_huesped
-                 JOIN pagos pag ON pag.id_reservacion = r.id_reservacion
-            AND pag.estado_pago='aprobado'
-        WHERE p.id_anfitrion = ? AND DATE(r.fecha_reserva) BETWEEN ? AND ?
-        ORDER BY r.fecha_reserva ASC
+             JOIN habitacion h ON h.id_habitacion = r.id_habitacion
+             JOIN propiedades p ON p.id_propiedad = h.id_propiedad
+             JOIN usuarios u ON u.id_usuario = r.id_huesped
+             JOIN pagos pag ON pag.id_reservacion = r.id_reservacion
+        WHERE p.id_anfitrion = ? 
+          AND pag.estado_pago='aprobado'
+          AND DATE(pag.fecha_pago) BETWEEN ? AND ?
+        ORDER BY pag.fecha_pago ASC
     `, [hostId, from, to]);
 
     const doc = new PDFDocument({ margin: 36, size: "A4" });
@@ -255,22 +261,23 @@ exports.ventasRangoPdf = async (req, res) => {
 };
 
 // -----------------------------------------------------------
-// PDF — PERIODO (NO CAMBIADO)
+// PDF — PERIODO
 // -----------------------------------------------------------
 exports.ventasPeriodoPdf = async (req, res) => {
     const hostId = Number(req.params.hostId);
     const { year, month } = req.query;
 
-    let where = "YEAR(r.fecha_reserva) = ?";
+    let where = "YEAR(pag.fecha_pago) = ?";
     const params = [year];
 
     if (month) {
-        where += " AND MONTH(r.fecha_reserva) = ?";
+        where += " AND MONTH(pag.fecha_pago) = ?";
         params.push(month);
     }
 
     const [rows] = await db.execute(`
         SELECT p.nombre_propiedad AS propiedad,
+               p.descripcion AS propiedad_descripcion,
                h.descripcion AS cuarto,
                u.nombre_completo AS cliente,
                r.fecha_inicio AS fecha_entrada,
@@ -278,13 +285,14 @@ exports.ventasPeriodoPdf = async (req, res) => {
                pag.fecha_pago AS fecha_pago,
                pag.monto AS total
         FROM reservaciones r
-                 JOIN habitacion h ON h.id_habitacion = r.id_habitacion
-                 JOIN propiedades p ON p.id_propiedad = h.id_propiedad
-                 JOIN usuarios u ON u.id_usuario = r.id_huesped
-                 JOIN pagos pag ON pag.id_reservacion = r.id_reservacion
-            AND pag.estado_pago='aprobado'
-        WHERE p.id_anfitrion = ? AND ${where}
-        ORDER BY r.fecha_reserva ASC
+             JOIN habitacion h ON h.id_habitacion = r.id_habitacion
+             JOIN propiedades p ON p.id_propiedad = h.id_propiedad
+             JOIN usuarios u ON u.id_usuario = r.id_huesped
+             JOIN pagos pag ON pag.id_reservacion = r.id_reservacion
+        WHERE p.id_anfitrion = ? 
+          AND pag.estado_pago='aprobado'
+          AND ${where}
+        ORDER BY pag.fecha_pago ASC
     `, [hostId, ...params]);
 
     const doc = new PDFDocument({ margin: 36, size: "A4" });
