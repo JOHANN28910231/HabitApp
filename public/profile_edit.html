@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Editar perfil — TiziHause (prueba)</title>
+    <title>Editar perfil — TiziHause</title>
     <link rel="stylesheet" href="/css/styles.css">
 
     <style>
@@ -137,14 +137,15 @@
             </div>
             <div class="profile-right">
                 <a href="/" class="btn-accent" style="text-decoration:none;">Inicio</a>
+                <button id="logoutBtn" class="btn-accent" style="margin-left:12px;text-decoration:none;">Cerrar
+                    sesión</button>
             </div>
         </header>
 
         <form id="profileForm" class="profile-form">
             <div class="form-grid">
-                <div class="full">
-                    <label for="userId">ID usuario</label>
-                    <input id="userId" name="id" type="number" value="1" class="form-control" readonly>
+                <div class="full" style="display:none;">
+                    <input id="userId" name="id" type="hidden" value="" readonly>
                 </div>
 
                 <div>
@@ -203,9 +204,10 @@
             </div>
         </form>
 
-        <pre id="result" class="mt-3 small"></pre>
+        <!-- result oculto: evitamos volcar JSON crudo en la UI (se usa alert/console para feedback) -->
     </main>
 
+    <script src="/js/app-modal.js" defer></script>
     <script src="/js/profile_edit.js" defer></script>
 </body>
 
