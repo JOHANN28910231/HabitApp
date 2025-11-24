@@ -1,4 +1,5 @@
 require('dotenv').config();
+// Merged app.js — combina mejoras de HEAD y origin/main
 const express = require('express');
 const path = require('path');
 const helmet = require('helmet');
