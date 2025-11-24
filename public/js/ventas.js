@@ -1,18 +1,18 @@
 // ventas.js — carga las ventas del host autenticado (modo prueba)
-window.hostId = 2; // HOST DE PRUEBA
+const testHostId = 2;
+window.hostId = window.hostId || testHostId;
 
 document.addEventListener("DOMContentLoaded", async () => {
     const ventasDiv = document.getElementById("ventasTable");
     if (!ventasDiv) return;
 
-    const hostId = window.hostId; // usamos hostId de prueba
+    const hostId = window.hostId;
     if (!hostId) {
         ventasDiv.innerHTML = "<p class='text-danger'>No se encontró host_id. ¿Iniciaste sesión?</p>";
         return;
     }
 
     try {
-        // Endpoint Node.js: /api/host/:id/ventas
         const res = await fetch(`/api/host/${hostId}/ventas`);
 
         if (!res.ok) {

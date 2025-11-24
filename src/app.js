@@ -90,6 +90,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api', reportsRoutes);
 
+// =====================================
 // Endpoint para mostrar todas las ventas del host (compatibilidad)
 app.get('/api/host/:id/ventas', async (req, res) => {
   const hostId = req.params.id;
@@ -107,6 +108,43 @@ app.get('/api/host/:id/ventas', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error obteniendo ventas' });
+  }
+});
+
+// =====================================
+// Nuevo endpoint: Reservaciones próximas
+// =====================================
+app.get('/api/host/:hostId/reservaciones/proximas', async (req, res) => {
+  const hostId = req.params.hostId;
+  const today = new Date().toISOString().slice(0, 10); // hoy
+  const oneYearLater = new Date();
+  oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+  const to = oneYearLater.toISOString().slice(0, 10);
+
+  const query = `
+    SELECT 
+      r.id_reservacion,
+      p.nombre_propiedad AS propiedad,
+      p.descripcion AS propiedad_descripcion,
+      h.descripcion AS cuarto,
+      u.nombre_completo AS cliente,
+      r.fecha_inicio AS fecha_entrada,
+      r.fecha_salida AS fecha_salida,
+      r.monto_total AS total
+    FROM reservaciones r
+    JOIN habitacion h ON h.id_habitacion = r.id_habitacion
+    JOIN propiedades p ON p.id_propiedad = h.id_propiedad
+    JOIN usuarios u ON u.id_usuario = r.id_huesped
+    WHERE p.id_anfitrion = ? AND r.fecha_inicio >= ? AND r.fecha_inicio <= ?
+    ORDER BY r.fecha_inicio ASC
+  `;
+
+  try {
+    const [rows] = await pool.query(query, [hostId, today, to]);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener reservaciones próximas' });
   }
 });
 
