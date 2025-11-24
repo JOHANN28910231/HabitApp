@@ -8,5 +8,9 @@ if (yearEl) {
     yearEl.textContent = new Date().getFullYear();
 }
 
-// Nuevo: obtener el host_id
-window.hostId = sessionStorage.getItem('host_id');
+// Obtener host_id correctamente
+window.hostId = Number(sessionStorage.getItem('host_id'));
+
+if (!window.hostId) {
+    console.warn("⚠ No hay host_id en sessionStorage. El usuario no es anfitrión o no se guardó bien.");
+}
