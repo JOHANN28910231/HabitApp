@@ -23,11 +23,12 @@
     "express-rate-limit": "^8.2.1",
     "express-session": "^1.18.2",
     "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.1",
+    "multer": "^2.0.2",
     "mysql2": "^3.15.3",
     "pdfkit": "^0.17.2",
-    "pdfkit-table": "^0.1.99",
-    "morgan": "^1.10.1",
-    "multer": "^2.0.2"
+    "pdfkit-table": "^0.1.99"
   },
   "devDependencies": {
     "eslint": "^9.39.1",
