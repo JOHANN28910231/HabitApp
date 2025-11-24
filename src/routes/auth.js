@@ -13,4 +13,10 @@ router.get('/me', requireAuth, c.me);
 router.post('/block/:id', requireAuth, requireRole('admin_global'), c.blockUser);
 router.post('/unblock/:id', requireAuth, requireRole('admin_global'), c.unblockUser);
 
+// Nueva ruta: solicitar enlace de recuperación
+router.post('/forgot-password', authController.forgotPassword);
+
+// Nueva ruta: restablecer contraseña con token
+router.post('/reset-password', authController.resetPassword);
+
 module.exports = router;
