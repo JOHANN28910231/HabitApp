@@ -14,9 +14,9 @@ router.post('/block/:id', requireAuth, requireRole('admin_global'), c.blockUser)
 router.post('/unblock/:id', requireAuth, requireRole('admin_global'), c.unblockUser);
 
 // Nueva ruta: solicitar enlace de recuperación
-router.post('/forgot-password', authController.forgotPassword);
+router.post('/forgot-password', c.forgotPassword);
 
 // Nueva ruta: restablecer contraseña con token
-router.post('/reset-password', authController.resetPassword);
+router.post('/reset-password', c.resetPassword);
 
 module.exports = router;
