@@ -1,13 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('profileForm');
-    const result = document.getElementById('result');
+    const result = document.getElementById('result'); // puede ser null; evitar escribir en UI directamente
 
     // Intentar obtener usuario actual para prellenar el formulario
     (async function prefill() {
         try {
             const r = await fetch('/api/auth/me', { credentials: 'same-origin' });
             if (!r.ok) {
-                result.textContent = 'No autenticado. Inicia sesión primero en /';
+                // No mostrar error crudo en la UI; redirigir al inicio para login
+                console.warn('No autenticado. Redirigiendo a /');
+                window.location.href = '/';
                 return;
             }
             const d = await r.json();
@@ -44,9 +46,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     })();
 
+    // Logout button handling (uses showAppModal if available)
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async (ev) => {
+            ev.preventDefault();
+            let confirmed = false;
+            if (typeof window.showAppModal === 'function') {
+                try {
+                    confirmed = await window.showAppModal({
+                        title: 'Cerrar sesión',
+                        message: '¿Estás seguro de que quieres cerrar la sesión?',
+                        okText: 'Aceptar',
+                        cancelText: 'Cancelar'
+                    });
+                } catch (e) {
+                    console.error('showAppModal error', e);
+                    confirmed = false;
+                }
+            } else {
+                confirmed = confirm('¿Estás seguro de que quieres cerrar la sesión?');
+            }
+            if (!confirmed) return;
+            try {
+                const res = await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    alert(err.error || 'No se pudo cerrar sesión');
+                    return;
+                }
+                window.location.href = '/';
+            } catch (err) {
+                console.error('logout error', err);
+                alert('Error al cerrar sesión');
+            }
+        });
+    }
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        result.textContent = 'Enviando...';
+        // Mostrar feedback en consola; usamos alert al terminar
+        if (result) result.textContent = '';
+        console.log('Enviando datos de perfil...');
         // Usar endpoint /api/users/me para que el servidor use req.user.id
         const nombre = document.getElementById('nombre').value;
         const email = document.getElementById('email').value;
@@ -80,10 +121,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await res.json().catch(() => ({}));
             if (!res.ok) {
-                result.textContent = `Error ${res.status}: ${JSON.stringify(data)}`;
+                console.error('Error actualizando perfil', res.status, data);
+                alert('Error al actualizar perfil: ' + (data && data.error ? data.error : res.status));
                 return;
             }
-            result.textContent = JSON.stringify(data, null, 2);
+            console.log('Respuesta actualización:', data);
             // Si el servidor devolvió la URL de la foto, actualizar avatar del header y preview
             try {
                 const u = data && (data.user || data);
@@ -114,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Perfil actualizado');
         } catch (err) {
             console.error(err);
-            result.textContent = 'Error de red: ' + err.message;
+            alert('Error de red al actualizar perfil: ' + err.message);
         }
     });
 });

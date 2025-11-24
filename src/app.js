@@ -47,9 +47,8 @@ if (process.env.CORS_ORIGIN) {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// =====================================
+
 // Sesión (express-mysql-session si está disponible)
-// =====================================
 let sessionStore;
 try {
   const MySQLStoreFactory = require('express-mysql-session')(session);
@@ -89,6 +88,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api', reportsRoutes);
+app.use('/api/auth', authRoutes);
+
 
 // =====================================
 // Endpoint para mostrar todas las ventas del host (compatibilidad)
@@ -180,3 +181,4 @@ app.use((err, req, res, next) => {
 });
 
 module.exports = app;
+
