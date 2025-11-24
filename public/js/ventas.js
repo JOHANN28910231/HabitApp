@@ -1,6 +1,6 @@
 // ventas.js — carga las ventas del host autenticado (modo prueba)
 const testHostId = 2;
-window.hostId = window.hostId || testHostId;
+window.hostId = testHostId;
 
 // Helper: formatea valores monetarios (misma lógica que en reports.js)
 function formatCurrency(value) {
