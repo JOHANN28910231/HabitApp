@@ -49,7 +49,6 @@ document.addEventListener("DOMContentLoaded", () => {
             container.innerHTML = "<p class='text-muted'>No se encontraron resultados.</p>";
             return;
         }
-
         let html = `
             <table class="table table-striped">
                 <thead>
@@ -59,19 +58,30 @@ document.addEventListener("DOMContentLoaded", () => {
                         <th>Cliente</th>
                         <th>Fecha entrada</th>
                         <th>Fecha salida</th>
+                        <th>Fecha de pago</th>
+                        <th>Estado</th>
                         <th>Total pagado</th>
                     </tr>
                 </thead>
                 <tbody>
         `;
         rows.forEach(v => {
+            // formatear fecha de pago a solo fecha
+            const pagoFecha = v.fecha_pago ? new Date(v.fecha_pago).toLocaleDateString('es-MX') : '-';
+            const estado = (v.estado_pago || '').toLowerCase();
+            const estadoBadge = estado === 'aprobado'
+                ? `<span class="badge bg-success">Aprobado</span>`
+                : `<span class="badge bg-danger">${(v.estado_pago || 'rechazado')}</span>`;
+
             html += `
                 <tr>
                     <td>${v.propiedad || "-"}</td>
                     <td>${v.cuarto || "-"}</td>
                     <td>${v.cliente || "-"}</td>
-                    <td>${v.fecha_entrada || "-"}</td>
-                    <td>${v.fecha_salida || "-"}</td>
+                    <td>${v.fecha_entrada ? new Date(v.fecha_entrada).toLocaleDateString('es-MX') : '-'}</td>
+                    <td>${v.fecha_salida ? new Date(v.fecha_salida).toLocaleDateString('es-MX') : '-'}</td>
+                    <td>${pagoFecha}</td>
+                    <td>${estadoBadge}</td>
                     <td>${formatCurrency(v.total)}</td>
                 </tr>
             `;

@@ -95,12 +95,25 @@ app.use('/api', reportsRoutes);
 app.get('/api/host/:id/ventas', async (req, res) => {
   const hostId = req.params.id;
   try {
+    // Seleccionamos la reservación y el último pago asociado (si existe)
     const [rows] = await pool.query(`
-      SELECT p.nombre_propiedad AS propiedad, h.descripcion AS cuarto, CONCAT(u.nombre_completo) AS cliente, r.fecha_inicio AS fecha_entrada, r.fecha_salida AS fecha_salida, r.monto_total AS total
+      SELECT p.nombre_propiedad AS propiedad,
+             p.descripcion AS propiedad_descripcion,
+             h.descripcion AS cuarto,
+             CONCAT(u.nombre_completo) AS cliente,
+             r.fecha_inicio AS fecha_entrada,
+             r.fecha_salida AS fecha_salida,
+             r.monto_total AS total,
+             pag.fecha_pago AS fecha_pago,
+             pag.estado_pago AS estado_pago,
+             pag.monto AS pago_monto
       FROM reservaciones r
         INNER JOIN habitacion h ON h.id_habitacion = r.id_habitacion
         INNER JOIN propiedades p ON p.id_propiedad = h.id_propiedad
         INNER JOIN usuarios u ON u.id_usuario = r.id_huesped
+        LEFT JOIN pagos pag ON pag.id_pago = (
+            SELECT id_pago FROM pagos WHERE id_reservacion = r.id_reservacion ORDER BY fecha_pago DESC LIMIT 1
+        )
       WHERE p.id_anfitrion = ?
       ORDER BY r.fecha_reserva DESC
     `, [hostId]);
