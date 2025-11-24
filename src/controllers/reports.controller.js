@@ -132,15 +132,15 @@ exports.ventasPorRango = async (req, res) => {
                    r.fecha_inicio AS fecha_entrada,
                    r.fecha_salida AS fecha_salida,
                    pag.fecha_pago AS fecha_pago,
+                   pag.estado_pago AS estado_pago,
                    pag.monto AS total
             FROM reservaciones r
                  JOIN habitacion h ON h.id_habitacion = r.id_habitacion
                  JOIN propiedades p ON p.id_propiedad = h.id_propiedad
                  JOIN usuarios u ON u.id_usuario = r.id_huesped
                  JOIN pagos pag ON pag.id_reservacion = r.id_reservacion
-            WHERE p.id_anfitrion = ? 
-              AND pag.estado_pago='aprobado'
-              AND DATE(pag.fecha_pago) BETWEEN ? AND ?
+                        WHERE p.id_anfitrion = ?
+                            AND DATE(pag.fecha_pago) BETWEEN ? AND ?
             ORDER BY pag.fecha_pago ASC
         `, [hostId, from, to]);
 
@@ -172,15 +172,15 @@ exports.ventasPorPeriodo = async (req, res) => {
                    r.fecha_inicio AS fecha_entrada,
                    r.fecha_salida AS fecha_salida,
                    pag.fecha_pago AS fecha_pago,
+                   pag.estado_pago AS estado_pago,
                    pag.monto AS total
             FROM reservaciones r
                  JOIN habitacion h ON h.id_habitacion = r.id_habitacion
                  JOIN propiedades p ON p.id_propiedad = h.id_propiedad
                  JOIN usuarios u ON u.id_usuario = r.id_huesped
                  JOIN pagos pag ON pag.id_reservacion = r.id_reservacion
-            WHERE p.id_anfitrion = ? 
-              AND pag.estado_pago='aprobado'
-              AND ${where}
+                        WHERE p.id_anfitrion = ?
+                            AND ${where}
             ORDER BY pag.fecha_pago ASC
         `, [hostId, ...params]);
 
@@ -206,15 +206,15 @@ exports.ventasRangoPdf = async (req, res) => {
                r.fecha_inicio AS fecha_entrada,
                r.fecha_salida AS fecha_salida,
                pag.fecha_pago AS fecha_pago,
+               pag.estado_pago AS estado_pago,
                pag.monto AS total
         FROM reservaciones r
              JOIN habitacion h ON h.id_habitacion = r.id_habitacion
              JOIN propiedades p ON p.id_propiedad = h.id_propiedad
              JOIN usuarios u ON u.id_usuario = r.id_huesped
              JOIN pagos pag ON pag.id_reservacion = r.id_reservacion
-        WHERE p.id_anfitrion = ? 
-          AND pag.estado_pago='aprobado'
-          AND DATE(pag.fecha_pago) BETWEEN ? AND ?
+                WHERE p.id_anfitrion = ?
+                    AND DATE(pag.fecha_pago) BETWEEN ? AND ?
         ORDER BY pag.fecha_pago ASC
     `, [hostId, from, to]);
 
@@ -283,15 +283,15 @@ exports.ventasPeriodoPdf = async (req, res) => {
                r.fecha_inicio AS fecha_entrada,
                r.fecha_salida AS fecha_salida,
                pag.fecha_pago AS fecha_pago,
+               pag.estado_pago AS estado_pago,
                pag.monto AS total
         FROM reservaciones r
              JOIN habitacion h ON h.id_habitacion = r.id_habitacion
              JOIN propiedades p ON p.id_propiedad = h.id_propiedad
              JOIN usuarios u ON u.id_usuario = r.id_huesped
              JOIN pagos pag ON pag.id_reservacion = r.id_reservacion
-        WHERE p.id_anfitrion = ? 
-          AND pag.estado_pago='aprobado'
-          AND ${where}
+                WHERE p.id_anfitrion = ?
+                    AND ${where}
         ORDER BY pag.fecha_pago ASC
     `, [hostId, ...params]);
 
