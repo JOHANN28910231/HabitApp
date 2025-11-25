@@ -2,7 +2,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
   // Forzar hostId de prueba solo si no hay uno en el DOM
   const testHostId = 2;
-  const hostId = document.getElementById('hostId')?.value || testHostId;
+  window.hostId = testHostId;
 
   const reservasContainer = document.getElementById('reservasTable');
   const propFilter = document.getElementById('propFilter');
