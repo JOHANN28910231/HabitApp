@@ -17,9 +17,12 @@ const reportsRoutes = require('./routes/reports.routes');
 const paymentsRoutes = require('./routes/payments.routes');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
+const availabilityRoutes = require('./routes/availability.routes');
+const reservationsRoutes = require('./routes/reservations.routes');
 const adminRoutes = require('./routes/admin.routes');
 const propertiesRoutes = require('./routes/properties.routes');
 const roomsRoutes = require('./routes/rooms.routes');
+
 
 // =====================================
 // 🔐 Seguridad / Logs / Parseo
@@ -92,6 +95,9 @@ app.use('/api/users', userRoutes);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api', reportsRoutes);
 app.use('/api/auth', authRoutes);
+// disponibilidad / reservas
+app.use('/api/availability', availabilityRoutes);
+app.use('/api/reservations', reservationsRoutes);
 app.use('/api', adminRoutes);
 app.use('/api/properties', propertiesRoutes);
 app.use('/api/rooms', roomsRoutes);
@@ -99,6 +105,7 @@ app.use('/api/rooms', roomsRoutes);
 
 // =====================================
 // Endpoint para mostrar todas las ventas del host (compatibilidad)
+// =====================================
 app.get('/api/host/:id/ventas', async (req, res) => {
   const hostId = req.params.id;
   try {
