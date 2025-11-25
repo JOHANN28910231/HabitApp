@@ -47,60 +47,24 @@ router.get('/services', async (req, res) => {
 });
 
 // Crear habitación (solo anfitrión)
-router.post(
-    '/',
-    requireAuth,
-    requireRole('anfitrion'),
-    roomsController.createRoom
-);
+router.post('/', requireAuth, roomsController.createRoom);
 
 // Obtener habitaciones por propiedad (solo anfitrión)
-router.get(
-    '/by-property/:id_propiedad',
-    requireAuth,
-    requireRole('anfitrion'),
-    roomsController.listRoomsByProperty
-);
+router.get('/by-property/:id_propiedad', requireAuth, roomsController.listRoomsByProperty);
 
 // Registrar fotos de la habitación
-router.post(
-    '/:id/photos',
-    requireAuth,
-    requireRole('anfitrion'),
-    upload.array('photos', 12),
-    roomsController.addPhoto
-);
+router.post('/:id/photos', requireAuth, upload.array('photos', 12), roomsController.addPhoto);
 
 // Guardar servicios incluidos
-router.post(
-    '/:id/services',
-    requireAuth,
-    requireRole('anfitrion'),
-    roomsController.setServices
-);
+router.post('/:id/services', requireAuth, roomsController.setServices);
 
 // Crear bloqueos (habitacion_bloqueo)
-router.post(
-    '/:id/blocks',
-    requireAuth,
-    requireRole('anfitrion'),
-    roomsController.addBlock
-);
+router.post('/:id/blocks', requireAuth, roomsController.addBlock);
 // Obtener detalles completos de una habitación (solo anfitrión)
-router.get(
-    '/detalles/:id',
-    requireAuth,
-    requireRole('anfitrion'),
-    roomsController.getRoomDetails
-);
+router.get('/detalles/:id', requireAuth, roomsController.getRoomDetails);
 
 // Obtener habitaciones de una propiedad con todos sus detalles (solo anfitrión)
-router.get(
-    '/propiedad/:id_propiedad/detalles',
-    requireAuth,
-    requireRole('anfitrion'),
-    roomsController.listRoomsByPropertyWithDetails
-);
+router.get('/propiedad/:id_propiedad/detalles', requireAuth, roomsController.listRoomsByPropertyWithDetails);
 
 // Obtener todas las habitaciones disponibles (público)
 router.get('/', roomsController.getAllRooms);
@@ -109,19 +73,9 @@ router.get('/', roomsController.getAllRooms);
 router.get('/:id', roomsController.getRoomById);
 
 // Actualizar habitación (solo anfitrión)
-router.put(
-    '/:id',
-    requireAuth,
-    requireRole('anfitrion'),
-    roomsController.updateRoom
-);
+router.put('/:id', requireAuth, roomsController.updateRoom);
 
 // Eliminar habitación (solo anfitrión)
-router.delete(
-    '/:id',
-    requireAuth,
-    requireRole('anfitrion'),
-    roomsController.deleteRoom
-);
+router.delete('/:id', requireAuth, roomsController.deleteRoom);
 
 module.exports = router;

@@ -57,7 +57,7 @@ const upload = multer({
 // GET — Obtener propiedades por host (requiere autenticación)
 // ✔ GET — Obtener propiedades por host (requiere autenticación)
 // ==========================================================
-router.get('/host/:hostId', requireAuth, requireRole('anfitrion'), async (req, res) => {
+router.get('/host/:hostId', requireAuth, async (req, res) => {
     const { hostId } = req.params;
 
     try {
@@ -76,7 +76,7 @@ router.get('/host/:hostId', requireAuth, requireRole('anfitrion'), async (req, r
 // GET — Habitaciones de una propiedad (requiere autenticación)
 // ✔ GET — Habitaciones de una propiedad (requiere autenticación)
 // ==========================================================
-router.get('/:propertyId/habitaciones', requireAuth, requireRole('anfitrion'), async (req, res) => {
+router.get('/:propertyId/habitaciones', requireAuth, async (req, res) => {
     const { propertyId } = req.params;
 
     try {
@@ -95,7 +95,7 @@ router.get('/:propertyId/habitaciones', requireAuth, requireRole('anfitrion'), a
 // POST — Crear propiedad (solo anfitrión)
 // ✨ POST — Crear propiedad (solo anfitrión)
 // ==========================================================
-router.post('/', requireAuth, requireRole('anfitrion'), upload.single('foto_propiedad'), async (req, res) => {
+router.post('/', requireAuth, upload.single('foto_propiedad'), async (req, res) => {
     try {
         const {
             id_anfitrion,
@@ -187,7 +187,7 @@ router.post('/', requireAuth, requireRole('anfitrion'), upload.single('foto_prop
 // PUT — Editar propiedad (solo anfitrión)
 // ✨ PUT — Editar propiedad (solo anfitrión)
 // ==========================================================
-router.put('/:id', requireAuth, requireRole('anfitrion'), upload.single('foto_propiedad'), async (req, res) => {
+router.put('/:id', requireAuth, upload.single('foto_propiedad'), async (req, res) => {
     try {
         const id = req.params.id;
 
@@ -266,7 +266,7 @@ router.put('/:id', requireAuth, requireRole('anfitrion'), upload.single('foto_pr
 // DELETE — Eliminar propiedad (solo anfitrión)
 // ❌ DELETE — Eliminar propiedad (solo anfitrión)
 // ==========================================================
-router.delete('/:id', requireAuth, requireRole('anfitrion'), async (req, res) => {
+router.delete('/:id', requireAuth, async (req, res) => {
     try {
         await pool.query(`DELETE FROM propiedades WHERE id_propiedad=?`, [req.params.id]);
         res.json({ ok: true });
