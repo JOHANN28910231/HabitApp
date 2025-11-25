@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (e) { console.error('update UI after save error', e); }
             alert('Perfil actualizado');
-            // after successful update, lock the form again and restore button
+            // despues de confirmar cambios, bloquear el formulario nuevamente y restaurar el botón
             try {
                 setFormEditable(false);
                 if (submitBtn) {

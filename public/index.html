@@ -178,9 +178,9 @@
 
                     container.innerHTML = `
                         <div class="d-flex align-items-center gap-2">
-                            ${avatar}
-                            <span class="d-none d-md-inline">${name}</span>
-                            <a href="/profile.html" class="btn btn-sm btn-outline-secondary">Perfil</a>
+                            ${avatarHtml}
+                            <span class="d-none d-md-inline">${escapeHtml(displayName)}</span>
+                            <a href="/profile_edit.html" class="btn btn-sm btn-outline-secondary">Perfil</a>
                             <button id="headerLogoutBtn" class="btn btn-sm btn-danger">Cerrar sesión</button>
                         </div>
                     `;

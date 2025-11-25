@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     try {
-        const res = await fetch(`/api/host/${hostId}/ventas`, { credentials: 'same-origin' });
+        const res = await fetch(`/api/host/${hostId}/ventas`);
 
         if (!res.ok) {
             ventasDiv.innerHTML = "<p class='text-danger'>Error cargando ventas.</p>";
