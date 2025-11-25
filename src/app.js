@@ -17,6 +17,7 @@ const reportsRoutes = require('./routes/reports.routes');
 const paymentsRoutes = require('./routes/payments.routes');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
+const adminRoutes = require('./routes/admin.routes');
 
 // =====================================
 // 🔐 Seguridad / Logs / Parseo
@@ -89,6 +90,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api', reportsRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api', adminRoutes);
 
 
 // =====================================
