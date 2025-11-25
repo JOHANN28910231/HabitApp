@@ -56,6 +56,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (f.dataset.editor === 'toggle') return;
             if (f.type === 'submit') return;
             try {
+                // Always keep the email field disabled (cannot be edited here)
+                if (f.id === 'email') {
+                    f.disabled = true;
+                    return;
+                }
                 f.disabled = !editable;
             } catch (e) { }
         });
@@ -156,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (estado) fd.append('estado', estado);
         if (fecha_nacimiento) fd.append('fecha_nacimiento', fecha_nacimiento);
         if (password) fd.append('password', password);
-        if (email) fd.append('email', email);
+        // Do not append email: email is not editable from this form and should not be changed here
         if (fotoInput && fotoInput.files && fotoInput.files.length > 0) fd.append('foto', fotoInput.files[0]);
 
         try {
