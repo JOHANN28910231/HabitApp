@@ -9,7 +9,7 @@
     <!-- Bootstrap CSS (CDN) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom styles -->
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 
 <body class="bg-site">
@@ -21,8 +21,9 @@
             </a>
 
             <div id="headerActions" class="ms-auto d-flex align-items-center gap-2">
-                <a href="/register.html" class="btn btn-light btn-sm rounded-pill">Regístrate como Anfitrión</a>
-                <a href="/login.html" class="btn btn-outline-secondary btn-sm rounded-circle"
+                <a href="/register.html?role=host" class="btn btn-light btn-sm rounded-pill">Regístrate como
+                    Anfitrión</a>
+                <a href="/login.html" id="loginBtnHeader" class="btn btn-outline-secondary btn-sm rounded-circle"
                     title="Iniciar sesión">👤</a>
             </div>
         </nav>
@@ -101,6 +102,27 @@
 
     <!-- Bootstrap JS bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        /* Header avatar in small form */
+        #headerActions .header-avatar {
+            height: 32px;
+            width: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: inline-block;
+        }
+
+        /* logout button: green by default, red on hover */
+        #headerActions .btn-logout-success {
+            background-color: #198754;
+            color: white;
+            border: none;
+        }
+
+        #headerActions .btn-logout-success:hover {
+            background-color: #dc3545;
+        }
+    </style>
     <script>
         // set year in footer
         document.addEventListener('DOMContentLoaded', () => {
@@ -112,50 +134,66 @@
         });
     </script>
     <script>
-        // Header auth-status: consulta /api/auth/me y actualiza botones del header
+        // Update header to show auth state (avatar, name, perfil, logout)
         (function () {
             async function updateHeader() {
+                const container = document.getElementById('headerActions');
+                if (!container) return;
                 try {
                     const res = await fetch('/api/auth/me', { credentials: 'same-origin' });
-                    const container = document.getElementById('headerActions');
-                    if (!container) return;
                     if (!res.ok) {
-                        // no autenticado: mostrar botones predeterminados
-                        container.innerHTML = `
-                            <a href="/register.html" class="btn btn-light btn-sm rounded-pill">Regístrate como Anfitrión</a>
-                            <a href="/login.html" class="btn btn-outline-secondary btn-sm rounded-circle" title="Iniciar sesión">👤</a>
-                        `;
+                        // not authenticated — leave default actions
                         return;
                     }
                     const data = await res.json().catch(() => ({}));
                     const user = data && (data.user || data);
-                    if (!user) {
-                        container.innerHTML = `<a href="/login.html" class="btn btn-outline-secondary btn-sm">Iniciar sesión</a>`;
-                        return;
+                    if (!user) return;
+
+                    // Determine avatar url from multiple possible keys and normalize to root-relative if needed
+                    let avatarUrl = user.foto_url || user.fotoUrl || user.avatar || user.foto || (user.user && (user.user.foto_url || user.user.fotoUrl));
+                    if (avatarUrl && !(avatarUrl.startsWith('/') || /^https?:\/\//i.test(avatarUrl))) {
+                        avatarUrl = '/' + avatarUrl;
                     }
-                    const name = user.nombre_completo || user.nombre || user.email || 'Usuario';
-                    const avatar = (user.foto_url) ? `<img src="${user.foto_url}" alt="avatar" style="height:32px;width:32px;border-radius:50%;object-fit:cover;margin-right:8px">` : '';
+
+                    const displayName = user.nombre_completo || user.nombre || user.email || 'Usuario';
+
+                    const avatarHtml = avatarUrl
+                        ? `<img src="${escapeHtmlAttr(avatarUrl)}" alt="avatar" class="header-avatar">`
+                        : `<span class="header-avatar bg-secondary d-inline-block" style="display:inline-block;text-align:center;line-height:32px;color:#fff">👤</span>`;
+
                     container.innerHTML = `
                         <div class="d-flex align-items-center gap-2">
-                            ${avatar}
-                            <span class="d-none d-md-inline">${name}</span>
-                            <a href="/profile.html" class="btn btn-sm btn-outline-secondary">Perfil</a>
-                            <button id="headerLogoutBtn" class="btn btn-sm btn-danger">Cerrar sesión</button>
+                            ${avatarHtml}
+                            <span class="d-none d-md-inline">${escapeHtml(displayName)}</span>
+                            <a href="/profile_edit.html" id="profileBtnHeader" class="btn btn-accent btn-sm profile-btn">Perfil</a>
                         </div>
                     `;
+
                     const logoutBtn = document.getElementById('headerLogoutBtn');
                     if (logoutBtn) {
                         logoutBtn.addEventListener('click', async () => {
                             try {
                                 await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
                             } catch (e) { console.warn('logout failed', e); }
-                            window.location.href = '/';
+                            // clear sessionStorage and redirect to login
+                            try { sessionStorage.removeItem('user_id'); sessionStorage.removeItem('user_name'); sessionStorage.removeItem('host_id'); } catch (e) { }
+                            window.location.href = '/login.html';
                         });
                     }
+
                 } catch (err) {
                     console.warn('updateHeader error', err);
                 }
             }
+
+            function escapeHtml(s) {
+                return String(s).replace(/[&<>\"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": "&#39;" }[c]; });
+            }
+
+            function escapeHtmlAttr(s) {
+                return String(s).replace(/"/g, '%22');
+            }
+
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', updateHeader); else updateHeader();
         })();
     </script>

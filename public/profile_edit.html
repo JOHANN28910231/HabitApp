@@ -5,6 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Editar perfil — TiziHause</title>
+    <!-- Bootstrap CSS (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/styles.css">
 
     <style>
@@ -13,8 +15,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #e9f6e9;
-            /* soft green */
+            background: var(--bg-header);
             padding: 22px;
             border-radius: 6px;
         }
@@ -59,6 +60,23 @@
             padding: 22px;
             margin-top: 18px;
             border-radius: 6px;
+        }
+
+        /* position actions to top-right of the header */
+        .profile-header {
+            position: relative;
+        }
+
+        .profile-right {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .profile-right .btn-accent {
+            padding: 10px 18px;
         }
 
         /* grid form: two columns of fields */
@@ -126,87 +144,92 @@
 </head>
 
 <body class="bg-site">
+    <!-- Back button top-left: goes to previous page -->
+    <a id="backBtn" href="javascript:history.back()" class="btn-accent btn btn-sm"
+        style="position:fixed;top:12px;left:12px;z-index:1050;border-radius:20px;padding:8px 14px;color:#fff;">Regresar</a>
     <main class="container py-5">
-        <header class="profile-header mb-4">
-            <div class="profile-left">
-                <div id="headerAvatar" class="avatar-large">👤</div>
-                <div>
-                    <div id="headerName" class="profile-name">NOMBRE</div>
-                    <div class="small text-muted">Foto de perfil</div>
-                </div>
+        <div class="row">
+            <div class="col-12 col-lg-10 mx-auto">
+                <header class="profile-header mb-4">
+                    <div class="profile-left">
+                        <div id="headerAvatar" class="avatar-large">👤</div>
+                        <div>
+                            <div id="headerName" class="profile-name">NOMBRE</div>
+                            <div class="small text-muted">Foto de perfil</div>
+                        </div>
+                    </div>
+                    <div class="profile-right">
+                        <button id="logoutBtn" class="btn-accent" style="margin-left:12px;text-decoration:none;">Cerrar
+                            sesión</button>
+                    </div>
+                </header>
+
+                <form id="profileForm" class="profile-form">
+                    <div class="form-grid">
+                        <div class="full" style="display:none;">
+                            <input id="userId" name="id" type="hidden" value="" readonly>
+                        </div>
+
+                        <div>
+                            <label for="nombre">Nombre completo</label>
+                            <input id="nombre" name="nombre_completo" type="text" class="form-control">
+                        </div>
+                        <div>
+                            <label for="telefono">Teléfono</label>
+                            <input id="telefono" name="telefono" type="tel" class="form-control">
+                        </div>
+
+                        <div>
+                            <label for="email">Correo electrónico</label>
+                            <input id="email" name="email" type="email" class="form-control">
+                        </div>
+                        <div>
+                            <label for="nacionalidad">Nacionalidad</label>
+                            <input id="nacionalidad" name="nacionalidad" type="text" class="form-control">
+                        </div>
+
+                        <div>
+                            <label for="fecha_nacimiento">Fecha de nacimiento</label>
+                            <input id="fecha_nacimiento" name="fecha_nacimiento" type="date" class="form-control">
+                        </div>
+                        <div>
+                            <label for="municipio">Municipio</label>
+                            <input id="municipio" name="municipio" type="text" class="form-control">
+                        </div>
+
+                        <!-- password removed from profile edit UI; password changes handled via dedicated flow -->
+                        <div>
+                            <label for="genero">Género</label>
+                            <select id="genero" name="genero" class="form-control">
+                                <option value="">(no especificado)</option>
+                                <option value="masculino">Masculino</option>
+                                <option value="femenino">Femenino</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="estado">Estado</label>
+                            <input id="estado" name="estado" type="text" class="form-control">
+                        </div>
+                        <div class="full">
+                            <label for="foto">Foto (jpg/png, &lt;5MB)</label>
+                            <input id="foto" name="foto" type="file" accept="image/*" class="form-control">
+                        </div>
+
+                        <div class="full profile-actions">
+                            <button type="submit" class="btn btn-accent">Actualizar perfil</button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- result oculto: evitamos volcar JSON crudo en la UI (se usa alert/console para feedback) -->
             </div>
-            <div class="profile-right">
-                <a href="/" class="btn-accent" style="text-decoration:none;">Inicio</a>
-                <button id="logoutBtn" class="btn-accent" style="margin-left:12px;text-decoration:none;">Cerrar
-                    sesión</button>
-            </div>
-        </header>
-
-        <form id="profileForm" class="profile-form">
-            <div class="form-grid">
-                <div class="full" style="display:none;">
-                    <input id="userId" name="id" type="hidden" value="" readonly>
-                </div>
-
-                <div>
-                    <label for="nombre">Nombre completo</label>
-                    <input id="nombre" name="nombre_completo" type="text" class="form-control">
-                </div>
-                <div>
-                    <label for="telefono">Teléfono</label>
-                    <input id="telefono" name="telefono" type="tel" class="form-control">
-                </div>
-
-                <div>
-                    <label for="email">Correo electrónico</label>
-                    <input id="email" name="email" type="email" class="form-control">
-                </div>
-                <div>
-                    <label for="nacionalidad">Nacionalidad</label>
-                    <input id="nacionalidad" name="nacionalidad" type="text" class="form-control">
-                </div>
-
-                <div>
-                    <label for="fecha_nacimiento">Fecha de nacimiento</label>
-                    <input id="fecha_nacimiento" name="fecha_nacimiento" type="date" class="form-control">
-                </div>
-                <div>
-                    <label for="municipio">Municipio</label>
-                    <input id="municipio" name="municipio" type="text" class="form-control">
-                </div>
-
-                <div>
-                    <label for="password">Contraseña</label>
-                    <input id="password" name="password" type="password" class="form-control">
-                </div>
-                <div>
-                    <label for="genero">Género</label>
-                    <select id="genero" name="genero" class="form-control">
-                        <option value="">(no especificado)</option>
-                        <option value="masculino">Masculino</option>
-                        <option value="femenino">Femenino</option>
-                        <option value="otro">Otro</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label for="estado">Estado</label>
-                    <input id="estado" name="estado" type="text" class="form-control">
-                </div>
-                <div class="full">
-                    <label for="foto">Foto (jpg/png, &lt;5MB)</label>
-                    <input id="foto" name="foto" type="file" accept="image/*" class="form-control">
-                </div>
-
-                <div class="full profile-actions">
-                    <button type="submit" class="btn btn-accent">Actualizar perfil</button>
-                </div>
-            </div>
-        </form>
-
-        <!-- result oculto: evitamos volcar JSON crudo en la UI (se usa alert/console para feedback) -->
+        </div>
     </main>
 
+    <!-- Bootstrap JS bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/app-modal.js" defer></script>
     <script src="/js/profile_edit.js" defer></script>
 </body>

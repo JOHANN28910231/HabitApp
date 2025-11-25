@@ -27,7 +27,11 @@ async function register(req, res, next) {
       nombre_completo: nombre,
       password_hash: hash,
       telefono: req.body.telefono,
-      genero: req.body.genero
+      genero: req.body.genero,
+      municipio: req.body.municipio,
+      estado: req.body.estado,
+      nacionalidad: req.body.nacionalidad,
+      fecha_nacimiento: req.body.fecha_nacimiento
     });
     try { await addRole(user.id_usuario, roleToAssign); } catch (e) { /* ignorar si rol no existe */ }
 
@@ -110,98 +114,98 @@ async function unblockUser(req, res, next) {
 
 // POST /api/auth/forgot-password
 async function forgotPassword(req, res) {
-    const { email } = req.body;
+  const { email } = req.body;
 
-    if (!email) {
-        return res.status(400).json({ message: 'El correo es obligatorio.' });
+  if (!email) {
+    return res.status(400).json({ message: 'El correo es obligatorio.' });
+  }
+
+  try {
+    // 1) Buscar usuario por email
+    const [rows] = await pool.query(
+      'SELECT id_usuario, email, nombre_completo FROM usuarios WHERE email = ? LIMIT 1',
+      [email]
+    );
+
+    // Mensaje genérico para no filtrar si el email existe o no
+    const genericMessage =
+      'Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.';
+
+    if (rows.length === 0) {
+      // No revelar que no existe
+      return res.json({ message: genericMessage });
     }
 
-    try {
-        // 1) Buscar usuario por email
-        const [rows] = await pool.query(
-            'SELECT id_usuario, email, nombre_completo FROM usuarios WHERE email = ? LIMIT 1',
-            [email]
-        );
+    const user = rows[0];
 
-        // Mensaje genérico para no filtrar si el email existe o no
-        const genericMessage =
-            'Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.';
+    // 2) Crear token JWT con expiración (ej. 1 hora)
+    const resetToken = jwt.sign(
+      {
+        id_usuario: user.id_usuario,
+        email: user.email,
+      },
+      process.env.JWT_RESET_SECRET,
+      { expiresIn: '1h' }
+    );
 
-        if (rows.length === 0) {
-            // No revelar que no existe
-            return res.json({ message: genericMessage });
-        }
+    // 3) Construir URL hacia el frontend de reset
+    const baseUrl = process.env.FRONTEND_BASE_URL;
+    const resetUrl = `${baseUrl}/reset.html?token=${encodeURIComponent(resetToken)}`;
 
-        const user = rows[0];
+    // 4) Aquí deberías enviar un correo real con resetUrl.
+    // Por ahora, para desarrollo, lo dejamos en consola:
+    console.log('Enlace de recuperación para', user.email, ':', resetUrl);
 
-        // 2) Crear token JWT con expiración (ej. 1 hora)
-        const resetToken = jwt.sign(
-            {
-                id_usuario: user.id_usuario,
-                email: user.email,
-            },
-            process.env.JWT_RESET_SECRET,
-            { expiresIn: '1h' }
-        );
-
-        // 3) Construir URL hacia el frontend de reset
-        const baseUrl = process.env.FRONTEND_BASE_URL;
-        const resetUrl = `${baseUrl}/reset.html?token=${encodeURIComponent(resetToken)}`;
-
-        // 4) Aquí deberías enviar un correo real con resetUrl.
-        // Por ahora, para desarrollo, lo dejamos en consola:
-        console.log('Enlace de recuperación para', user.email, ':', resetUrl);
-
-        // Siempre respondemos el mismo mensaje, exista o no el usuario
-        return res.json({ message: genericMessage });
-    } catch (err) {
-        console.error('Error en forgotPassword:', err);
-        return res.status(500).json({ message: 'Error interno del servidor.' });
-    }
+    // Siempre respondemos el mismo mensaje, exista o no el usuario
+    return res.json({ message: genericMessage });
+  } catch (err) {
+    console.error('Error en forgotPassword:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
 }
 
 // POST /api/auth/reset-password
 async function resetPassword(req, res) {
-    const { token, password } = req.body;
+  const { token, password } = req.body;
 
-    if (!token || !password) {
-        return res.status(400).json({ message: 'Token y nueva contraseña son obligatorios.' });
-    }
+  if (!token || !password) {
+    return res.status(400).json({ message: 'Token y nueva contraseña son obligatorios.' });
+  }
 
+  try {
+    // 1) Verificar token
+    let payload;
     try {
-        // 1) Verificar token
-        let payload;
-        try {
-            payload = jwt.verify(
-                token,
-                process.env.JWT_RESET_SECRET || 'dev_reset_secret'
-            );
-        } catch (error) {
-            console.error('Token inválido o expirado:', error.message);
-            return res.status(400).json({ message: 'Enlace inválido o expirado.' });
-        }
-
-        const { id_usuario, email } = payload;
-
-        // 2) Hashear nueva contraseña
-        const saltRounds = 10;
-        const newHash = await bcrypt.hash(password, saltRounds);
-
-        // 3) Actualizar en la BD
-        const [result] = await pool.query(
-            'UPDATE usuarios SET password_hash = ? WHERE id_usuario = ? AND email = ?',
-            [newHash, id_usuario, email]
-        );
-
-        if (result.affectedRows === 0) {
-            return res.status(400).json({ message: 'No se pudo actualizar la contraseña.' });
-        }
-
-        return res.json({ message: 'Contraseña restablecida correctamente. Ya puedes iniciar sesión.' });
-    } catch (err) {
-        console.error('Error en resetPassword:', err);
-        return res.status(500).json({ message: 'Error interno del servidor.' });
+      payload = jwt.verify(
+        token,
+        process.env.JWT_RESET_SECRET || 'dev_reset_secret'
+      );
+    } catch (error) {
+      console.error('Token inválido o expirado:', error.message);
+      return res.status(400).json({ message: 'Enlace inválido o expirado.' });
     }
+
+    const { id_usuario, email } = payload;
+
+    // 2) Hashear nueva contraseña
+    const saltRounds = 10;
+    const newHash = await bcrypt.hash(password, saltRounds);
+
+    // 3) Actualizar en la BD
+    const [result] = await pool.query(
+      'UPDATE usuarios SET password_hash = ? WHERE id_usuario = ? AND email = ?',
+      [newHash, id_usuario, email]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(400).json({ message: 'No se pudo actualizar la contraseña.' });
+    }
+
+    return res.json({ message: 'Contraseña restablecida correctamente. Ya puedes iniciar sesión.' });
+  } catch (err) {
+    console.error('Error en resetPassword:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
 }
 
 

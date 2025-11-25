@@ -5,6 +5,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const idUpload = document.getElementById('idUpload');
     const fileInput = document.getElementById('idFile');
     const fileInfo = document.getElementById('fileInfo');
+    const roleFieldset = document.getElementById('roleFieldset');
+
+    // If page was opened with ?role=host, force host role and hide role radios
+    try {
+        const params = new URLSearchParams(window.location.search);
+        const forced = params.get('role');
+        if (forced && forced.toLowerCase() === 'host') {
+            // set radio value if present
+            if (form.role) {
+                try { form.role.value = 'host'; } catch (e) { /* ignore */ }
+            }
+            // hide the role fieldset so the user doesn't change it
+            if (roleFieldset) {
+                roleFieldset.classList.add('hidden');
+                roleFieldset.setAttribute('aria-hidden', 'true');
+            }
+            // show ID upload section for hosts (keep behavior consistent)
+            if (idUpload) {
+                idUpload.classList.remove('hidden');
+                idUpload.removeAttribute('aria-hidden');
+            }
+        }
+    } catch (err) {
+        console.warn('Could not parse role param', err);
+    }
 
     // Toggle ID upload visibility when role changes
     form.addEventListener('change', (e) => {
@@ -36,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const nombre = (form.nombre && form.nombre.value || '').trim();
         const email = (form.email && form.email.value || '').trim();
         const password = (form.password && form.password.value) || '';
+        const password2 = (form.password2 && form.password2.value) || '';
         const telefono = (form.telefono && form.telefono.value || '').trim();
         const nacionalidad = (form.nacionalidad && form.nacionalidad.value || '').trim();
         const genero = (form.genero && form.genero.value || '').trim();
@@ -53,6 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!nombre) return alert('Ingresa tu nombre completo.');
         if (!email || !emailRe.test(email)) return alert('Ingresa un correo válido.');
         if (!password || password.length < 8) return alert('La contraseña debe tener al menos 8 caracteres.');
+        if (!password2) return alert('Confirma la contraseña.');
+        if (password !== password2) return alert('Las contraseñas no coinciden.');
         if (!telefono) return alert('Ingresa un teléfono.');
         if (!nacionalidad) return alert('Ingresa tu nacionalidad.');
         if (!genero) return alert('Selecciona tu género.');
@@ -79,8 +107,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Success - show message and redirect to login
-            alert('Registro correcto. Serás redirigido a inicio.');
-            window.location.href = '/';
+            alert('Registro correcto. Serás redirigido a la página de inicio de sesión.');
+            window.location.href = '/login.html';
 
         } catch (err) {
             console.error('Register error', err);

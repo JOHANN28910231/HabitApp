@@ -7,9 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const r = await fetch('/api/auth/me', { credentials: 'same-origin' });
             if (!r.ok) {
-                // No mostrar error crudo en la UI; redirigir al inicio para login
-                console.warn('No autenticado. Redirigiendo a /');
-                window.location.href = '/';
+                // No mostrar error crudo en la UI; redirigir al login
+                console.warn('No autenticado. Redirigiendo a /login.html');
+                window.location.href = '/login.html';
                 return;
             }
             const d = await r.json();
@@ -46,6 +46,50 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     })();
 
+    // Helper to enable/disable form fields
+    function setFormEditable(editable) {
+        const fields = form.querySelectorAll('input, select, textarea, button');
+        fields.forEach(f => {
+            // keep logout and any non-form-action buttons enabled
+            if (f.id === 'logoutBtn' || f.id === 'backBtn') return;
+            // allow the edit button to be clickable when not editable
+            if (f.dataset.editor === 'toggle') return;
+            if (f.type === 'submit') return;
+            try {
+                f.disabled = !editable;
+            } catch (e) { }
+        });
+    }
+
+    // Transform the submit button into an edit-toggle by default
+    const submitBtn = form.querySelector('button[type="submit"]');
+    let wasEditing = false;
+    if (submitBtn) {
+        // create an edit button behavior: initially disabled fields, button says 'Editar perfil'
+        submitBtn.type = 'button';
+        submitBtn.textContent = 'Editar perfil';
+        submitBtn.classList.remove('btn-accent');
+        submitBtn.classList.add('btn-accent');
+        submitBtn.dataset.editor = 'toggle';
+
+        submitBtn.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            if (!wasEditing) {
+                // enable fields and turn this into submit
+                setFormEditable(true);
+                submitBtn.textContent = 'Actualizar perfil';
+                submitBtn.type = 'submit';
+                wasEditing = true;
+                // focus first editable field
+                const first = form.querySelector('input:not([disabled]), select:not([disabled])');
+                if (first) first.focus();
+            }
+        });
+    }
+
+    // Initially make form not editable (locked view)
+    try { setFormEditable(false); } catch (e) { console.warn('Could not set form editable state', e); }
+
     // Logout button handling (uses showAppModal if available)
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
@@ -75,7 +119,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert(err.error || 'No se pudo cerrar sesión');
                     return;
                 }
-                window.location.href = '/';
+                // Redirect to login page after successful logout
+                window.location.href = '/login.html';
             } catch (err) {
                 console.error('logout error', err);
                 alert('Error al cerrar sesión');
@@ -97,7 +142,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const municipio = document.getElementById('municipio').value;
         const estado = document.getElementById('estado').value;
         const fecha_nacimiento = document.getElementById('fecha_nacimiento').value;
-        const password = document.getElementById('password').value;
+        // password field removed from profile edit UI; only include if present
+        const passwordEl = document.getElementById('password');
+        const password = passwordEl ? passwordEl.value : '';
         const fotoInput = document.getElementById('foto');
 
         const fd = new FormData();
@@ -154,6 +201,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (e) { console.error('update UI after save error', e); }
             alert('Perfil actualizado');
+            // after successful update, lock the form again and restore button
+            try {
+                setFormEditable(false);
+                if (submitBtn) {
+                    submitBtn.type = 'button';
+                    submitBtn.textContent = 'Editar perfil';
+                    wasEditing = false;
+                }
+            } catch (e) { console.warn('Could not re-lock form after save', e); }
         } catch (err) {
             console.error(err);
             alert('Error de red al actualizar perfil: ' + err.message);
