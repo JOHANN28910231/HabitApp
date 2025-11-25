@@ -1,26 +1,34 @@
 {
   "name": "habitapp",
   "version": "1.0.0",
-  "description": "Proyecto Final Quinto Semestre\r AppTiziHause (HabitApp)",
-  "main": "index.js",
+  "description": "Proyecto Final Quinto Semestre AppTiziHause (HabitApp)",
+  "main": "src/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "start": "node src/server.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
     "dayjs": "^1.11.19",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "express-mysql-session": "^3.0.3",
     "express-rate-limit": "^8.2.1",
     "express-session": "^1.18.2",
     "helmet": "^8.1.0",
-    "mysql2": "^3.15.3"
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.1",
+    "multer": "^2.0.2",
+    "mysql2": "^3.15.3",
+    "pdfkit": "^0.17.2",
+    "pdfkit-table": "^0.1.99"
   },
   "devDependencies": {
     "eslint": "^9.39.1",

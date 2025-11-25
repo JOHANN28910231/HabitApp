@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Restablecer contraseña — TiziHause</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body class="bg-site">
+    <main class="container py-5">
+        <div class="row">
+            <div class="col-12 col-md-8 col-lg-6 mx-auto">
+                <article class="card auth-card p-4">
+                    <h2 class="h4 text-center fw-bold mb-3">Restablecer contraseña</h2>
+
+                    <div id="notice" class="alert d-none" role="alert"></div>
+
+                    <form id="resetForm" novalidate>
+                        <input type="hidden" id="token" name="token">
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label fw-semibold">Nueva contraseña</label>
+                            <input id="password" name="password" type="password" class="form-control"
+                                autocomplete="new-password" required minlength="8">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password2" class="form-label fw-semibold">Confirmar contraseña</label>
+                            <input id="password2" name="password2" type="password" class="form-control"
+                                autocomplete="new-password" required minlength="8">
+                        </div>
+
+                        <div class="d-grid mb-3">
+                            <button id="submitBtn" type="submit" class="btn btn-accent btn-lg">Restablecer</button>
+                        </div>
+
+                        <p class="text-center small mb-0">¿Ya recuerdas tu contraseña? <a href="/login.html">Iniciar
+                                sesión</a></p>
+                    </form>
+                </article>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function qs(name) {
+            const params = new URLSearchParams(window.location.search);
+            return params.get(name);
+        }
+
+        function showNotice(msg, type = 'info') {
+            const n = document.getElementById('notice');
+            n.className = 'alert';
+            n.classList.add(type === 'error' ? 'alert-danger' : 'alert-success');
+            n.textContent = msg;
+            n.classList.remove('d-none');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = qs('token');
+            const tokenInput = document.getElementById('token');
+            const form = document.getElementById('resetForm');
+            const pwd = document.getElementById('password');
+            const pwd2 = document.getElementById('password2');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (!token) {
+                showNotice('Token ausente. Comprueba el enlace que recibiste por correo.', 'error');
+                submitBtn.disabled = true;
+                return;
+            }
+
+            tokenInput.value = token;
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const password = pwd.value || '';
+                const password2 = pwd2.value || '';
+                if (password.length < 8) { showNotice('La contraseña debe tener al menos 8 caracteres.', 'error'); return; }
+                if (password !== password2) { showNotice('Las contraseñas no coinciden.', 'error'); return; }
+
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Enviando...';
+
+                try {
+                    const res = await fetch('/api/auth/reset-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({ token, password })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                        showNotice(data.message || (data.error || 'Error al restablecer contraseña'), 'error');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Restablecer';
+                        return;
+                    }
+                    showNotice(data.message || 'Contraseña restablecida. Redirigiendo al login...');
+                    setTimeout(() => window.location.href = '/login.html', 1800);
+                } catch (err) {
+                    console.error(err);
+                    showNotice('Error de red. Intenta de nuevo.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Restablecer';
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

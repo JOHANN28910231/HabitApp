@@ -1,4 +1,4 @@
-// src/models/reservation.model.js
+// Keep the more complete implementation from origin/main — it is backward-compatible
 const pool = require('../utils/db');
 
 /**
@@ -41,12 +41,11 @@ async function createReservationWithLock({
                                              monto_total,
                                          }) {
     /** @type {import('mysql2/promise').PoolConnection} */
-    const conn = await pool.getConnection();   // 👈 IMPORTANTE EL await
+    const conn = await pool.getConnection();
 
     try {
         await conn.beginTransaction();
 
-        // Bloqueamos reservas existentes que traslapen
         const [existingRes] = await conn.query(
             `SELECT *
              FROM reservaciones
@@ -56,7 +55,6 @@ async function createReservationWithLock({
             [id_habitacion, fecha_inicio, fecha_salida]
         );
 
-        // Bloqueos de calendario que traslapen
         const [existingBlocks] = await conn.query(
             `SELECT *
              FROM habitacion_bloqueo
@@ -138,3 +136,4 @@ module.exports = {
     getReservationById,
     updateReservationStatus,
 };
+
