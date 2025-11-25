@@ -9,14 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
         yearEl.textContent = new Date().getFullYear();
     }
 
-<<<<<<< HEAD
-// Obtener host_id correctamente
-window.hostId = Number(sessionStorage.getItem('host_id'));
-
-if (!window.hostId) {
-    console.warn("⚠ No hay host_id en sessionStorage. El usuario no es anfitrión o no se guardó bien.");
-}
-=======
     // Nuevo: obtener el host_id
     window.hostId = sessionStorage.getItem('host_id');
 
@@ -78,4 +70,3 @@ if (!window.hostId) {
         });
     }
 });
->>>>>>> 8e7dbd338367c4bd3a649ced53cd73ad8690afbd
