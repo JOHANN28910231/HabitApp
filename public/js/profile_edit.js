@@ -78,9 +78,9 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.dataset.editor = 'toggle';
 
         submitBtn.addEventListener('click', (ev) => {
-            ev.preventDefault();
             if (!wasEditing) {
-                // enable fields and turn this into submit
+                // entering edit mode: prevent default submit and enable fields
+                ev.preventDefault();
                 setFormEditable(true);
                 submitBtn.textContent = 'Actualizar perfil';
                 submitBtn.type = 'submit';
@@ -88,6 +88,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 // focus first editable field
                 const first = form.querySelector('input:not([disabled]), select:not([disabled])');
                 if (first) first.focus();
+            } else {
+                // already in edit mode: allow the button to submit the form (do not preventDefault)
+                // no-op here so default submit proceeds
             }
         });
     }
