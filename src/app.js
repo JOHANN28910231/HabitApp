@@ -18,6 +18,8 @@ const paymentsRoutes = require('./routes/payments.routes');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const adminRoutes = require('./routes/admin.routes');
+const propertiesRoutes = require('./routes/properties.routes');
+const roomsRoutes = require('./routes/rooms.routes');
 
 // =====================================
 // 🔐 Seguridad / Logs / Parseo
@@ -91,6 +93,8 @@ app.use('/api/payments', paymentsRoutes);
 app.use('/api', reportsRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api', adminRoutes);
+app.use('/api/properties', propertiesRoutes);
+app.use('/api/rooms', roomsRoutes);
 
 
 // =====================================

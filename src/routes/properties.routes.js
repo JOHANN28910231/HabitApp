@@ -3,6 +3,8 @@ const router = express.Router();
 const pool = require('../utils/db');
 const multer = require('multer');
 const path = require('path');
+const { requireAuth, requireRole } = require('../middlewares/auth');
+// Middleware de depuración: registrar peticiones a este router
 
 // Debug middleware: log todas las peticiones a este router
 router.use((req, res, next) => {
@@ -13,6 +15,7 @@ router.use((req, res, next) => {
 });
 
 // ==========================================================
+// Configurar Multer (subida de fotos)
 // 📌 CONFIGURAR MULTER UNA SOLA VEZ
 // ==========================================================
 const fs = require('fs');
@@ -51,9 +54,10 @@ const upload = multer({
 });
 
 // ==========================================================
-// ✔ GET — Obtener propiedades por host
+// GET — Obtener propiedades por host (requiere autenticación)
+// ✔ GET — Obtener propiedades por host (requiere autenticación)
 // ==========================================================
-router.get('/host/:hostId', async (req, res) => {
+router.get('/host/:hostId', requireAuth, requireRole('anfitrion'), async (req, res) => {
     const { hostId } = req.params;
 
     try {
@@ -69,9 +73,10 @@ router.get('/host/:hostId', async (req, res) => {
 });
 
 // ==========================================================
-// ✔ GET — Habitaciones de una propiedad
+// GET — Habitaciones de una propiedad (requiere autenticación)
+// ✔ GET — Habitaciones de una propiedad (requiere autenticación)
 // ==========================================================
-router.get('/:propertyId/habitaciones', async (req, res) => {
+router.get('/:propertyId/habitaciones', requireAuth, requireRole('anfitrion'), async (req, res) => {
     const { propertyId } = req.params;
 
     try {
@@ -87,9 +92,10 @@ router.get('/:propertyId/habitaciones', async (req, res) => {
 });
 
 // ==========================================================
-// ✨ POST — Crear propiedad
+// POST — Crear propiedad (solo anfitrión)
+// ✨ POST — Crear propiedad (solo anfitrión)
 // ==========================================================
-router.post('/', upload.single('foto_propiedad'), async (req, res) => {
+router.post('/', requireAuth, requireRole('anfitrion'), upload.single('foto_propiedad'), async (req, res) => {
     try {
         const {
             id_anfitrion,
@@ -151,7 +157,7 @@ router.post('/', upload.single('foto_propiedad'), async (req, res) => {
                 descripcion,
                 politicas_hospedaje || null,
                 servicios_generales || null,
-                fechaReg || new Date().toISOString().slice(0,10),
+                fechaReg || new Date().toISOString().slice(0, 10),
                 estado_propiedad || 'activa',
                 foto
             ]
@@ -178,9 +184,10 @@ router.post('/', upload.single('foto_propiedad'), async (req, res) => {
 });
 
 // ==========================================================
-// ✨ PUT — Editar propiedad
+// PUT — Editar propiedad (solo anfitrión)
+// ✨ PUT — Editar propiedad (solo anfitrión)
 // ==========================================================
-router.put('/:id', upload.single('foto_propiedad'), async (req, res) => {
+router.put('/:id', requireAuth, requireRole('anfitrion'), upload.single('foto_propiedad'), async (req, res) => {
     try {
         const id = req.params.id;
 
@@ -228,7 +235,7 @@ router.put('/:id', upload.single('foto_propiedad'), async (req, res) => {
                 descripcion,
                 politicas_hospedaje || null,
                 servicios_generales || null,
-                fecha_registro && fecha_registro.length ? fecha_registro : new Date().toISOString().slice(0,10),
+                fecha_registro && fecha_registro.length ? fecha_registro : new Date().toISOString().slice(0, 10),
                 estado_propiedad || 'activa',
                 finalPhoto,
                 id
@@ -256,9 +263,10 @@ router.put('/:id', upload.single('foto_propiedad'), async (req, res) => {
 });
 
 // ==========================================================
-// ❌ DELETE — Eliminar propiedad
+// DELETE — Eliminar propiedad (solo anfitrión)
+// ❌ DELETE — Eliminar propiedad (solo anfitrión)
 // ==========================================================
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', requireAuth, requireRole('anfitrion'), async (req, res) => {
     try {
         await pool.query(`DELETE FROM propiedades WHERE id_propiedad=?`, [req.params.id]);
         res.json({ ok: true });

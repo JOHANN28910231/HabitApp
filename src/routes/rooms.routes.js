@@ -8,11 +8,11 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Ensure upload dir for room photos exists
+// Asegurar carpeta de fotos de habitaciones
 const uploadDir = path.join(__dirname, '../../public/fotosHabitaciones');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
-    console.log('✅ Carpeta de fotos de habitaciones creada:', uploadDir);
+    console.log('Carpeta de fotos de habitaciones creada:', uploadDir);
 }
 
 const storage = multer.diskStorage({
@@ -35,7 +35,7 @@ const upload = multer({
     limits: { fileSize: 6 * 1024 * 1024 }
 });
 
-//  Obtener catálogo de servicios (público)
+// Obtener catálogo de servicios (público)
 router.get('/services', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM servicios ORDER BY nombre');
@@ -46,7 +46,7 @@ router.get('/services', async (req, res) => {
     }
 });
 
-//  Crear habitación (solo anfitrión)
+// Crear habitación (solo anfitrión)
 router.post(
     '/',
     requireAuth,
@@ -54,7 +54,7 @@ router.post(
     roomsController.createRoom
 );
 
-//  Obtener habitaciones por propiedad (solo anfitrión)
+// Obtener habitaciones por propiedad (solo anfitrión)
 router.get(
     '/by-property/:id_propiedad',
     requireAuth,
@@ -62,7 +62,7 @@ router.get(
     roomsController.listRoomsByProperty
 );
 
-//  Registrar fotos de la habitación
+// Registrar fotos de la habitación
 router.post(
     '/:id/photos',
     requireAuth,
@@ -71,7 +71,7 @@ router.post(
     roomsController.addPhoto
 );
 
-//  Guardar servicios incluidos
+// Guardar servicios incluidos
 router.post(
     '/:id/services',
     requireAuth,
@@ -79,14 +79,14 @@ router.post(
     roomsController.setServices
 );
 
-//  Crear bloqueos (habitacion_bloqueo)
+// Crear bloqueos (habitacion_bloqueo)
 router.post(
     '/:id/blocks',
     requireAuth,
     requireRole('anfitrion'),
     roomsController.addBlock
 );
-//  Obtener detalles completos de una habitación (solo anfitrión)
+// Obtener detalles completos de una habitación (solo anfitrión)
 router.get(
     '/detalles/:id',
     requireAuth,
@@ -94,7 +94,7 @@ router.get(
     roomsController.getRoomDetails
 );
 
-//  Obtener habitaciones de una propiedad con todos sus detalles (solo anfitrión)
+// Obtener habitaciones de una propiedad con todos sus detalles (solo anfitrión)
 router.get(
     '/propiedad/:id_propiedad/detalles',
     requireAuth,
@@ -102,13 +102,13 @@ router.get(
     roomsController.listRoomsByPropertyWithDetails
 );
 
-//  Obtener todas las habitaciones disponibles (público)
+// Obtener todas las habitaciones disponibles (público)
 router.get('/', roomsController.getAllRooms);
 
-//  Obtener habitación por id (público)
+// Obtener habitación por id (público)
 router.get('/:id', roomsController.getRoomById);
 
-//  Actualizar habitación (solo anfitrión)
+// Actualizar habitación (solo anfitrión)
 router.put(
     '/:id',
     requireAuth,
@@ -116,7 +116,7 @@ router.put(
     roomsController.updateRoom
 );
 
-//  Eliminar habitación (solo anfitrión)
+// Eliminar habitación (solo anfitrión)
 router.delete(
     '/:id',
     requireAuth,

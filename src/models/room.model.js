@@ -134,7 +134,7 @@ async function getRoomDetails(id_habitacion) {
     const [servicios] = await db.execute(
         `SELECT s.* 
          FROM habitacion_servicio hs
-         JOIN servicio s ON hs.id_servicio = s.id_servicio
+         JOIN servicios s ON hs.id_servicio = s.id_servicio
          WHERE hs.id_habitacion = ?`,
         [id_habitacion]
     );
