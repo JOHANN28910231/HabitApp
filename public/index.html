@@ -20,7 +20,7 @@
                 <span class="fw-bold ms-1">TiziHause</span>
             </a>
 
-            <div class="ms-auto d-flex align-items-center gap-2">
+            <div id="headerActions" class="ms-auto d-flex align-items-center gap-2">
                 <a href="/register.html" class="btn btn-light btn-sm rounded-pill">Regístrate como Anfitrión</a>
                 <a href="/login.html" class="btn btn-outline-secondary btn-sm rounded-circle"
                     title="Iniciar sesión">👤</a>
@@ -110,6 +110,54 @@
             const form = document.getElementById('searchForm');
             if (form) form.addEventListener('submit', (e) => { e.preventDefault(); alert('Buscar: ' + (document.getElementById('destino').value || '—')); });
         });
+    </script>
+    <script>
+        // Header auth-status: consulta /api/auth/me y actualiza botones del header
+        (function () {
+            async function updateHeader() {
+                try {
+                    const res = await fetch('/api/auth/me', { credentials: 'same-origin' });
+                    const container = document.getElementById('headerActions');
+                    if (!container) return;
+                    if (!res.ok) {
+                        // no autenticado: mostrar botones predeterminados
+                        container.innerHTML = `
+                            <a href="/register.html" class="btn btn-light btn-sm rounded-pill">Regístrate como Anfitrión</a>
+                            <a href="/login.html" class="btn btn-outline-secondary btn-sm rounded-circle" title="Iniciar sesión">👤</a>
+                        `;
+                        return;
+                    }
+                    const data = await res.json().catch(() => ({}));
+                    const user = data && (data.user || data);
+                    if (!user) {
+                        container.innerHTML = `<a href="/login.html" class="btn btn-outline-secondary btn-sm">Iniciar sesión</a>`;
+                        return;
+                    }
+                    const name = user.nombre_completo || user.nombre || user.email || 'Usuario';
+                    const avatar = (user.foto_url) ? `<img src="${user.foto_url}" alt="avatar" style="height:32px;width:32px;border-radius:50%;object-fit:cover;margin-right:8px">` : '';
+                    container.innerHTML = `
+                        <div class="d-flex align-items-center gap-2">
+                            ${avatar}
+                            <span class="d-none d-md-inline">${name}</span>
+                            <a href="/profile.html" class="btn btn-sm btn-outline-secondary">Perfil</a>
+                            <button id="headerLogoutBtn" class="btn btn-sm btn-danger">Cerrar sesión</button>
+                        </div>
+                    `;
+                    const logoutBtn = document.getElementById('headerLogoutBtn');
+                    if (logoutBtn) {
+                        logoutBtn.addEventListener('click', async () => {
+                            try {
+                                await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+                            } catch (e) { console.warn('logout failed', e); }
+                            window.location.href = '/';
+                        });
+                    }
+                } catch (err) {
+                    console.warn('updateHeader error', err);
+                }
+            }
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', updateHeader); else updateHeader();
+        })();
     </script>
 </body>
 
