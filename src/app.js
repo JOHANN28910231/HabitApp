@@ -1,94 +1,250 @@
-// src/app.js
 require('dotenv').config();
 
 const express = require('express');
-const session = require('express-session');
+const path = require('path');
 const helmet = require('helmet');
 const cors = require('cors');
-const rateLimit = require('express-rate-limit');
-const path = require('path');
-
-// Aquí luego irán tus middlewares personalizados:
-const { attachUserFromSession } = require('./middlewares/auth.middleware');
-
-// Aquí irán tus rutas:
-const availabilityRoutes  = require('./routes/availability.routes');   // MÓDULO JOHANN
-const reservationsRoutes  = require('./routes/reservations.routes');   // MÓDULO JOHANN
-
-// Ustedes irán agregando:
-// const authRoutes        = require('./routes/auth.routes');
-// const userRoutes        = require('./routes/users.routes');
-// const propertiesRoutes  = require('./routes/properties.routes');
-//const roomsRoutes       = require('./routes/rooms.routes');
-// const searchRoutes      = require('./routes/search.routes');
-// const paymentsRoutes    = require('./routes/payments.routes');
-// const reportsRoutes     = require('./routes/reports.routes');
-// const reviewsRoutes     = require('./routes/reviews.routes');
-// const notificationsRoutes = require('./routes/notifications.routes');
+const morgan = require('morgan');
+const session = require('express-session');
 
 const app = express();
 
-// ---- Middlewares globales de seguridad y parsing ----
-app.use(helmet());
-app.use(cors({
-    origin: '*' // en desarrollo está bien, luego pueden restringir
+// =====================================
+// 🗄 BD & ROUTES
+// =====================================
+const pool = require('./utils/db');
+
+// Rutas ya existentes en main
+const reportsRoutes = require('./routes/reports.routes');
+const paymentsRoutes = require('./routes/payments.routes');
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+
+// Rutas de tu módulo (availability + reservations)
+const availabilityRoutes = require('./routes/availability.routes');
+const reservationsRoutes = require('./routes/reservations.routes');
+
+// =====================================
+// 🔐 Seguridad / Logs / Parseo
+// =====================================
+app.use(helmet({
+    contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+            "default-src": ["'self'"],
+            "script-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+            "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+            "img-src": ["'self'", "data:", "blob:"],
+            "font-src": ["'self'", "https://cdn.jsdelivr.net"],
+        }
+    }
 }));
+
+if (process.env.NODE_ENV !== 'test') {
+    app.use(morgan('dev'));
+}
+
+if (process.env.CORS_ORIGIN) {
+    app.use(cors({
+        origin: process.env.CORS_ORIGIN.split(',').map(s => s.trim()),
+        credentials: true,
+    }));
+} else {
+    app.use(cors());
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ---- Sesiones (RF07) ----
-const SESSION_SECRET = process.env.SESSION_SECRET || 'dev_super_secret';
+// =====================================
+// 💾 Sesión (express-mysql-session si está disponible)
+// =====================================
+let sessionStore;
+try {
+    const MySQLStoreFactory = require('express-mysql-session')(session);
+    const mysql = require('mysql2');
+
+    const {
+        DB_HOST = '127.0.0.1',
+        DB_PORT = 3306,
+        DB_USER = 'root',
+        DB_PASS = '',
+        DB_NAME = 'habitapp',
+    } = process.env;
+
+    const sessionPool = mysql.createPool({
+        host: DB_HOST,
+        port: Number(DB_PORT),
+        user: DB_USER,
+        password: DB_PASS,
+        database: DB_NAME,
+        waitForConnections: true,
+        connectionLimit: 5,
+        charset: 'utf8mb4',
+    });
+
+    sessionStore = new MySQLStoreFactory({}, sessionPool);
+} catch (err) {
+    // fallback a MemoryStore si no está instalado express-mysql-session
+    console.warn('Usando MemoryStore para sesiones (solo dev)', err.message);
+}
 
 app.use(session({
-    secret: SESSION_SECRET,
+    name: process.env.SESSION_NAME || 'habitapp.sid',
+    secret: process.env.SESSION_SECRET || 'dev-secret-change',
     resave: false,
     saveUninitialized: false,
+    store: sessionStore,
     cookie: {
-        httpOnly: true,
-        // secure: true en producción con HTTPS
-        maxAge: 1000 * 60 * 60 * 2, // 2 horas
+        maxAge: Number(process.env.SESSION_MAX_AGE || 24 * 60 * 60 * 1000),
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        secure: process.env.NODE_ENV === 'production',
     },
 }));
 
-// ---- Rate limit sencillo para proteger la API ----
-const apiLimiter = rateLimit({
-    windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 60_000,
-    max: Number(process.env.RATE_LIMIT_MAX) || 120,
-});
-app.use('/api', apiLimiter);
+// =====================================
+// 📁 Archivos estáticos y rutas públicas
+// =====================================
+const publicDir = path.join(__dirname, '..', 'public');
 
-// ---- Middleware para exponer el usuario de la sesión en req.user ----
-app.use(attachUserFromSession);
+app.use('/public', express.static(publicDir));
+app.use(express.static(publicDir));
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
-// ---- Rutas API (por ahora solo las tuyas, luego los demás enchufan las suyas) ----
+// Rutas UI simples
+app.get('/register', (req, res) =>
+    res.sendFile(path.join(publicDir, 'register.html'))
+);
+app.get('/login', (req, res) =>
+    res.sendFile(path.join(publicDir, 'login.html'))
+);
+
+// =====================================
+// 🔗 Rutas API
+// =====================================
+
+// Auth / usuarios
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+
+// Pagos & reportes
+app.use('/api/payments', paymentsRoutes);
+app.use('/api', reportsRoutes);
+
+// Disponibilidad / Reservas (tu módulo)
 app.use('/api/availability', availabilityRoutes);
 app.use('/api/reservations', reservationsRoutes);
 
-// Ejemplo de futura integración:
-// app.use('/api/auth', authRoutes);
-// app.use('/api/users', userRoutes);
-// app.use('/api/properties', propertiesRoutes);
-// app.use('/api/rooms', roomsRoutes);
-// app.use('/api/search', searchRoutes);
-// app.use('/api/payments', paymentsRoutes);
-// app.use('/api/reports', reportsRoutes);
-// app.use('/api/reviews', reviewsRoutes);
-// app.use('/api/notifications', notificationsRoutes);
+// =====================================
+// Endpoint para mostrar todas las ventas del host (compatibilidad)
+// =====================================
+app.get('/api/host/:id/ventas', async (req, res) => {
+    const hostId = req.params.id;
+    try {
+        const [rows] = await pool.query(`
+      SELECT p.nombre_propiedad AS propiedad,
+             p.descripcion AS propiedad_descripcion,
+             h.descripcion AS cuarto,
+             CONCAT(u.nombre_completo) AS cliente,
+             r.fecha_inicio AS fecha_entrada,
+             r.fecha_salida AS fecha_salida,
+             r.monto_total AS total,
+             pag.fecha_pago AS fecha_pago,
+             pag.estado_pago AS estado_pago,
+             pag.monto AS pago_monto
+      FROM reservaciones r
+        INNER JOIN habitacion h ON h.id_habitacion = r.id_habitacion
+        INNER JOIN propiedades p ON p.id_propiedad = h.id_propiedad
+        INNER JOIN usuarios u ON u.id_usuario = r.id_huesped
+        LEFT JOIN pagos pag ON pag.id_pago = (
+            SELECT id_pago
+            FROM pagos
+            WHERE id_reservacion = r.id_reservacion
+            ORDER BY fecha_pago DESC
+            LIMIT 1
+        )
+      WHERE p.id_anfitrion = ?
+      ORDER BY r.fecha_reserva DESC
+    `, [hostId]);
 
-// ---- Servir archivos estáticos (frontend) ----
-const publicDir = process.env.PUBLIC_DIR || 'public';
-app.use(express.static(path.join(__dirname, '..', publicDir)));
-
-// ---- Endpoint de salud (útil para pruebas) ----
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', message: 'AppTiziHause API funcionando' });
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error obteniendo ventas' });
+    }
 });
 
-// ---- Manejador de errores simple ----
+// =====================================
+// Nuevo endpoint: Reservaciones próximas
+// =====================================
+app.get('/api/host/:hostId/reservaciones/proximas', async (req, res) => {
+    const hostId = req.params.hostId;
+    const today = new Date().toISOString().slice(0, 10);
+    const oneYearLater = new Date();
+    oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+    const to = oneYearLater.toISOString().slice(0, 10);
+
+    const query = `
+    SELECT 
+      r.id_reservacion,
+      p.nombre_propiedad AS propiedad,
+      p.descripcion AS propiedad_descripcion,
+      h.descripcion AS cuarto,
+      u.nombre_completo AS cliente,
+      r.fecha_inicio AS fecha_entrada,
+      r.fecha_salida AS fecha_salida,
+      r.monto_total AS total
+    FROM reservaciones r
+    JOIN habitacion h ON h.id_habitacion = r.id_habitacion
+    JOIN propiedades p ON p.id_propiedad = h.id_propiedad
+    JOIN usuarios u ON u.id_usuario = r.id_huesped
+    WHERE p.id_anfitrion = ?
+      AND r.fecha_inicio >= ?
+      AND r.fecha_inicio <= ?
+    ORDER BY r.fecha_inicio ASC
+  `;
+
+    try {
+        const [rows] = await pool.query(query, [hostId, today, to]);
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error al obtener reservaciones próximas' });
+    }
+});
+
+// Health check
+app.get('/api/health', (req, res) => res.json({ ok: true }));
+
+// =====================================
+// Fallback SPA / 404
+// =====================================
+const indexPath = path.join(publicDir, 'login.html');
+
+app.get(/.*/, (req, res, next) => {
+    if (req.method !== 'GET') return next();
+
+    if (req.accepts('html')) {
+        return res.sendFile(indexPath, err => {
+            if (err) return next(err);
+        });
+    }
+
+    if (req.accepts('json')) {
+        return res.status(404).json({ error: 'Recurso no encontrado' });
+    }
+
+    res.status(404).type('txt').send('Recurso no encontrado');
+});
+
+// =====================================
+// Error handler
+// =====================================
 app.use((err, req, res, next) => {
-    console.error('Error no manejado:', err);
-    res.status(500).json({ error: 'Error interno del servidor' });
+    console.error(err);
+    res
+        .status(err.status || 500)
+        .json({ error: err.message || 'Error interno' });
 });
 
 module.exports = app;
