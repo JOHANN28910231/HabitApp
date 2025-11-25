@@ -35,21 +35,59 @@
 
           <form id="regForm" novalidate>
             <div class="mb-3">
-              <label for="name" class="form-label fw-semibold">Nombre completo</label>
-              <input id="name" name="name" type="text" class="form-control form-control-custom" autocomplete="name"
+              <label for="nombre" class="form-label fw-semibold">Nombre completo</label>
+              <input id="nombre" name="nombre" type="text" class="form-control form-control-custom" autocomplete="name"
                 required>
             </div>
 
             <div class="mb-3">
-              <label for="emailR" class="form-label fw-semibold">Correo electrónico</label>
-              <input id="emailR" name="email" type="email" class="form-control form-control-custom" autocomplete="email"
+              <label for="email" class="form-label fw-semibold">Correo electrónico</label>
+              <input id="email" name="email" type="email" class="form-control form-control-custom" autocomplete="email"
                 required>
             </div>
 
             <div class="mb-3">
-              <label for="rpassword" class="form-label fw-semibold">Contraseña</label>
-              <input id="rpassword" name="password" type="password" class="form-control form-control-custom"
+              <label for="password" class="form-label fw-semibold">Contraseña</label>
+              <input id="password" name="password" type="password" class="form-control form-control-custom"
                 autocomplete="new-password" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="telefono" class="form-label fw-semibold">Teléfono</label>
+              <input id="telefono" name="telefono" type="tel" class="form-control form-control-custom" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="nacionalidad" class="form-label fw-semibold">Nacionalidad</label>
+              <input id="nacionalidad" name="nacionalidad" type="text" class="form-control form-control-custom"
+                required>
+            </div>
+
+            <div class="mb-3">
+              <label for="genero" class="form-label fw-semibold">Género</label>
+              <select id="genero" name="genero" class="form-select form-control-custom" required>
+                <option value="">Selecciona</option>
+                <option value="masculino">Masculino</option>
+                <option value="femenino">Femenino</option>
+                <option value="otro">Otro</option>
+                <option value="no-decir">Prefiero no decir</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="municipio" class="form-label fw-semibold">Municipio / Ciudad</label>
+              <input id="municipio" name="municipio" type="text" class="form-control form-control-custom" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="estado" class="form-label fw-semibold">Estado / Región</label>
+              <input id="estado" name="estado" type="text" class="form-control form-control-custom" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="fecha_nacimiento" class="form-label fw-semibold">Fecha de nacimiento</label>
+              <input id="fecha_nacimiento" name="fecha_nacimiento" type="date" class="form-control form-control-custom"
+                required>
             </div>
 
             <!-- Rol -->
