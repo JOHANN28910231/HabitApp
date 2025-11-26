@@ -16,8 +16,7 @@
     <header class="site-header py-3 shadow-sm">
         <nav class="container d-flex align-items-center">
             <a class="navbar-brand d-flex align-items-center" href="/" aria-label="TiziHause - Inicio">
-                <img src="./multimedia/tizihause.jpg" alt="TiziHause logo" class="brand-img me-2" style="height:44px">
-                <span class="fw-bold ms-1">TiziHause</span>
+                <img src="./multimedia/tizihause.jpg" alt="TiziHause logo" class="brand-img me-2">
             </a>
 
             <div id="headerActions" class="ms-auto d-flex align-items-center gap-2">
@@ -138,7 +137,8 @@
                 </div>
                 <div class="modal-footer">
                     <div id="resError" class="text-danger small me-auto d-none"></div>
-                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                        data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-accent btn-sm" id="resConfirmBtn">Confirmar reserva</button>
                 </div>
             </div>
@@ -216,24 +216,80 @@
                         ? `<img src="${escapeHtmlAttr(avatarUrl)}" alt="avatar" class="header-avatar">`
                         : `<span class="header-avatar bg-secondary d-inline-block" style="display:inline-block;text-align:center;line-height:32px;color:#fff">👤</span>`;
 
+                    // show host panel in menu when user has the 'anfitrion' role
+                    const isHost = Array.isArray(user.roles) && user.roles.includes('anfitrion');
+
                     container.innerHTML = `
                         <div class="d-flex align-items-center gap-2">
                             ${avatarHtml}
                             <span class="d-none d-md-inline">${escapeHtml(displayName)}</span>
-                            <a href="/profile_edit.html" class="btn btn-sm btn-outline-secondary">Perfil</a>
-                            <button id="headerLogoutBtn" class="btn btn-sm btn-danger">Cerrar sesión</button>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="headerMenuBtn" data-bs-toggle="dropdown" data-bs-offset="0,8" aria-expanded="false" aria-label="Menú de usuario">☰</button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="headerMenuBtn">
+                                    <li><a class="dropdown-item" href="/profile_edit.html">Perfil</a></li>
+                                    ${isHost ? `<li><a class="dropdown-item" href="/host/host-dashboard.html">Panel de Anfitrión</a></li>` : ''}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><button id="headerLogoutBtn" class="dropdown-item text-danger">Cerrar sesión</button></li>
+                                </ul>
+                            </div>
                         </div>
                     `;
 
+                    // (No inline header transform — restored to default styling)
+
                     const logoutBtn = document.getElementById('headerLogoutBtn');
                     if (logoutBtn) {
-                        logoutBtn.addEventListener('click', async () => {
+                        logoutBtn.addEventListener('click', async (e) => {
+                            e.preventDefault();
+
+                            async function ensureAppModal() {
+                                if (typeof window.showAppModal === 'function') return true;
+                                return new Promise((resolve) => {
+                                    const s = document.createElement('script');
+                                    s.src = '/js/app-modal.js';
+                                    s.onload = () => resolve(typeof window.showAppModal === 'function');
+                                    s.onerror = () => resolve(false);
+                                    document.head.appendChild(s);
+                                    setTimeout(() => resolve(typeof window.showAppModal === 'function'), 800);
+                                });
+                            }
+
+                            let confirmed = false;
                             try {
-                                await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
-                            } catch (e) { console.warn('logout failed', e); }
-                            // clear sessionStorage and redirect to login
-                            try { sessionStorage.removeItem('user_id'); sessionStorage.removeItem('user_name'); sessionStorage.removeItem('host_id'); } catch (e) { }
-                            window.location.href = '/login.html';
+                                const hasModal = await ensureAppModal();
+                                if (hasModal) {
+                                    confirmed = await window.showAppModal({
+                                        title: 'Confirmar sesión',
+                                        message: '¿Deseas cerrar sesión?',
+                                        okText: 'Cerrar sesión',
+                                        cancelText: 'Cancelar'
+                                    });
+                                } else {
+                                    confirmed = confirm('¿Deseas cerrar sesión?');
+                                }
+                            } catch (err) {
+                                console.error('logout modal error', err);
+                                confirmed = confirm('¿Deseas cerrar sesión?');
+                            }
+
+                            if (!confirmed) return;
+
+                            try {
+                                const res = await fetch('/api/auth/logout', {
+                                    method: 'POST',
+                                    credentials: 'same-origin'
+                                });
+                                if (!res.ok) {
+                                    const err = await res.json().catch(() => ({}));
+                                    alert(err.error || 'No se pudo cerrar sesión');
+                                    return;
+                                }
+                                try { sessionStorage.removeItem('user_id'); sessionStorage.removeItem('user_name'); sessionStorage.removeItem('host_id'); } catch (e) { }
+                                window.location.href = '/login.html';
+                            } catch (err) {
+                                console.error('logout error', err);
+                                alert('Error al cerrar sesión');
+                            }
                         });
                     }
 
