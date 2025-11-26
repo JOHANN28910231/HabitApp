@@ -76,4 +76,5 @@ module.exports = {
     existsReviewForReservation,
     getReviewsByProperty,
     getReviewsByRoom,
+    getAllReviews,
 };
