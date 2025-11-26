@@ -17,11 +17,21 @@ async function findByEmail(email) {
   return rows[0] || null;
 }
 
-async function create({ email, nombre_completo, password_hash, telefono, genero }) {
+async function create({ email, nombre_completo, password_hash, telefono, genero, municipio, estado, nacionalidad, fecha_nacimiento }) {
   const [result] = await pool.query(
-    `INSERT INTO usuarios (nombre_completo, email, password_hash, telefono, genero)
-     VALUES (?, ?, ?, ?, ?)`,
-    [nombre_completo || null, email, password_hash, telefono || null, genero || null]
+    `INSERT INTO usuarios (nombre_completo, email, password_hash, telefono, genero, municipio, estado, nacionalidad, fecha_nacimiento)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      nombre_completo || null,
+      email,
+      password_hash,
+      telefono || null,
+      genero || null,
+      municipio || null,
+      estado || null,
+      nacionalidad || null,
+      fecha_nacimiento || null
+    ]
   );
   return findById(result.insertId);
 }

@@ -35,6 +35,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const hostId = user.id_usuario || user.id;
             if (hostId) sessionStorage.setItem('host_id', String(hostId));
           }
+          // guardar foto de perfil si viene
+          const avatar = user.foto_url || user.fotoUrl || user.avatar || user.foto;
+          if (avatar) {
+            // normalizar ruta relativa
+            const avatarUrl = (avatar.startsWith('/') || /^https?:\/\//i.test(avatar)) ? avatar : ('/' + avatar);
+            sessionStorage.setItem('user_photo', avatarUrl);
+          }
         }
       } catch (e) { console.warn('No se pudo guardar sessionStorage tras login', e); }
 

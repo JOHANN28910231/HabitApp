@@ -134,6 +134,23 @@ body {
     background: var(--accent-dark);
 }
 
+/* Profile button styling (small button but accent colored, darker on hover) */
+.profile-btn {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+}
+
+.profile-btn:hover,
+.profile-btn:focus {
+    background: var(--accent-dark);
+    color: #fff;
+    text-decoration: none;
+}
+
 /* Titles */
 .section-title {
     font-weight: 700;
@@ -173,4 +190,18 @@ body {
 /* pequeño ajuste para input file en móviles */
 #idFile {
     padding: 0.375rem 0.75rem;
+}
+
+/* Logout button: green default, red on hover (consistent across header and pages) */
+.logout-btn {
+    background-color: #198754;
+    color: #fff;
+    border: 1px solid #198754;
+}
+
+.logout-btn:hover,
+.logout-btn:focus {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
 }
