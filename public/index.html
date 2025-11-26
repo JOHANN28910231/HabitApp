@@ -65,8 +65,8 @@
         </section>
 
         <!-- Resultados de búsqueda -->
-        <section class="mt-4">
-            <h2 class="h5 mb-3">Resultados de búsqueda</h2>
+        <section id="resultsSection" class="mt-5 d-none">
+            <h2 class="h5 mb-4">Resultados de búsqueda</h2>
             <div id="searchResults" class="row g-4"></div>
         </section>
 
@@ -104,6 +104,46 @@
             </div>
         </section>
     </main>
+    <!-- Modal: Confirmar reservación -->
+    <div class="modal fade" id="reservationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar reservación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="resPropName" class="fw-semibold mb-1"></p>
+                    <p id="resLocation" class="text-muted small mb-2"></p>
+                    <p id="resRoomDesc" class="small mb-3"></p>
+
+                    <ul class="list-unstyled small mb-3">
+                        <li><strong>Fechas:</strong> <span id="resDates"></span></li>
+                        <li><strong>Huéspedes:</strong> <span id="resGuests"></span></li>
+                        <li><strong>Precio estimado:</strong> <span id="resTotal"></span></li>
+                    </ul>
+
+                    <div class="alert alert-info small">
+                        El precio final se calcula automáticamente según el tipo de alojamiento seleccionado.
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small" for="resTipoAlojamiento">Tipo de alojamiento</label>
+                        <select id="resTipoAlojamiento" class="form-select form-select-sm">
+                            <option value="noche">Por noche</option>
+                            <option value="semana">Por semana</option>
+                            <option value="mes">Por mes</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div id="resError" class="text-danger small me-auto d-none"></div>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-accent btn-sm" id="resConfirmBtn">Confirmar reserva</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- ... Footer -->
     <footer class="footer py-4 bg-white mt-5 border-top">
