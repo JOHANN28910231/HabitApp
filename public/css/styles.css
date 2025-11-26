@@ -77,6 +77,12 @@ body {
     box-shadow: inset 0 -1px rgba(0, 0, 0, 0.03);
 }
 
+/* Ensure header sits above main content so dropdowns don't get clipped/overlapped */
+.site-header {
+    position: relative;
+    z-index: 1030;
+}
+
 .navbar .brand-img {
     height: 90px;
     width: auto;
@@ -204,4 +210,16 @@ body {
     background-color: #dc3545;
     border-color: #dc3545;
     color: #fff;
+}
+
+/* Small shift to the header hamburger/menu button to the right for visual alignment */
+/* Minimal header menu spacing */
+#headerMenuBtn {
+    margin-left: 5px;
+}
+
+@media (max-width: 420px) {
+    #headerMenuBtn {
+        margin-left: 3px;
+    }
 }
