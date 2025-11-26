@@ -197,5 +197,14 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).json({ error: err.message || 'Error interno' });
 });
 
+// para pruebas con thunder:
+
+const notificationsRoutes = require('./routes/notifications.routes');
+app.use('/api/notifications', notificationsRoutes);
+
+const reviewsRoutes = require('./routes/reviews.routes');
+app.use('/api/reviews', reviewsRoutes);
+
+
 module.exports = app;
 

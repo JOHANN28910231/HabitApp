@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Dejar reseña — TiziHause</title>
+
+    <!-- Bootstrap CSS (CDN) -->
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+            rel="stylesheet">
+
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body class="bg-site">
+<!-- HEADER -->
+<header class="site-header">
+    <nav class="container navbar navbar-expand-lg">
+        <a class="navbar-brand d-flex align-items-center" href="/"
+           aria-label="TiziHause - Inicio">
+            <img src="./multimedia/tizihause.jpg" alt="TiziHause logo"
+                 class="brand-img">
+        </a>
+
+        <div class="ms-auto d-flex align-items-center gap-2">
+            <a href="/register.html"
+               class="btn btn-light btn-sm rounded-pill">
+                Regístrate como Anfitrión
+            </a>
+            <div class="profile-circle">👤</div>
+        </div>
+    </nav>
+</header>
+
+<!-- MAIN -->
+<main class="container py-5">
+    <div class="row">
+        <div class="col-12 col-md-8 col-lg-6 mx-auto">
+            <article class="card auth-card p-4">
+                <h2 class="h4 text-center fw-bold mb-3">Dejar reseña de tu estancia</h2>
+
+                <!-- Caja de error -->
+                <div id="errorBox" class="alert alert-danger d-none"></div>
+
+                <!-- Info del token / estancia (opcional para mostrar datos) -->
+                <section id="tokenInfoSection"
+                         class="mb-3 p-3 rounded d-none"
+                         style="border:1px solid rgba(0,0,0,0.06); background:#f6f0e8;">
+                    <h3 class="h6 fw-semibold mb-2">Detalles de tu estancia</h3>
+                    <p id="tokenInfoText" class="mb-0 small text-muted"></p>
+                </section>
+
+                <!-- Formulario reseña -->
+                <section>
+                    <form id="reviewForm" novalidate class="d-none">
+                        <div class="mb-3">
+                            <label for="rating" class="form-label fw-semibold">Calificación</label>
+                            <select id="rating" name="rating"
+                                    class="form-select form-control-custom">
+                                <option value="1">1 ⭐</option>
+                                <option value="2">2 ⭐⭐</option>
+                                <option value="3" selected>3 ⭐⭐⭐</option>
+                                <option value="4">4 ⭐⭐⭐⭐</option>
+                                <option value="5">5 ⭐⭐⭐⭐⭐</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="titulo" class="form-label fw-semibold">Título de tu reseña</label>
+                            <input id="titulo" name="titulo" type="text"
+                                   class="form-control form-control-custom"
+                                   placeholder="Ej. Estancia muy cómoda y tranquila">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="comentario" class="form-label fw-semibold">Comentario</label>
+                            <textarea id="comentario" name="comentario" rows="4"
+                                      class="form-control form-control-custom"
+                                      placeholder="Cuéntanos cómo fue tu experiencia"></textarea>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" id="submitReviewBtn"
+                                    class="btn btn-accent btn-lg">
+                                Enviar reseña
+                            </button>
+                        </div>
+                    </form>
+
+                    <p class="small text-muted mt-3 mb-0">
+                        Solo puedes dejar una reseña por estancia y necesitas acceder desde el enlace
+                        que recibiste en tu correo.
+                    </p>
+                </section>
+            </article>
+        </div>
+    </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="container">
+        © <span id="year-reviews"></span> TiziHause — Info del footer
+    </div>
+</footer>
+
+<!-- Bootstrap JS bundle -->
+<script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- App JS -->
+<script>
+    // Actualizar año del footer
+    document.addEventListener('DOMContentLoaded', () => {
+        const span = document.getElementById('year-reviews');
+        if (span) span.textContent = new Date().getFullYear();
+    });
+</script>
+<script src="/js/reviews.js"></script>
+</body>
+
+</html>
