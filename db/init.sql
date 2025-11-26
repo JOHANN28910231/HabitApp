@@ -18,7 +18,7 @@ CREATE TABLE usuarios (
   nombre_completo  VARCHAR(100) NOT NULL,
   email            VARCHAR(100) NOT NULL UNIQUE,
   password_hash    VARCHAR(255) NOT NULL,
-  telefono         VARCHAR(20),
+  telefono         CHAR(20),
   genero           VARCHAR(20),
   municipio        VARCHAR(50),
   estado           VARCHAR(50),
