@@ -54,17 +54,42 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-// Sesión (express-mysql-session si está disponible)
+/// Sesión (express-mysql-session si está disponible)
 let sessionStore;
-try {
-  const MySQLStoreFactory = require('express-mysql-session')(session);
-  const mysql = require('mysql2');
-  const { DB_HOST = '127.0.0.1', DB_PORT = 3306, DB_USER = 'root', DB_PASS = '', DB_NAME = 'habitapp' } = process.env;
-  const sessionPool = mysql.createPool({ host: DB_HOST, port: Number(DB_PORT), user: DB_USER, password: DB_PASS, database: DB_NAME, waitForConnections: true, connectionLimit: 5, charset: 'utf8mb4' });
-  sessionStore = new MySQLStoreFactory({}, sessionPool);
-} catch (err) {
-  // fallback to MemoryStore
+
+// Solo intentamos usar MySQLStore si NO estamos en test
+if (process.env.NODE_ENV !== 'test') {
+    try {
+        const MySQLStoreFactory = require('express-mysql-session')(session);
+        const mysql = require('mysql2');
+
+        const {
+            DB_HOST = '127.0.0.1',
+            DB_PORT = 3306,
+            DB_USER = 'root',
+            DB_PASS = '',
+            DB_NAME = 'habitapp',
+        } = process.env;
+
+        const sessionPool = mysql.createPool({
+            host: DB_HOST,
+            port: Number(DB_PORT),
+            user: DB_USER,
+            password: DB_PASS,
+            database: DB_NAME,
+            waitForConnections: true,
+            connectionLimit: 5,
+            charset: 'utf8mb4',
+        });
+
+        sessionStore = new MySQLStoreFactory({}, sessionPool);
+    } catch (err) {
+        console.warn('No se pudo inicializar MySQLStore para sesiones. Usando MemoryStore.', err.message);
+        // sessionStore se queda undefined → MemoryStore
+    }
 }
+// Si NODE_ENV === 'test', no se toca nada y dejamos MemoryStore por defecto
+
 
 app.use(session({
   name: process.env.SESSION_NAME || 'habitapp.sid',

@@ -17,6 +17,7 @@ const meses = {
 function safe(v) {
     return (v === null || v === undefined) ? "-" : String(v);
 }
+exports.safe = safe;
 
 // -----------------------------------------------------------
 // HEADER CORPORATIVO
@@ -32,6 +33,7 @@ function header(doc, titulo, subtitulo = "") {
     }
     doc.restore();
 }
+exports.header = header;
 
 // -----------------------------------------------------------
 // AUTO-CÁLCULO DE ANCHOS DE COLUMNA
@@ -115,6 +117,7 @@ function drawTable(doc, headers, rows, x, y, totalWidth) {
 
     return y;
 }
+exports.drawTable = drawTable;
 
 // -----------------------------------------------------------
 // ENDPOINTS JSON — FILTRADO POR FECHA DE PAGO
@@ -234,8 +237,9 @@ exports.ventasRangoPdf = async (req, res) => {
         return doc.end();
     }
 
-    const headers = ["Propiedad", "Cuarto", "Cliente", "Entrada", "Salida", "Pago", "Total"];
+    const headers = ["Propiedad", "Cuarto", "Cliente", "Entrada", "Salida", "Pago", "Total", "Estado"];
 
+    // Map rows for table, including estado_pago for color
     const rowsMapped = rows.map(r => [
         r.propiedad,
         r.cuarto,
@@ -243,14 +247,75 @@ exports.ventasRangoPdf = async (req, res) => {
         r.fecha_entrada ? new Date(r.fecha_entrada).toLocaleDateString("es-MX") : "-",
         r.fecha_salida ? new Date(r.fecha_salida).toLocaleDateString("es-MX") : "-",
         r.fecha_pago ? new Date(r.fecha_pago).toLocaleDateString("es-MX") : "-",
-        `$${parseFloat(r.total).toFixed(2)}`
+        `$${parseFloat(r.total).toFixed(2)}`,
+        r.estado_pago
     ]);
 
     const totalWidth = doc.page.width - 72;
 
-    const endY = drawTable(doc, headers, rowsMapped, 36, doc.y, totalWidth);
+    // Custom drawTable to color estado_pago
+    function drawTableWithStatus(doc, headers, rows, x, y, totalWidth) {
+        const headerH = 28;
+        const rowH = 26;
+        const borderColor = "#bdbdbd";
+        const colWidths = computeColumnWidths(doc, headers, rows, totalWidth);
 
-    const total = rows.reduce((s, r) => s + (parseFloat(r.total) || 0), 0);
+        // HEADER
+        doc.fillColor("#eeeeee")
+            .rect(x, y, totalWidth, headerH)
+            .fill();
+        doc.font("Helvetica-Bold").fontSize(10).fillColor("#000");
+        let cx = x;
+        headers.forEach((h, i) => {
+            doc.text(h, cx + 4, y + 8, { width: colWidths[i] - 8, align: "left" });
+            doc.rect(cx, y, colWidths[i], headerH).strokeColor(borderColor).stroke();
+            cx += colWidths[i];
+        });
+        y += headerH;
+        doc.font("Helvetica").fontSize(9).fillColor("#000");
+        // FILAS
+        rows.forEach((row, rIndex) => {
+            cx = x;
+            const bg = rIndex % 2 === 0 ? "#FFFFFF" : "#f8f8f8";
+            doc.fillColor(bg)
+                .rect(x, y, totalWidth, rowH)
+                .fill();
+            row.forEach((cell, i) => {
+                // Estado_pago en color
+                if (i === row.length - 1) {
+                    if (cell === 'aprobado') {
+                        doc.fillColor("#1B7F5A"); // verde
+                    } else if (cell === 'rechazado') {
+                        doc.fillColor("#D32F2F"); // rojo
+                    } else {
+                        doc.fillColor("#888");
+                    }
+                    doc.text(cell, cx + 4, y + 6, {
+                        width: colWidths[i] - 8,
+                        align: "left"
+                    });
+                    doc.fillColor("#000");
+                } else {
+                    doc.fillColor("#000")
+                        .text(safe(cell), cx + 4, y + 6, {
+                            width: colWidths[i] - 8,
+                            align: "left"
+                        });
+                }
+                doc.rect(cx, y, colWidths[i], rowH)
+                    .strokeColor(borderColor)
+                    .stroke();
+                cx += colWidths[i];
+            });
+            y += rowH;
+        });
+        return y;
+    }
+
+    const endY = drawTableWithStatus(doc, headers, rowsMapped, 36, doc.y, totalWidth);
+
+    // Solo sumar aprobados
+    const total = rows.reduce((s, r) => s + (r.estado_pago === 'aprobado' ? (parseFloat(r.total) || 0) : 0), 0);
 
     doc.font("Helvetica-Bold")
         .fontSize(12)
@@ -315,8 +380,9 @@ exports.ventasPeriodoPdf = async (req, res) => {
         return doc.end();
     }
 
-    const headers = ["Propiedad", "Cuarto", "Cliente", "Entrada", "Salida", "Pago", "Total"];
+    const headers = ["Propiedad", "Cuarto", "Cliente", "Entrada", "Salida", "Pago", "Total", "Estado"];
 
+    // Map rows for table, including estado_pago for color
     const rowsMapped = rows.map(r => [
         r.propiedad,
         r.cuarto,
@@ -324,14 +390,75 @@ exports.ventasPeriodoPdf = async (req, res) => {
         r.fecha_entrada ? new Date(r.fecha_entrada).toLocaleDateString("es-MX") : "-",
         r.fecha_salida ? new Date(r.fecha_salida).toLocaleDateString("es-MX") : "-",
         r.fecha_pago ? new Date(r.fecha_pago).toLocaleDateString("es-MX") : "-",
-        `$${parseFloat(r.total).toFixed(2)}`
+        `$${parseFloat(r.total).toFixed(2)}`,
+        r.estado_pago
     ]);
 
     const totalWidth = doc.page.width - 72;
 
-    const endY = drawTable(doc, headers, rowsMapped, 36, doc.y, totalWidth);
+    // Custom drawTable to color estado_pago
+    function drawTableWithStatus(doc, headers, rows, x, y, totalWidth) {
+        const headerH = 28;
+        const rowH = 26;
+        const borderColor = "#bdbdbd";
+        const colWidths = computeColumnWidths(doc, headers, rows, totalWidth);
 
-    const total = rows.reduce((s, r) => s + (parseFloat(r.total) || 0), 0);
+        // HEADER
+        doc.fillColor("#eeeeee")
+            .rect(x, y, totalWidth, headerH)
+            .fill();
+        doc.font("Helvetica-Bold").fontSize(10).fillColor("#000");
+        let cx = x;
+        headers.forEach((h, i) => {
+            doc.text(h, cx + 4, y + 8, { width: colWidths[i] - 8, align: "left" });
+            doc.rect(cx, y, colWidths[i], headerH).strokeColor(borderColor).stroke();
+            cx += colWidths[i];
+        });
+        y += headerH;
+        doc.font("Helvetica").fontSize(9).fillColor("#000");
+        // FILAS
+        rows.forEach((row, rIndex) => {
+            cx = x;
+            const bg = rIndex % 2 === 0 ? "#FFFFFF" : "#f8f8f8";
+            doc.fillColor(bg)
+                .rect(x, y, totalWidth, rowH)
+                .fill();
+            row.forEach((cell, i) => {
+                // Estado_pago en color
+                if (i === row.length - 1) {
+                    if (cell === 'aprobado') {
+                        doc.fillColor("#1B7F5A"); // verde
+                    } else if (cell === 'rechazado') {
+                        doc.fillColor("#D32F2F"); // rojo
+                    } else {
+                        doc.fillColor("#888");
+                    }
+                    doc.text(cell, cx + 4, y + 6, {
+                        width: colWidths[i] - 8,
+                        align: "left"
+                    });
+                    doc.fillColor("#000");
+                } else {
+                    doc.fillColor("#000")
+                        .text(safe(cell), cx + 4, y + 6, {
+                            width: colWidths[i] - 8,
+                            align: "left"
+                        });
+                }
+                doc.rect(cx, y, colWidths[i], rowH)
+                    .strokeColor(borderColor)
+                    .stroke();
+                cx += colWidths[i];
+            });
+            y += rowH;
+        });
+        return y;
+    }
+
+    const endY = drawTableWithStatus(doc, headers, rowsMapped, 36, doc.y, totalWidth);
+
+    // Solo sumar aprobados
+    const total = rows.reduce((s, r) => s + (r.estado_pago === 'aprobado' ? (parseFloat(r.total) || 0) : 0), 0);
 
     doc.font("Helvetica-Bold")
         .fontSize(12)

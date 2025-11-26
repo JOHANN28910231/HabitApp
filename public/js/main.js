@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resPropName        = document.getElementById('resPropName');
     const resLocation        = document.getElementById('resLocation');
     const resRoomDesc        = document.getElementById('resRoomDesc');
+    const resServices        = document.getElementById('resServices'); // NUEVO
     const resDates           = document.getElementById('resDates');
     const resGuests          = document.getElementById('resGuests');
     const resTotal           = document.getElementById('resTotal');
@@ -37,12 +38,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================
     const todayISO = new Date().toISOString().slice(0, 10);
     if (llegadaInput) llegadaInput.min = todayISO;
-    if (salidaInput) salidaInput.min = todayISO;
+    if (salidaInput)  salidaInput.min  = todayISO;
 
     llegadaInput?.addEventListener('change', () => {
         if (!llegadaInput.value) return;
         const d = new Date(llegadaInput.value);
-        d.setDate(d.getDate() + 1); // salida mínimo día siguiente
+        d.setDate(d.getDate() + 1);
         const minSalida = d.toISOString().slice(0, 10);
         salidaInput.min = minSalida;
         if (salidaInput.value && salidaInput.value < minSalida) {
@@ -78,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (err) {
                 console.warn('Error obteniendo sugerencias', err);
             }
-        }, 250); // pequeño debounce
+        }, 250);
     });
 
     function renderSuggestions(items) {
@@ -114,7 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const to      = salidaInput.value;
         const guests  = parseInt(huespedesInput.value || '1', 10);
 
-        // Validación básica en front (además del backend)
         if (!from || !to) {
             alert('Selecciona fechas de llegada y salida');
             return;
@@ -131,7 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Guardamos la búsqueda actual para usarla al reservar
         lastSearch = { destino, from, to, guests };
 
         try {
@@ -161,6 +160,98 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // =====================================
+    // Helpers para tipo de alojamiento
+    // =====================================
+    function calcNights(from, to) {
+        const dFrom = new Date(from);
+        const dTo   = new Date(to);
+        const diff  = (dTo - dFrom) / (1000 * 60 * 60 * 24);
+        return isNaN(diff) ? 0 : diff;
+    }
+
+    function calcEstimatedTotal(room, tipo, from, to) {
+        const nights = calcNights(from, to);
+        if (!nights || nights <= 0) return null;
+
+        const pn = Number(room.precio_por_noche || 0);
+        const pw = Number(room.precio_por_semana || 0);
+        const pm = Number(room.precio_por_mes || 0);
+
+        if (tipo === 'semana' && pw > 0) {
+            const weeks    = Math.floor(nights / 7);
+            const extra    = nights % 7;
+            const dailyW   = pw / 7;
+            return weeks * pw + extra * dailyW;
+        }
+
+        if (tipo === 'mes' && pm > 0) {
+            const daysPerMonth = 30;
+            const months  = Math.floor(nights / daysPerMonth);
+            const extra   = nights % daysPerMonth;
+            const dailyM  = pm / daysPerMonth;
+            return months * pm + extra * dailyM;
+        }
+
+        // Por defecto, por noche
+        if (pn > 0) {
+            return pn * nights;
+        }
+
+        return null;
+    }
+
+    function setupTipoAlojamientoOptions(room, from, to) {
+        if (!resTipoAlojamiento) return;
+
+        const nights = calcNights(from, to);
+
+        // Limpiar opciones
+        resTipoAlojamiento.innerHTML = '';
+
+        // Siempre existe "por noche"
+        const optNoche = document.createElement('option');
+        optNoche.value = 'noche';
+        optNoche.textContent = 'Por noche';
+        resTipoAlojamiento.appendChild(optNoche);
+
+        if (nights >= 7) {
+            const optSemana = document.createElement('option');
+            optSemana.value = 'semana';
+            optSemana.textContent = 'Por semana';
+            resTipoAlojamiento.appendChild(optSemana);
+        }
+
+        if (nights >= 30) {
+            const optMes = document.createElement('option');
+            optMes.value = 'mes';
+            optMes.textContent = 'Por mes';
+            resTipoAlojamiento.appendChild(optMes);
+        }
+
+        // Primera opción seleccionada
+        resTipoAlojamiento.value = resTipoAlojamiento.options[0].value;
+
+        // Actualizar el total mostrado
+        const total = calcEstimatedTotal(room, resTipoAlojamiento.value, from, to);
+        if (resTotal) {
+            resTotal.textContent = total
+                ? `$${total.toLocaleString()} MXN (aprox.)`
+                : 'Se calculará al confirmar';
+        }
+
+        // Evitar múltiples listeners
+        resTipoAlojamiento.onchange = () => {
+            const selectedTipo = resTipoAlojamiento.value;
+            const newTotal = calcEstimatedTotal(room, selectedTipo, from, to);
+            if (resTotal) {
+                resTotal.textContent = newTotal
+                    ? `$${newTotal.toLocaleString()} MXN (aprox.)`
+                    : 'Se calculará al confirmar';
+            }
+        };
+    }
+
+    // =====================================
     // 4) Abrir modal de reservación
     // =====================================
     function openReservationModal(room) {
@@ -176,33 +267,37 @@ document.addEventListener('DOMContentLoaded', () => {
             resError.classList.add('d-none');
         }
 
-        if (resPropName)  resPropName.textContent  = room.nombre_propiedad || 'Propiedad';
-        if (resLocation)  resLocation.textContent  = `${room.municipio || ''}, ${room.estado || ''}`;
-        if (resRoomDesc)  resRoomDesc.textContent  = room.habitacion_descripcion || room.descripcion || 'Habitación disponible';
+        if (resPropName)  resPropName.textContent = room.nombre_propiedad || 'Propiedad';
+        if (resLocation)  resLocation.textContent = `${room.municipio || ''}, ${room.estado || ''}`;
+        if (resRoomDesc)  resRoomDesc.textContent = room.habitacion_descripcion || room.descripcion || 'Habitación disponible';
+
+        // Servicios: usar lo que viene de searchAvailableRooms (campo servicios)
+        if (resServices) {
+            if (room.servicios && room.servicios.trim()) {
+                // room.servicios viene como string "Wifi, Cocina, Estacionamiento"
+                resServices.textContent = 'Servicios: ' + room.servicios;
+            } else {
+                resServices.textContent = 'Servicios: No especificados.';
+            }
+        }
+
 
         const { from, to, guests } = lastSearch;
         if (resDates)   resDates.textContent  = (from && to) ? `${from} → ${to}` : '—';
         if (resGuests)  resGuests.textContent = guests || 1;
 
-        let totalText = 'Se calculará al confirmar';
-        if (room.precio_por_noche && from && to) {
-            const dFrom = new Date(from);
-            const dTo   = new Date(to);
-            const diff  = (dTo - dFrom) / (1000 * 60 * 60 * 24);
-            if (!isNaN(diff) && diff > 0) {
-                const total = Number(room.precio_por_noche) * diff;
-                totalText = `$${total.toLocaleString()} MXN (aprox.)`;
-            }
+        // Configurar opciones de tipo de alojamiento según número de noches
+        if (from && to) {
+            setupTipoAlojamientoOptions(room, from, to);
+        } else if (resTotal) {
+            resTotal.textContent = 'Se calculará al confirmar';
         }
-        if (resTotal) resTotal.textContent = totalText;
-
-        if (resTipoAlojamiento) resTipoAlojamiento.value = 'noche';
 
         resModalInstance.show();
     }
 
     // =====================================
-    // 5) Confirmar reservación (POST /api/reservations) + REDIRECCIÓN A PAGO
+    // 5) Confirmar reservación (POST /api/reservations)
     // =====================================
     if (resConfirmBtn) {
         resConfirmBtn.addEventListener('click', async () => {
@@ -221,9 +316,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const body = {
-                    id_habitacion: currentRoom.id_habitacion,
-                    fecha_inicio : from,
-                    fecha_salida : to,
+                    id_habitacion  : currentRoom.id_habitacion,
+                    fecha_inicio   : from,
+                    fecha_salida   : to,
                     tipo_alojamiento: tipo,
                 };
 
@@ -236,16 +331,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const data = await res.json().catch(() => ({}));
 
-                // --- LÓGICA 401 (ya iniciada sesión o no) ---
+                // Manejo especial de 401
                 if (res.status === 401) {
                     try {
-                        // Verificamos si REALMENTE no hay sesión
                         const meRes = await fetch('/api/auth/me', {
                             credentials: 'same-origin',
                         });
 
                         if (meRes.ok) {
-                            // Hay sesión, pero el backend bloqueó la reserva por otra razón
                             if (resError) {
                                 resError.textContent = data.error || 'No tienes permiso para realizar esta reservación.';
                                 resError.classList.remove('d-none');
@@ -256,7 +349,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.warn('Error verificando sesión en /api/auth/me', e);
                     }
 
-                    // Aquí SÍ asumimos que no hay sesión y redirigimos al login
                     if (resError) {
                         resError.textContent = 'Debes iniciar sesión para reservar. Te redirigiremos al inicio de sesión.';
                         resError.classList.remove('d-none');
@@ -266,7 +358,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 1500);
                     return;
                 }
-                // --- FIN LÓGICA 401 ---
 
                 if (!res.ok) {
                     if (resError) {
@@ -276,28 +367,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                // Aquí ya tenemos la reserva creada correctamente
-                const reservaId = data.id_reservacion;
-                const monto     = data.monto_total;
+                // ÉXITO: redirigir a checkout con id_reservacion y monto_total
+                const reservationId = data.id_reservacion;
+                const amount        = data.monto_total || 0;
 
-                if (!reservaId || !monto) {
-                    if (resError) {
-                        resError.textContent = 'La reservación se creó, pero faltan datos para continuar con el pago.';
-                        resError.classList.remove('d-none');
-                    }
+                if (!reservationId) {
+                    alert('Reservación creada, pero no se recibió el ID. Contacta al administrador.');
                     return;
                 }
 
-                // Cerrar el modal
-                if (resModalInstance) {
-                    resModalInstance.hide();
-                }
-                currentRoom = null;
+                window.location.href =
+                    `/payment/checkout.html?reservationId=${encodeURIComponent(reservationId)}` +
+                    `&amount=${encodeURIComponent(amount)}`;
 
-                // Redirigir al checkout de pago con los datos necesarios
-                window.location.href = `/payment/checkout.html?rid=${encodeURIComponent(
-                    reservaId
-                )}&amount=${encodeURIComponent(monto)}`;
             } catch (err) {
                 console.error(err);
                 if (resError) {
@@ -314,7 +396,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderResults(list) {
         if (!resultsContainer) return;
 
-        // Mostrar la sección de resultados cuando ya hubo una búsqueda
         if (resultsSection) {
             resultsSection.classList.remove('d-none');
         }
@@ -338,8 +419,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? `$${Number(item.precio_por_noche).toLocaleString()} / noche`
                 : 'Consulta precios';
 
+            const imgHtml = item.foto_principal
+                ? `<img src="${item.foto_principal}" class="card-img-top" alt="Foto de la habitación">`
+                : '';
+
             col.innerHTML = `
         <div class="card rounded-4 shadow-sm h-100">
+          ${imgHtml}
           <div class="card-body d-flex flex-column">
             <h5 class="card-title mb-1">${item.nombre_propiedad}</h5>
             <p class="mb-1 text-muted small">${item.municipio}, ${item.estado}</p>
@@ -360,7 +446,6 @@ document.addEventListener('DOMContentLoaded', () => {
             resultsContainer.appendChild(col);
         });
 
-        // Conectar los botones "Ver detalles y reservar"
         const buttons = resultsContainer.querySelectorAll('.btn-reservar');
         buttons.forEach(btn => {
             const roomId = Number(btn.dataset.roomId);

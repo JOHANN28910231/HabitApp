@@ -18,7 +18,7 @@ CREATE TABLE usuarios (
   nombre_completo  VARCHAR(100) NOT NULL,
   email            VARCHAR(100) NOT NULL UNIQUE,
   password_hash    VARCHAR(255) NOT NULL,
-  telefono         VARCHAR(20),
+  telefono         CHAR(20),
   genero           VARCHAR(20),
   municipio        VARCHAR(50),
   estado           VARCHAR(50),
@@ -26,7 +26,6 @@ CREATE TABLE usuarios (
   fecha_nacimiento DATE,
   fecha_registro   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   estado_cuenta    ENUM('activo','bloqueado') NOT NULL DEFAULT 'activo',
-  foto_url         VARCHAR(255) NULL,
   INDEX idx_usuarios_municipio_estado (municipio, estado)
 ) ENGINE=InnoDB;
 
@@ -208,9 +207,7 @@ CREATE TABLE resenas (
     FOREIGN KEY (id_propiedad) REFERENCES propiedades(id_propiedad)
     ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT chk_resena_rating CHECK (rating BETWEEN 1 AND 5),
-  CONSTRAINT chk_resena_destino CHECK (
-    (id_habitacion IS NOT NULL) OR (id_propiedad IS NOT NULL)
-  ),
+
   INDEX idx_resena_visible (visible),
   INDEX idx_resena_destinos (id_habitacion, id_propiedad)
 ) ENGINE=InnoDB;
@@ -228,5 +225,5 @@ CREATE INDEX idx_propiedad_estado
 --  SEED: roles base
 -- =====================================================================
 INSERT INTO roles (nombre) VALUES
-  ('huesped'), ('anfitrion'), ('admin_global')
+  ('huesped'), ('anfitrion'), ('admin_global'), ('admin_secundario')
 ON DUPLICATE KEY UPDATE nombre = VALUES(nombre);
