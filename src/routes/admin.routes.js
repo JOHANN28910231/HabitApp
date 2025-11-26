@@ -1,7 +1,11 @@
-// src/routes/admin.routes.js
+
 const express = require('express');
 const router = express.Router();
 const pool = require('../utils/db');
+
+const adminReports = require('../controllers/admin.reports.controller');
+
+
 
 const {
     getHosts,
@@ -10,6 +14,9 @@ const {
     deleteProperty,
     deleteRoom
 } = require('../controllers/admin.controller');
+
+// === REPORTE PDF DE VENTAS GLOBAL ===
+router.get('/admin/reportes/ventas/pdf', adminReports.ventasPdf);
 
 // ===========================================================
 // LISTA DE ANFITRIONES (NUEVO ENDPOINT)

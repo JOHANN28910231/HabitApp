@@ -216,14 +216,7 @@ async function suggestDestinos(q) {
  *  - respeten capacidad >= guests
  *  - coincidan con el destino (municipio/estado/nombre_propiedad)
  *  - NO tengan reservas ni bloqueos en el rango [from, to)
- */
-/**
- * Busca habitaciones que:
- *  - estén activas
- *  - de propiedades activas
- *  - respeten capacidad >= guests
- *  - coincidan con el destino (municipio/estado/nombre_propiedad)
- *  - NO tengan reservas ni bloqueos en el rango [from, to)
+ *  - incluyan foto_principal y lista de servicios
  */
 async function searchAvailableRooms({ destino, from, to, guests }) {
     const raw = (destino || '').trim();
@@ -234,11 +227,11 @@ async function searchAvailableRooms({ destino, from, to, guests }) {
 
     if (raw) {
         const parts = raw.split(',');
-        const cityPart = (parts[0] || '').trim();   // ej. "Tizimín"
-        const statePart = (parts[1] || '').trim();  // ej. "Yucatán"
+        const cityPart  = (parts[0] || '').trim();   // ej. "Tizimín"
+        const statePart = (parts[1] || '').trim();   // ej. "Yucatán"
 
         if (cityPart && statePart) {
-            // Caso "Ciudad, Estado" → municipio AND estado
+            // Caso "Ciudad, Estado"
             ubicFilter = `
         (
           (p.municipio LIKE ? AND p.estado LIKE ?)
@@ -253,7 +246,7 @@ async function searchAvailableRooms({ destino, from, to, guests }) {
                 `%${raw}%`         // "Ciudad, Estado"
             );
         } else {
-            // Caso "Mérida" o "Yucatán" (una sola parte) → búsqueda más flexible
+            // Caso una sola parte: "Mérida" o "Yucatán"
             const like = `%${raw}%`;
             ubicFilter = `
         (
@@ -267,7 +260,9 @@ async function searchAvailableRooms({ destino, from, to, guests }) {
         }
     }
 
-    // 1) Candidatas por ubicación + capacidad
+    // Fechas para la parte de disponibilidad
+    params.push(from, to, from, to);
+
     const [rows] = await db.execute(
         `
             SELECT
@@ -280,34 +275,56 @@ async function searchAvailableRooms({ destino, from, to, guests }) {
                 p.id_propiedad,
                 p.nombre_propiedad,
                 p.municipio,
-                p.estado
+                p.estado,
+                COALESCE(
+                        MIN(hf.url),
+                        '/fotosPropiedades/placeholder.jpg'
+                ) AS foto_principal,
+                GROUP_CONCAT(DISTINCT s.nombre ORDER BY s.nombre SEPARATOR ', ') AS servicios
             FROM habitacion h
                      JOIN propiedades p ON p.id_propiedad = h.id_propiedad
+                     LEFT JOIN habitacion_foto hf
+                               ON hf.id_habitacion = h.id_habitacion
+                     LEFT JOIN habitacion_servicio hs
+                               ON hs.id_habitacion = h.id_habitacion
+                     LEFT JOIN servicios s
+                               ON s.id_servicio = hs.id_servicio
             WHERE h.estado_habitacion = 'activa'
               AND p.estado_propiedad = 'activa'
               AND h.capacidad_maxima >= ?
               AND ${ubicFilter}
+              AND NOT EXISTS (
+                SELECT 1
+                FROM reservaciones r
+                WHERE r.id_habitacion = h.id_habitacion
+                  AND NOT (r.fecha_salida <= ? OR r.fecha_inicio >= ?)
+            )
+              AND NOT EXISTS (
+                SELECT 1
+                FROM habitacion_bloqueo b
+                WHERE b.id_habitacion = h.id_habitacion
+                  AND NOT (b.fecha_fin <= ? OR b.fecha_inicio >= ?)
+            )
+            GROUP BY
+                h.id_habitacion,
+                h.descripcion,
+                h.capacidad_maxima,
+                h.precio_por_noche,
+                h.precio_por_semana,
+                h.precio_por_mes,
+                p.id_propiedad,
+                p.nombre_propiedad,
+                p.municipio,
+                p.estado
+            ORDER BY
+                p.municipio,
+                p.nombre_propiedad,
+                h.id_habitacion
         `,
         params
     );
 
-    // 2) Filtrar por disponibilidad real (sin reservas ni bloqueos en [from, to))
-    const disponibles = [];
-
-    for (const row of rows) {
-        const id = row.id_habitacion;
-
-        const [reservas, bloqueos] = await Promise.all([
-            getReservationsForRoomInRange(id, from, to),
-            getBlocksForRoomInRange(id, from, to),
-        ]);
-
-        if (reservas.length === 0 && bloqueos.length === 0) {
-            disponibles.push(row);
-        }
-    }
-
-    return disponibles;
+    return rows;
 }
 
 module.exports = {

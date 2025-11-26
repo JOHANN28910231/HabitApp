@@ -108,7 +108,6 @@ router.post('/', requireAuth, upload.single('foto_propiedad'), async (req, res) 
             ubicacion_url,
             descripcion,
             politicas_hospedaje,
-            servicios_generales,
             fecha_registro,
             estado_propiedad
         } = req.body;
@@ -143,8 +142,8 @@ router.post('/', requireAuth, upload.single('foto_propiedad'), async (req, res) 
 
         const [result] = await pool.query(
             `INSERT INTO propiedades 
-            (id_anfitrion, nombre_propiedad, tipo_propiedad, direccion, codigo_postal, municipio, estado, ubicacion_url, descripcion, politicas_hospedaje, servicios_generales, fecha_registro, estado_propiedad, url_fotos_p)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            (id_anfitrion, nombre_propiedad, tipo_propiedad, direccion, codigo_postal, municipio, estado, ubicacion_url, descripcion, politicas_hospedaje, fecha_registro, estado_propiedad)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 id_anfitrion,
                 nombre_propiedad,
@@ -156,10 +155,8 @@ router.post('/', requireAuth, upload.single('foto_propiedad'), async (req, res) 
                 ubicacion_url,
                 descripcion,
                 politicas_hospedaje || null,
-                servicios_generales || null,
                 fechaReg || new Date().toISOString().slice(0, 10),
-                estado_propiedad || 'activa',
-                foto
+                estado_propiedad || 'activa'
             ]
         );
 
@@ -201,7 +198,6 @@ router.put('/:id', requireAuth, upload.single('foto_propiedad'), async (req, res
             ubicacion_url,
             descripcion,
             politicas_hospedaje,
-            servicios_generales,
             fecha_registro,
             estado_propiedad
         } = req.body;
@@ -222,7 +218,7 @@ router.put('/:id', requireAuth, upload.single('foto_propiedad'), async (req, res
 
         await pool.query(
             `UPDATE propiedades 
-            SET nombre_propiedad=?, tipo_propiedad=?, direccion=?, codigo_postal=?, municipio=?, estado=?, ubicacion_url=?, descripcion=?, politicas_hospedaje=?, servicios_generales=?, fecha_registro=?, estado_propiedad=?, url_fotos_p=?
+            SET nombre_propiedad=?, tipo_propiedad=?, direccion=?, codigo_postal=?, municipio=?, estado=?, ubicacion_url=?, descripcion=?, politicas_hospedaje=?, fecha_registro=?, estado_propiedad=?
             WHERE id_propiedad=?`,
             [
                 nombre_propiedad,
@@ -234,10 +230,8 @@ router.put('/:id', requireAuth, upload.single('foto_propiedad'), async (req, res
                 ubicacion_url,
                 descripcion,
                 politicas_hospedaje || null,
-                servicios_generales || null,
                 fecha_registro && fecha_registro.length ? fecha_registro : new Date().toISOString().slice(0, 10),
                 estado_propiedad || 'activa',
-                finalPhoto,
                 id
             ]
         );
