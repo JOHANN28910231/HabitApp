@@ -1,4 +1,4 @@
-﻿﻿const { findById, getRoles } = require('../models/user');
+﻿const { findById, getRoles } = require('../models/user');
 
 async function requireAuth(req, res, next) {
   try {

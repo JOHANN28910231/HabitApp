@@ -17,7 +17,12 @@ const reportsRoutes = require('./routes/reports.routes');
 const paymentsRoutes = require('./routes/payments.routes');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
+const availabilityRoutes = require('./routes/availability.routes');
+const reservationsRoutes = require('./routes/reservations.routes');
 const adminRoutes = require('./routes/admin.routes');
+const propertiesRoutes = require('./routes/properties.routes');
+const roomsRoutes = require('./routes/rooms.routes');
+
 
 // =====================================
 // 🔐 Seguridad / Logs / Parseo
@@ -58,7 +63,7 @@ try {
   const sessionPool = mysql.createPool({ host: DB_HOST, port: Number(DB_PORT), user: DB_USER, password: DB_PASS, database: DB_NAME, waitForConnections: true, connectionLimit: 5, charset: 'utf8mb4' });
   sessionStore = new MySQLStoreFactory({}, sessionPool);
 } catch (err) {
-  // fallback a MemoryStore
+  // fallback to MemoryStore
 }
 
 app.use(session({
@@ -67,10 +72,10 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   store: sessionStore,
-  cookie: { 
-    maxAge: Number(process.env.SESSION_MAX_AGE || 24 * 60 * 60 * 1000),
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    secure: process.env.NODE_ENV === 'production'
+  cookie: {
+      maxAge: Number(process.env.SESSION_MAX_AGE || 24 * 60 * 60 * 1000),
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: process.env.NODE_ENV === 'production'
   }
 }));
 
@@ -93,14 +98,22 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api', reportsRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api', adminRoutes);
+// disponibilidad / reservas
+app.use('/api/availability', availabilityRoutes);
+app.use('/api/reservations', reservationsRoutes);
+app.use('/api', adminRoutes);
+app.use('/api/properties', propertiesRoutes);
+app.use('/api/rooms', roomsRoutes);
+
 
 // =====================================
-// Endpoint: todas las ventas del host
-// =====================================
+// Endpoint para mostrar todas las ventas del host (compatibilidad)
 app.get('/api/host/:id/ventas', async (req, res) => {
   const hostId = req.params.id;
   try {
+    // Seleccionamos la reservación y el último pago asociado (si existe)
     const [rows] = await pool.query(`
       SELECT p.nombre_propiedad AS propiedad,
              p.descripcion AS propiedad_descripcion,
@@ -122,7 +135,6 @@ app.get('/api/host/:id/ventas', async (req, res) => {
       WHERE p.id_anfitrion = ?
       ORDER BY r.fecha_reserva DESC
     `, [hostId]);
-
     res.json(rows);
   } catch (err) {
     console.error(err);
@@ -135,8 +147,7 @@ app.get('/api/host/:id/ventas', async (req, res) => {
 // =====================================
 app.get('/api/host/:hostId/reservaciones/proximas', async (req, res) => {
   const hostId = req.params.hostId;
-
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date().toISOString().slice(0, 10); // hoy
   const oneYearLater = new Date();
   oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
   const to = oneYearLater.toISOString().slice(0, 10);
@@ -168,14 +179,10 @@ app.get('/api/host/:hostId/reservaciones/proximas', async (req, res) => {
   }
 });
 
-// =====================================
 // Health
-// =====================================
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
-// =====================================
 // Fallback SPA / 404
-// =====================================
 const indexPath = path.join(publicDir, 'login.html');
 app.get(/.*/, (req, res, next) => {
   if (req.method !== 'GET') return next();
@@ -184,12 +191,11 @@ app.get(/.*/, (req, res, next) => {
   res.status(404).type('txt').send('Recurso no encontrado');
 });
 
-// =====================================
 // Error handler
-// =====================================
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(err.status || 500).json({ error: err.message || 'Error interno' });
 });
 
 module.exports = app;
+

@@ -1,22 +1,22 @@
-// routes/admin.routes.js
+// src/routes/admin.routes.js
 const express = require('express');
 const router = express.Router();
 const pool = require('../utils/db');
 
 const {
-  getHosts,
-  getHostProperties,
-  getHostRooms,
-  deleteProperty,
-  deleteRoom
+    getHosts,
+    getHostProperties,
+    getHostRooms,
+    deleteProperty,
+    deleteRoom
 } = require('../controllers/admin.controller');
 
 // ===========================================================
 // LISTA DE ANFITRIONES (NUEVO ENDPOINT)
 // ===========================================================
 router.get('/hosts', async (req, res) => {
-  try {
-    const [rows] = await pool.query(`
+    try {
+        const [rows] = await pool.query(`
       SELECT 
         u.id_usuario AS id,
         u.nombre_completo AS nombre,
@@ -32,11 +32,11 @@ router.get('/hosts', async (req, res) => {
       ORDER BY u.nombre_completo ASC
     `);
 
-    res.json(rows);
-  } catch (err) {
-    console.error('Error obteniendo anfitriones:', err);
-    res.status(500).json({ error: 'Error obteniendo anfitriones' });
-  }
+        res.json(rows);
+    } catch (err) {
+        console.error('Error obteniendo anfitriones:', err);
+        res.status(500).json({ error: 'Error obteniendo anfitriones' });
+    }
 });
 
 // ===========================================================

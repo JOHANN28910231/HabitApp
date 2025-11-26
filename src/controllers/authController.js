@@ -36,7 +36,11 @@ async function register(req, res, next) {
     req.session.userId = user.id_usuario;
     req.session.user = { id_usuario: user.id_usuario, nombre_completo: user.nombre_completo, roles };
 
-    res.status(201).json({ user: { id: user.id_usuario, nombre_completo: user.nombre_completo, email: user.email, roles } });
+    // Asegurar que la sesión se escriba en el store antes de responder (evita condición de carrera)
+    req.session.save((err) => {
+      if (err) return next(err);
+      res.status(201).json({ user: { id: user.id_usuario, nombre_completo: user.nombre_completo, email: user.email, roles } });
+    });
   } catch (err) {
     next(err);
   }
@@ -62,7 +66,11 @@ async function login(req, res, next) {
     req.session.userId = userRow.id_usuario;
     req.session.user = { id_usuario: userRow.id_usuario, nombre_completo: userRow.nombre_completo, roles };
 
-    res.json({ user: { id: userRow.id_usuario, nombre_completo: userRow.nombre_completo, email: userRow.email, roles } });
+    // Asegurar que la sesión se escriba en el store antes de responder (evita condición de carrera)
+    req.session.save((err) => {
+      if (err) return next(err);
+      res.json({ user: { id: userRow.id_usuario, nombre_completo: userRow.nombre_completo, email: userRow.email, roles } });
+    });
   } catch (err) {
     next(err);
   }

@@ -5,7 +5,7 @@ const dayjs = require('dayjs');
 function diffDays(start, end) {
     const s = dayjs(start);
     const e = dayjs(end);
-    return e.diff(s, 'day');
+    return e.diff(s, 'day');//número de noches
 }
 
 function calculateTotalAmount(tipo, habitacion, fecha_inicio, fecha_salida) {
