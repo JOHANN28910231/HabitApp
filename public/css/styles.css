@@ -212,6 +212,78 @@ body {
     color: #fff;
 }
 
+/* =========================
+   Reseñas: modo visor (view-mode)
+   ========================= */
+
+.reviews-layout {
+    /* simplemente respeta el layout general */
+}
+
+.reviews-status {
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+.reviews-status--error {
+    color: #b91c1c;
+}
+
+.reviews-status--ok {
+    color: #166534;
+}
+
+/* Contenedor de tablas por habitación */
+.tables-container {
+    margin-top: 0.75rem;
+}
+
+/* Título por habitación */
+.room-title {
+    margin-top: 1.25rem;
+    margin-bottom: 0.35rem;
+    font-weight: 700;
+    color: var(--brand-color);
+    font-size: 1rem;
+}
+
+/* Tablas de reseñas */
+.tables-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.25rem;
+    background: var(--card);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 16px rgba(18, 36, 21, 0.04);
+}
+
+.tables-container thead {
+    background: var(--bg-header);
+}
+
+.tables-container th,
+.tables-container td {
+    padding: 0.45rem 0.6rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    font-size: 0.9rem;
+    color: var(--brand-color);
+}
+
+.tables-container th {
+    font-weight: 600;
+}
+
+.tables-container tbody tr:nth-child(even) td {
+    background: #f9faf5;
+}
+
+/* Mensaje cuando no hay resultados */
+.empty-message {
+    font-style: italic;
+    color: var(--muted);
+    margin-top: 0.75rem;
+}
 /* Small shift to the header hamburger/menu button to the right for visual alignment */
 /* Minimal header menu spacing */
 #headerMenuBtn {

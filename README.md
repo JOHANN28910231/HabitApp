@@ -11,18 +11,23 @@ Cumple los RF/RNF definidos (autenticación, roles, búsqueda, reservas, pagos s
 A continuación, se presenta el documento de Requerimientos Funcionales(RF) y Requerimientos No Funcionales(RNF) del sistema AppTiziHause
 - [Especificación de Requerimientos de Software.pdf](https://github.com/user-attachments/files/23600934/Especificacion.de.Requerimientos.de.Software.pdf)
 
+## Diseño de la base de datos
+Se tiene como diseño de la estructura de la base de datos el siguiente archivo tipo pdf donde viene especificado cada tabla con respecto a sus atributos y tipos de datos. Los cuáles fueron respetados al 100% para el desarrollo del sistema:
+- [DiseñoBD.pdf](https://github.com/user-attachments/files/23774402/DisenoBD.pdf)
 
 ## Stack
 
-Frontend: HTML5, CSS3, JavaScript, Bootstrap (estático servido por Express)
+Frontend: HTML5, CSS3, JavaScript/Express, Bootstrap
 
 Backend: Node.js 20 LTS (ES Modules) + Express
 
-BD: MySQL 8.x (esquema habitapp)
+BD: MySQL 8.x 
 
 Utilidades: dotenv, bcrypt, express-session, helmet, cors, express-rate-limit, dayjs
 
 Dev: nvm, nodemon, ESLint, Prettier
+
+Pruebas : Jest
 
 ✅ Requisitos
 

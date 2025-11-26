@@ -207,6 +207,13 @@ app.get('/api/host/:hostId/reservaciones/proximas', async (req, res) => {
 // Health
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
+const reviewsRoutes = require('./routes/reviews.routes');
+app.use('/api/reviews', reviewsRoutes);
+
+const notificationsRoutes = require('./routes/notifications.routes');
+app.use('/api/notifications', notificationsRoutes);
+
+
 // Fallback SPA / 404
 const indexPath = path.join(publicDir, 'login.html');
 app.get(/.*/, (req, res, next) => {
@@ -221,6 +228,10 @@ app.use((err, req, res, next) => {
   console.error(err);
   res.status(err.status || 500).json({ error: err.message || 'Error interno' });
 });
+
+// para pruebas con thunder:
+
+
 
 module.exports = app;
 
