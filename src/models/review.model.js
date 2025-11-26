@@ -61,6 +61,16 @@ async function getReviewsByRoom(id_habitacion) {
     return rows;
 }
 
+async function getAllReviews() {
+    const [rows] = await pool.query(
+        `SELECT r.*, u.nombre_completo
+         FROM resenas r
+         JOIN usuarios u ON u.id_usuario = r.id_huesped
+         ORDER BY r.fecha DESC`
+    );
+    return rows;
+}
+
 module.exports = {
     createReview,
     existsReviewForReservation,

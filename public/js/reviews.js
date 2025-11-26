@@ -123,6 +123,7 @@ function initViewMode() {
 
     if (!form || !resultsEl) return;
 
+    // Cuando se envía el formulario, cargar por propiedad (comportamiento previo)
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
         const propertyIdInput = document.getElementById('property-id');
@@ -131,6 +132,10 @@ function initViewMode() {
 
         await loadReviewsByProperty(propertyId, { statusEl, resultsEl, loadBtn });
     });
+
+    // Cargar todas las reseñas al entrar en la vista (comportamiento solicitado)
+    // Muestra la tabla completa agrupada por habitación.
+    loadAllReviews({ statusEl, resultsEl, loadBtn });
 }
 
 async function loadReviewsByProperty(propertyId, { statusEl, resultsEl, loadBtn }) {
@@ -169,6 +174,46 @@ async function loadReviewsByProperty(propertyId, { statusEl, resultsEl, loadBtn 
             `Se encontraron ${data.length} reseña(s) para la propiedad ${propertyId}.`,
             'ok'
         );
+    } catch (err) {
+        console.error(err);
+        setStatus(statusEl, 'Ocurrió un error al cargar las reseñas. Revisa la consola.', 'error');
+        resultsEl.innerHTML = '<p class="empty-message">Error al obtener las reseñas.</p>';
+    } finally {
+        setLoading(loadBtn, false);
+    }
+}
+
+// Cargar todas las reseñas (nueva función)
+async function loadAllReviews({ statusEl, resultsEl, loadBtn }) {
+    clearStatus(statusEl);
+    setStatus(statusEl, `Cargando todas las reseñas...`, 'neutral');
+    setLoading(loadBtn, true);
+    resultsEl.innerHTML = '';
+
+    try {
+        const resp = await fetch(`/api/reviews/all`);
+        if (!resp.ok) {
+            throw new Error(`Error HTTP ${resp.status}`);
+        }
+
+        const data = await resp.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+            setStatus(statusEl, 'No se encontraron reseñas.', 'ok');
+            resultsEl.innerHTML = '<p class="empty-message">No hay reseñas registradas.</p>';
+            return;
+        }
+
+        // Agrupar por id_habitacion
+        const grouped = {};
+        for (const review of data) {
+            const roomId = review.id_habitacion ?? 'Sin habitación';
+            if (!grouped[roomId]) grouped[roomId] = [];
+            grouped[roomId].push(review);
+        }
+
+        renderGroupedTables(grouped, resultsEl);
+        setStatus(statusEl, `Se encontraron ${data.length} reseña(s).`, 'ok');
     } catch (err) {
         console.error(err);
         setStatus(statusEl, 'Ocurrió un error al cargar las reseñas. Revisa la consola.', 'error');

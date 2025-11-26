@@ -8,6 +8,7 @@ const {
     getReviewsByProperty,
     getReviewsByRoom,
 } = require('../models/review.model');
+const { getAllReviews } = require('../models/review.model');
 
 const REVIEW_SECRET = process.env.REVIEW_SECRET;
 
@@ -124,9 +125,20 @@ async function listReviewsByRoom(req, res) {
     res.json(rows);
 }
 
+async function listAllReviews(req, res) {
+    try {
+        const rows = await getAllReviews();
+        res.json(rows);
+    } catch (err) {
+        console.error('Error listAllReviews:', err);
+        res.status(500).json({ error: 'Error obteniendo todas las reseñas' });
+    }
+}
+
 module.exports = {
     getReviewFromToken,
     createReviewFromToken,
     listReviewsByProperty,
     listReviewsByRoom,
+    listAllReviews,
 };
