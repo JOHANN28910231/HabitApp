@@ -49,7 +49,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("ubicacion_url").value = propiedadSeleccionada.ubicacion_url;
         document.getElementById("descripcion").value = propiedadSeleccionada.descripcion;
         document.getElementById("politicas_hospedaje").value = propiedadSeleccionada.politicas_hospedaje || '';
-        document.getElementById("servicios_generales").value = propiedadSeleccionada.servicios_generales || '';
         if (propiedadSeleccionada.fecha_registro) document.getElementById("fecha_registro").value = propiedadSeleccionada.fecha_registro.substring(0, 10);
         document.getElementById("estado_propiedad").value = propiedadSeleccionada.estado_propiedad || 'activa';
 
@@ -66,8 +65,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const idPropiedad = document.getElementById("id_propiedad").value;
         const formData = new FormData(formPropiedad);
 
+
         // Agregar el id_anfitrion al FormData
         formData.append("id_anfitrion", window.hostId);
+
+        // Eliminar servicios_generales si existe
+        formData.delete('servicios_generales');
 
         // Si no se proporcionó fecha_registro, establecer hoy
         if (!formData.get('fecha_registro') || formData.get('fecha_registro') === '') {
