@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchForm = document.getElementById('searchForm');
     const suggestionsBox = document.getElementById('destinoSuggestions');
     const resultsContainer = document.getElementById('searchResults');
+    const resultsSection = document.getElementById('searchResultsSection');
 
     if (!searchForm) return;
 
@@ -140,6 +141,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // =====================================
     function renderResults(list) {
         if (!resultsContainer) return;
+        // mostrar la sección de resultados cuando se renderice por primera vez
+        if (resultsSection && resultsSection.classList.contains('d-none')) {
+            resultsSection.classList.remove('d-none');
+        }
         if (!list.length) {
             resultsContainer.innerHTML = `
         <div class="col-12">
