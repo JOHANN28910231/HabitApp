@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="es">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,336 +11,176 @@
 
 <body class="bg-site">
 
-    <!-- NAV -->
-    <nav class="navbar navbar-expand-lg site-header">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="/">HabitApp</a>
+<!-- NAV -->
+<nav class="navbar navbar-expand-lg site-header">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">HabitApp</a>
 
-            <div class="ms-auto d-flex align-items-center gap-2">
-                <button id="logoutBtn" class="btn btn-light btn-sm px-3">Cerrar sesión</button>
-            </div>
+        <div class="ms-auto d-flex align-items-center gap-2">
+            <button id="logoutBtn" class="btn btn-light btn-sm px-3">Cerrar sesión</button>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <main class="container py-4">
-        <h3 class="section-title">Panel del anfitrión</h3>
+<main class="container py-4">
+    <h3 class="section-title">Panel del anfitrión</h3>
 
-        <!-- Tabs: Reservas primero, luego Ventas y Reportes -->
-        <ul class="nav nav-tabs mt-3" id="tabs">
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="tab" href="#reservas">Reservas</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#ventas">Ventas</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#reportes">Reportes</a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="propiedades-tab" data-bs-toggle="tab" data-bs-target="#propiedades"
-                    type="button" role="tab">Propiedades</button>
-            </li>
-        </ul>
+    <!-- Tabs: Reservas primero, luego Ventas y Reportes -->
+    <ul class="nav nav-tabs mt-3" id="tabs">
+        <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" href="#reservas">Reservas</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#ventas">Ventas</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#reportes">Reportes</a>
+        </li>
+    </ul>
 
-        <div class="tab-content mt-3">
+    <div class="tab-content mt-3">
 
-            <!-- Reservas (ahora primera pestaña) -->
-            <div id="reservas" class="tab-pane fade show active">
-                <h5 class="fw-bold">Mis reservaciones próximas</h5>
+        <!-- Reservas (ahora primera pestaña) -->
+        <div id="reservas" class="tab-pane fade show active">
+            <h5 class="fw-bold">Mis reservaciones próximas</h5>
 
-                <div class="row g-3 align-items-end mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Filtrar por propiedad</label>
-                        <select id="propFilter" class="form-select form-control-custom"></select>
-                    </div>
-                    <div class="col-md-6 text-end">
-                        <small class="text-muted">Mostrando reservaciones desde hoy a 1 año.</small>
-                    </div>
+            <div class="row g-3 align-items-end mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Filtrar por propiedad</label>
+                    <select id="propFilter" class="form-select form-control-custom"></select>
                 </div>
-
-                <div id="reservasTable" class="mt-3"></div>
+                <div class="col-md-6 text-end">
+                    <small class="text-muted">Mostrando reservaciones desde hoy a 1 año.</small>
+                </div>
             </div>
 
-            <!-- Reportes -->
-            <div id="reportes" class="tab-pane fade">
+            <div id="reservasTable" class="mt-3"></div>
+        </div>
 
-                <h5 class="fw-bold mb-3">Reportes</h5>
+        <!-- Reportes -->
+        <div id="reportes" class="tab-pane fade">
 
-                <!-- HOST DE PRUEBA -->
-                <input type="hidden" id="hostId" value="2">
+            <h5 class="fw-bold mb-3">Reportes</h5>
 
-                <!-- Sub-tabs -->
-                <ul class="nav nav-pills mb-3" id="reportesSubTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="period-tab" data-bs-toggle="pill"
+            <!-- HOST DE PRUEBA -->
+            <input type="hidden" id="hostId" value="2">
+
+            <!-- Sub-tabs -->
+            <ul class="nav nav-pills mb-3" id="reportesSubTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="period-tab" data-bs-toggle="pill"
                             data-bs-target="#report-period" type="button" role="tab">
-                            Por periodo
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="range-tab" data-bs-toggle="pill" data-bs-target="#report-range"
-                            type="button" role="tab">
-                            Por rango
-                        </button>
-                    </li>
-                </ul>
+                        Por periodo
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="range-tab" data-bs-toggle="pill"
+                            data-bs-target="#report-range" type="button" role="tab">
+                        Por rango
+                    </button>
+                </li>
+            </ul>
 
-                <div class="tab-content" id="reportesSubTabsContent">
+            <div class="tab-content" id="reportesSubTabsContent">
 
-                    <!-- REPORTE POR PERIODO (CORREGIDO) -->
-                    <div class="tab-pane fade show active" id="report-period" role="tabpanel">
+                <!-- REPORTE POR PERIODO (CORREGIDO) -->
+                <div class="tab-pane fade show active" id="report-period" role="tabpanel">
 
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <label class="form-label">Tipo de periodo</label>
-                                <select id="pPeriod" class="form-select form-control-custom">
-                                    <option value="monthly">Mensual</option>
-                                    <option value="yearly">Anual</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">Año</label>
-                                <select id="pYear" class="form-select form-control-custom">
-                                    <!-- Se llenará dinámicamente con JS -->
-                                </select>
-                            </div>
-
-                            <!-- Mostrar solo si es mensual -->
-                            <div class="col-md-4" id="monthContainer">
-                                <label class="form-label">Mes</label>
-                                <select id="pMonth" class="form-select form-control-custom">
-                                    <option value="01">Enero</option>
-                                    <option value="02">Febrero</option>
-                                    <option value="03">Marzo</option>
-                                    <option value="04">Abril</option>
-                                    <option value="05">Mayo</option>
-                                    <option value="06">Junio</option>
-                                    <option value="07">Julio</option>
-                                    <option value="08">Agosto</option>
-                                    <option value="09">Septiembre</option>
-                                    <option value="10">Octubre</option>
-                                    <option value="11">Noviembre</option>
-                                    <option value="12">Diciembre</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="mt-3 d-flex gap-2">
-                            <button id="btnGenPeriod" class="btn btn-accent">Generar reporte</button>
-                            <button id="btnPdfPeriod" class="btn btn-outline-secondary">Descargar PDF</button>
-                        </div>
-
-                        <!-- RESUMEN -->
-                        <div id="reportSummaryPeriod" class="mt-4 d-none"></div>
-
-                        <!-- RESULTADO -->
-                        <div class="card mt-3">
-                            <div class="card-body" id="reportResultPeriod"></div>
-                        </div>
-
-                    </div>
-
-                    <!-- REPORTE POR RANGO -->
-                    <div class="tab-pane fade" id="report-range" role="tabpanel">
-
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Desde</label>
-                                <input id="rFrom" type="date" class="form-control form-control-custom">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Hasta</label>
-                                <input id="rTo" type="date" class="form-control form-control-custom">
-                            </div>
-                        </div>
-
-                        <div class="mt-3 d-flex gap-2">
-                            <button id="btnGenRange" class="btn btn-accent">Generar reporte</button>
-                            <button id="btnPdfRange" class="btn btn-outline-secondary">Descargar PDF</button>
-                        </div>
-
-                        <div id="reportSummaryRange" class="mt-4 d-none"></div>
-
-                        <div class="card mt-3">
-                            <div class="card-body" id="reportResultRange"></div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- Ventas -->
-            <div id="ventas" class="tab-pane fade">
-                <h5 class="fw-bold">Mis ventas</h5>
-                <div id="ventasTable" class="mt-3"></div>
-            </div>
-
-            <!-- Propiedades -->
-            <div id="propiedades" class="tab-pane fade" role="tabpanel" aria-labelledby="propiedades-tab">
-                <div class="d-flex justify-content-end align-items-center mb-3">
-
-                    <!-- Botón Añadir propiedad - SOLO aparece en esta pestaña -->
-                    <button id="btnAbrirCrear" class="btn btn-accent">Añadir propiedad</button>
-                </div>
-
-                <div class="container mt-4">
-                    <h3>Mis Propiedades</h3>
-                    <div id="propertiesContainer"></div>
-
-                    <hr>
-
-                    <div id="roomsContainer"></div>
-
-                    <!-- Acciones sobre la propiedad seleccionada: solo visibles en esta pestaña -->
-                    <div class="mb-3 mt-3 d-flex gap-2" id="propActions">
-                        <button id="btnEditar" class="btn btn-primary">Editar propiedad</button>
-                        <button id="btnEliminar" class="btn btn-danger">Eliminar propiedad</button>
-                        <button id="btnAdministrarHabitaciones" class="btn btn-success">Administrar
-                            Habitaciones</button>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </main>
-
-    <!-- botones de acción de propiedad: se muestran SOLO dentro de la pestaña Propiedades -->
-    <!-- Se movieron dentro del contenedor de 'propiedades' para que no aparezcan en Ventas/Reportes/Checkout -->
-
-    <!-- Modal: Crear / Editar propiedad -->
-    <div class="modal fade" id="modalPropiedad" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-body p-4">
-                    <button type="button" class="btn-close float-end" data-bs-dismiss="modal"
-                        aria-label="Cerrar"></button>
-                    <h2 class="h5 fw-bold mb-3">Formulario de propiedad</h2>
-
-                    <form id="formPropiedad" enctype="multipart/form-data" novalidate>
-                        <input type="hidden" id="id_propiedad" name="id_propiedad">
-
-                        <div class="mb-3">
-                            <label for="nombre_propiedad" class="form-label fw-semibold">Nombre de la propiedad</label>
-                            <input id="nombre_propiedad" name="nombre_propiedad" type="text"
-                                class="form-control form-control-custom" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="tipo_propiedad" class="form-label fw-semibold">Tipo de propiedad</label>
-                            <select id="tipo_propiedad" name="tipo_propiedad" class="form-select form-control-custom"
-                                required>
-                                <option value="">Selecciona un tipo</option>
-                                <option value="Casa">Casa</option>
-                                <option value="Hotel">Hotel</option>
-                                <option value="Departamento">Departamento</option>
-                                <option value="Cabaña">Cabaña</option>
-                                <option value="Loft">Loft</option>
-                                <option value="Condominio">Condominio</option>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Tipo de periodo</label>
+                            <select id="pPeriod" class="form-select form-control-custom">
+                                <option value="monthly">Mensual</option>
+                                <option value="yearly">Anual</option>
                             </select>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="direccion" class="form-label fw-semibold">Dirección completa</label>
-                            <input id="direccion" name="direccion" type="text" class="form-control form-control-custom"
-                                placeholder="Calle 50 entre 48 y 46 colonia Centro">
+                        <div class="col-md-4">
+                            <label class="form-label">Año</label>
+                            <select id="pYear" class="form-select form-control-custom">
+                                <!-- Se llenará dinámicamente con JS -->
+                            </select>
                         </div>
 
-                        <div class="row g-3 mb-3">
-                            <div class="col-12 col-md-4">
-                                <label for="codigo_postal" class="form-label fw-semibold">Código postal</label>
-                                <input id="codigo_postal" name="codigo_postal" type="text" maxlength="5"
-                                    class="form-control form-control-custom" placeholder="XXXXX">
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <label for="municipio" class="form-label fw-semibold">Municipio</label>
-                                <input id="municipio" name="municipio" type="text"
-                                    class="form-control form-control-custom">
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <label for="estado" class="form-label fw-semibold">Estado</label>
-                                <input id="estado" name="estado" type="text" class="form-control form-control-custom">
-                            </div>
+                        <!-- Mostrar solo si es mensual -->
+                        <div class="col-md-4" id="monthContainer">
+                            <label class="form-label">Mes</label>
+                            <select id="pMonth" class="form-select form-control-custom">
+                                <option value="01">Enero</option>
+                                <option value="02">Febrero</option>
+                                <option value="03">Marzo</option>
+                                <option value="04">Abril</option>
+                                <option value="05">Mayo</option>
+                                <option value="06">Junio</option>
+                                <option value="07">Julio</option>
+                                <option value="08">Agosto</option>
+                                <option value="09">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
                         </div>
+                    </div>
 
-                        <div class="mb-3">
-                            <label for="ubicacion_url" class="form-label fw-semibold">Ubicación (URL)</label>
-                            <input id="ubicacion_url" name="ubicacion_url" type="url"
-                                class="form-control form-control-custom" placeholder="https://maps.google.com/...">
-                        </div>
+                    <div class="mt-3 d-flex gap-2">
+                        <button id="btnGenPeriod" class="btn btn-accent">Generar reporte</button>
+                        <button id="btnPdfPeriod" class="btn btn-outline-secondary">Descargar PDF</button>
+                    </div>
 
-                        <div class="mb-3">
-                            <label for="descripcion" class="form-label fw-semibold">Descripción general</label>
-                            <textarea id="descripcion" name="descripcion" class="form-control form-control-custom"
-                                rows="3"></textarea>
-                        </div>
+                    <!-- RESUMEN -->
+                    <div id="reportSummaryPeriod" class="mt-4 d-none"></div>
 
-                        <div class="mb-3">
-                            <label for="politicas_hospedaje" class="form-label fw-semibold">Políticas de
-                                hospedaje</label>
-                            <textarea id="politicas_hospedaje" name="politicas_hospedaje"
-                                class="form-control form-control-custom" rows="2"
-                                placeholder="No se permiten fiestas. Mascotas bajo solicitud."></textarea>
-                            <div class="form-text">Opcional. Describe reglas o restricciones importantes.</div>
-                        </div>
+                    <!-- RESULTADO -->
+                    <div class="card mt-3">
+                        <div class="card-body" id="reportResultPeriod"></div>
+                    </div>
 
-                        <div class="mb-3">
-                            <label for="servicios_generales" class="form-label fw-semibold">Servicios generales</label>
-                            <input id="servicios_generales" name="servicios_generales" type="text"
-                                class="form-control form-control-custom"
-                                placeholder="Ej. Estacionamiento, WiFi, Alberca (separados por comas)">
-                            <div class="form-text">Lista separada por comas (opcional).</div>
-                        </div>
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-12 col-md-6">
-                                <label for="fecha_registro" class="form-label fw-semibold">Fecha de registro</label>
-                                <input id="fecha_registro" name="fecha_registro" type="date"
-                                    class="form-control form-control-custom">
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label for="estado_propiedad" class="form-label fw-semibold">Estado</label>
-                                <select id="estado_propiedad" name="estado_propiedad"
-                                    class="form-select form-control-custom">
-                                    <option value="activa">Activa</option>
-                                    <option value="inactiva">Inactiva</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- FOTO DE LA PROPIEDAD -->
-                        <div class="mb-3">
-                            <label for="foto_propiedad" class="form-label fw-semibold">Foto de la propiedad</label>
-
-                            <!-- Estilo tipo botón -->
-                            <div class="input-group">
-                                <input type="file" id="foto_propiedad" name="foto_propiedad" class="form-control"
-                                    accept="image/*">
-                            </div>
-
-                            <!-- Campo oculto donde guardamos el nombre real del archivo -->
-                            <input type="hidden" id="url_fotos_p" name="url_fotos_p">
-                        </div>
-
-                        <div class="d-flex gap-2 justify-content-end mt-3">
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-accent">Guardar propiedad</button>
-                        </div>
-                    </form>
                 </div>
+
+                <!-- REPORTE POR RANGO -->
+                <div class="tab-pane fade" id="report-range" role="tabpanel">
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Desde</label>
+                            <input id="rFrom" type="date" class="form-control form-control-custom">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Hasta</label>
+                            <input id="rTo" type="date" class="form-control form-control-custom">
+                        </div>
+                    </div>
+
+                    <div class="mt-3 d-flex gap-2">
+                        <button id="btnGenRange" class="btn btn-accent">Generar reporte</button>
+                        <button id="btnPdfRange" class="btn btn-outline-secondary">Descargar PDF</button>
+                    </div>
+
+                    <div id="reportSummaryRange" class="mt-4 d-none"></div>
+
+                    <div class="card mt-3">
+                        <div class="card-body" id="reportResultRange"></div>
+                    </div>
+                </div>
+
             </div>
+        </div>
 
+        <!-- Ventas -->
+        <div id="ventas" class="tab-pane fade">
+            <h5 class="fw-bold">Mis ventas</h5>
+            <div id="ventasTable" class="mt-3"></div>
+        </div>
+    </div>
 
-            </main>
+</main>
 
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-            <script src="/js/reports.js"></script>
-            <script src="/js/host-panel.js"></script>
-            <script src="/js/reservations.js"></script>
-            <script src="/js/ventas.js"></script>
-            <script src="/js/properties.js" defer></script>
+<script src="/js/reports.js"></script>
+<script src="/js/host-panel.js"></script>
+<script src="/js/reservations.js"></script>
+<script src="/js/ventas.js"></script>
 
 </body>
-
 </html>
