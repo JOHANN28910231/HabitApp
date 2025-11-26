@@ -116,26 +116,14 @@ function makeOnSubmitHandler(token) {
    ============================================ */
 
 function initViewMode() {
-    const form = document.getElementById('search-form');
     const statusEl = document.getElementById('status');
     const resultsEl = document.getElementById('results');
-    const loadBtn = document.getElementById('load-btn');
 
-    if (!form || !resultsEl) return;
-
-    // Cuando se envía el formulario, cargar por propiedad (comportamiento previo)
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const propertyIdInput = document.getElementById('property-id');
-        const propertyId = propertyIdInput?.value.trim();
-        if (!propertyId) return;
-
-        await loadReviewsByProperty(propertyId, { statusEl, resultsEl, loadBtn });
-    });
+    if (!resultsEl) return;
 
     // Cargar todas las reseñas al entrar en la vista (comportamiento solicitado)
     // Muestra la tabla completa agrupada por habitación.
-    loadAllReviews({ statusEl, resultsEl, loadBtn });
+    loadAllReviews({ statusEl, resultsEl, loadBtn: null });
 }
 
 async function loadReviewsByProperty(propertyId, { statusEl, resultsEl, loadBtn }) {
