@@ -272,8 +272,16 @@ function renderGroupedTables(groupedReviews, resultsEl) {
 
 function formatValue(value) {
     if (value == null) return '';
-    if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}/)) {
-        return value;
+    if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}T/)) {
+        // Convertir ISO 8601 (2025-11-26T14:32:43.000Z) a DD/MM/YYYY HH:mm:ss
+        const date = new Date(value);
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const year = date.getUTCFullYear();
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+        return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
     }
     return String(value);
 }
