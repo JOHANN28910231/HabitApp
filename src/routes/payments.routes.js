@@ -9,3 +9,4 @@ const { requireAuth } = require('../middlewares/auth');
 //router.post('/charge', requireAuth, charge); // versión con auth
 
 module.exports = router;
+
