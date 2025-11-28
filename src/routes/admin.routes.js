@@ -4,16 +4,17 @@ const router = express.Router();
 const pool = require('../utils/db');
 
 const adminReports = require('../controllers/admin.reports.controller');
-
-
-
 const {
     getHosts,
     getHostProperties,
     getHostRooms,
     deleteProperty,
-    deleteRoom
+    deleteRoom,
+    getAllReservations
 } = require('../controllers/admin.controller');
+
+// === TODAS LAS RESERVAS (ADMIN) ===
+router.get('/admin/reservas', getAllReservations);
 
 // === REPORTE PDF DE VENTAS GLOBAL ===
 router.get('/admin/reportes/ventas/pdf', adminReports.ventasPdf);
