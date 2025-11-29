@@ -62,7 +62,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert(err.error || 'No se pudo cerrar sesión');
                     return;
                 }
-                window.location.href = '/';
+                // After logout, redirect to login page
+                window.location.href = '/login.html';
             } catch (err) {
                 console.error('logout error', err);
                 alert('Error al cerrar sesión');

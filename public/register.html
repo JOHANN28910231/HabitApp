@@ -10,7 +10,7 @@
   <!-- Bootstrap CSS (CDN) -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Custom styles -->
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 
 <body class="bg-site">
@@ -21,7 +21,7 @@
       </a>
 
       <div class="ms-auto d-flex align-items-center gap-2">
-        <a href="/" class="btn btn-light btn-sm rounded-pill">Iniciar sesión</a>
+        <a href="/login.html" class="btn btn-light btn-sm rounded-pill">Iniciar sesión</a>
         <div class="profile-circle">👤</div>
       </div>
     </nav>
@@ -35,25 +35,59 @@
 
           <form id="regForm" novalidate>
             <div class="mb-3">
-              <label for="name" class="form-label fw-semibold">Nombre completo</label>
-              <input id="name" name="name" type="text" class="form-control form-control-custom" autocomplete="name"
+              <label for="nombre" class="form-label fw-semibold">Nombre completo</label>
+              <input id="nombre" name="nombre" type="text" class="form-control form-control-custom" autocomplete="name"
                 required>
             </div>
 
             <div class="mb-3">
-              <label for="emailR" class="form-label fw-semibold">Correo electrónico</label>
-              <input id="emailR" name="email" type="email" class="form-control form-control-custom" autocomplete="email"
+              <label for="email" class="form-label fw-semibold">Correo electrónico</label>
+              <input id="email" name="email" type="email" class="form-control form-control-custom" autocomplete="email"
+                required>
+            </div>
+
+            <!-- password fields moved to the bottom of the form -->
+
+            <div class="mb-3">
+              <label for="telefono" class="form-label fw-semibold">Teléfono</label>
+              <input id="telefono" name="telefono" type="tel" class="form-control form-control-custom" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="nacionalidad" class="form-label fw-semibold">Nacionalidad</label>
+              <input id="nacionalidad" name="nacionalidad" type="text" class="form-control form-control-custom"
                 required>
             </div>
 
             <div class="mb-3">
-              <label for="rpassword" class="form-label fw-semibold">Contraseña</label>
-              <input id="rpassword" name="password" type="password" class="form-control form-control-custom"
-                autocomplete="new-password" required>
+              <label for="genero" class="form-label fw-semibold">Género</label>
+              <select id="genero" name="genero" class="form-select form-control-custom" required>
+                <option value="">Selecciona</option>
+                <option value="masculino">Masculino</option>
+                <option value="femenino">Femenino</option>
+                <option value="otro">Otro</option>
+                <option value="no-decir">Prefiero no decir</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="municipio" class="form-label fw-semibold">Municipio / Ciudad</label>
+              <input id="municipio" name="municipio" type="text" class="form-control form-control-custom" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="estado" class="form-label fw-semibold">Estado / Región</label>
+              <input id="estado" name="estado" type="text" class="form-control form-control-custom" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="fecha_nacimiento" class="form-label fw-semibold">Fecha de nacimiento</label>
+              <input id="fecha_nacimiento" name="fecha_nacimiento" type="date" class="form-control form-control-custom"
+                required>
             </div>
 
             <!-- Rol -->
-            <fieldset class="mb-3">
+            <fieldset id="roleFieldset" class="mb-3">
               <legend class="form-label fw-semibold mb-2">Elige tu rol</legend>
               <div class="form-check form-check-inline">
                 <input class="form-check-input" type="radio" name="role" id="role-host" value="host">
@@ -74,11 +108,24 @@
               <div id="fileInfo" class="small text-muted mt-1"></div>
             </div>
 
+            <!-- Contraseña y confirmación al final del formulario -->
+            <div class="mb-3">
+              <label for="password" class="form-label fw-semibold">Contraseña</label>
+              <input id="password" name="password" type="password" class="form-control form-control-custom"
+                autocomplete="new-password" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="password2" class="form-label fw-semibold">Confirmar contraseña</label>
+              <input id="password2" name="password2" type="password" class="form-control form-control-custom"
+                autocomplete="new-password" required>
+            </div>
+
             <div class="d-grid mt-2">
               <button type="submit" class="btn btn-accent btn-lg">Crear cuenta</button>
             </div>
 
-            <p class="text-center small mb-0 mt-3">¿Ya tienes cuenta? <a href="/">Iniciar sesión</a></p>
+            <p class="text-center small mb-0 mt-3">¿Ya tienes cuenta? <a href="/login.html">Iniciar sesión</a></p>
           </form>
         </article>
       </div>

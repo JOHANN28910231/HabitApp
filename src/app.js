@@ -19,58 +19,89 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const availabilityRoutes = require('./routes/availability.routes');
 const reservationsRoutes = require('./routes/reservations.routes');
-
+const adminRoutes = require('./routes/admin.routes');
+const propertiesRoutes = require('./routes/properties.routes');
+const roomsRoutes = require('./routes/rooms.routes');
 
 
 // =====================================
 // 🔐 Seguridad / Logs / Parseo
 // =====================================
 app.use(helmet({
-    contentSecurityPolicy: {
-        useDefaults: true,
-        directives: {
-            "default-src": ["'self'"],
-            "script-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
-            "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
-            "img-src": ["'self'", "data:", "blob:"],
-            "font-src": ["'self'", "https://cdn.jsdelivr.net"],
-        }
+  contentSecurityPolicy: {
+    useDefaults: true,
+    directives: {
+      "default-src": ["'self'"],
+      "script-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      "img-src": ["'self'", "data:", "blob:"],
+      "font-src": ["'self'", "https://cdn.jsdelivr.net"],
     }
+  }
 }));
 
 if (process.env.NODE_ENV !== 'test') {
-    app.use(morgan('dev'));
+  app.use(morgan('dev'));
 }
 
 if (process.env.CORS_ORIGIN) {
-    app.use(cors({ origin: process.env.CORS_ORIGIN.split(',').map(s => s.trim()), credentials: true }));
+  app.use(cors({ origin: process.env.CORS_ORIGIN.split(',').map(s => s.trim()), credentials: true }));
 } else {
-    app.use(cors());
+  app.use(cors());
 }
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-// Sesión (express-mysql-session si está disponible)
+/// Sesión (express-mysql-session si está disponible)
 let sessionStore;
-try {
-    const MySQLStoreFactory = require('express-mysql-session')(session);
-    const mysql = require('mysql2');
-    const { DB_HOST = '127.0.0.1', DB_PORT = 3306, DB_USER = 'root', DB_PASS = '', DB_NAME = 'habitapp' } = process.env;
-    const sessionPool = mysql.createPool({ host: DB_HOST, port: Number(DB_PORT), user: DB_USER, password: DB_PASS, database: DB_NAME, waitForConnections: true, connectionLimit: 5, charset: 'utf8mb4' });
-    sessionStore = new MySQLStoreFactory({}, sessionPool);
-} catch (err) {
-    // fallback to MemoryStore
+
+// Solo intentamos usar MySQLStore si NO estamos en test
+if (process.env.NODE_ENV !== 'test') {
+    try {
+        const MySQLStoreFactory = require('express-mysql-session')(session);
+        const mysql = require('mysql2');
+
+        const {
+            DB_HOST = '127.0.0.1',
+            DB_PORT = 3306,
+            DB_USER = 'root',
+            DB_PASS = '',
+            DB_NAME = 'habitapp',
+        } = process.env;
+
+        const sessionPool = mysql.createPool({
+            host: DB_HOST,
+            port: Number(DB_PORT),
+            user: DB_USER,
+            password: DB_PASS,
+            database: DB_NAME,
+            waitForConnections: true,
+            connectionLimit: 5,
+            charset: 'utf8mb4',
+        });
+
+        sessionStore = new MySQLStoreFactory({}, sessionPool);
+    } catch (err) {
+        console.warn('No se pudo inicializar MySQLStore para sesiones. Usando MemoryStore.', err.message);
+        // sessionStore se queda undefined → MemoryStore
+    }
 }
+// Si NODE_ENV === 'test', no se toca nada y dejamos MemoryStore por defecto
+
 
 app.use(session({
-    name: process.env.SESSION_NAME || 'habitapp.sid',
-    secret: process.env.SESSION_SECRET || 'dev-secret-change',
-    resave: false,
-    saveUninitialized: false,
-    store: sessionStore,
-    cookie: { maxAge: Number(process.env.SESSION_MAX_AGE || 24 * 60 * 60 * 1000), sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', secure: process.env.NODE_ENV === 'production' }
+  name: process.env.SESSION_NAME || 'habitapp.sid',
+  secret: process.env.SESSION_SECRET || 'dev-secret-change',
+  resave: false,
+  saveUninitialized: false,
+  store: sessionStore,
+  cookie: {
+      maxAge: Number(process.env.SESSION_MAX_AGE || 24 * 60 * 60 * 1000),
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: process.env.NODE_ENV === 'production'
+  }
 }));
 
 // =====================================
@@ -93,19 +124,22 @@ app.use('/api/users', userRoutes);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api', reportsRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api', adminRoutes);
 // disponibilidad / reservas
 app.use('/api/availability', availabilityRoutes);
 app.use('/api/reservations', reservationsRoutes);
+app.use('/api', adminRoutes);
+app.use('/api/properties', propertiesRoutes);
+app.use('/api/rooms', roomsRoutes);
 
 
 // =====================================
 // Endpoint para mostrar todas las ventas del host (compatibilidad)
-// =====================================
 app.get('/api/host/:id/ventas', async (req, res) => {
-    const hostId = req.params.id;
-    try {
-        // Seleccionamos la reservación y el último pago asociado (si existe)
-        const [rows] = await pool.query(`
+  const hostId = req.params.id;
+  try {
+    // Seleccionamos la reservación y el último pago asociado (si existe)
+    const [rows] = await pool.query(`
       SELECT p.nombre_propiedad AS propiedad,
              p.descripcion AS propiedad_descripcion,
              h.descripcion AS cuarto,
@@ -126,24 +160,24 @@ app.get('/api/host/:id/ventas', async (req, res) => {
       WHERE p.id_anfitrion = ?
       ORDER BY r.fecha_reserva DESC
     `, [hostId]);
-        res.json(rows);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Error obteniendo ventas' });
-    }
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error obteniendo ventas' });
+  }
 });
 
 // =====================================
 // Nuevo endpoint: Reservaciones próximas
 // =====================================
 app.get('/api/host/:hostId/reservaciones/proximas', async (req, res) => {
-    const hostId = req.params.hostId;
-    const today = new Date().toISOString().slice(0, 10); // hoy
-    const oneYearLater = new Date();
-    oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
-    const to = oneYearLater.toISOString().slice(0, 10);
+  const hostId = req.params.hostId;
+  const today = new Date().toISOString().slice(0, 10); // hoy
+  const oneYearLater = new Date();
+  oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+  const to = oneYearLater.toISOString().slice(0, 10);
 
-    const query = `
+  const query = `
     SELECT 
       r.id_reservacion,
       p.nombre_propiedad AS propiedad,
@@ -161,31 +195,43 @@ app.get('/api/host/:hostId/reservaciones/proximas', async (req, res) => {
     ORDER BY r.fecha_inicio ASC
   `;
 
-    try {
-        const [rows] = await pool.query(query, [hostId, today, to]);
-        res.json(rows);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Error al obtener reservaciones próximas' });
-    }
+  try {
+    const [rows] = await pool.query(query, [hostId, today, to]);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener reservaciones próximas' });
+  }
 });
 
 // Health
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
+const reviewsRoutes = require('./routes/reviews.routes');
+app.use('/api/reviews', reviewsRoutes);
+
+const notificationsRoutes = require('./routes/notifications.routes');
+app.use('/api/notifications', notificationsRoutes);
+
+
 // Fallback SPA / 404
 const indexPath = path.join(publicDir, 'login.html');
 app.get(/.*/, (req, res, next) => {
-    if (req.method !== 'GET') return next();
-    if (req.accepts('html')) return res.sendFile(indexPath, err => { if (err) return next(err); });
-    if (req.accepts('json')) return res.status(404).json({ error: 'Recurso no encontrado' });
-    res.status(404).type('txt').send('Recurso no encontrado');
+  if (req.method !== 'GET') return next();
+  if (req.accepts('html')) return res.sendFile(indexPath, err => { if (err) return next(err); });
+  if (req.accepts('json')) return res.status(404).json({ error: 'Recurso no encontrado' });
+  res.status(404).type('txt').send('Recurso no encontrado');
 });
 
 // Error handler
 app.use((err, req, res, next) => {
-    console.error(err);
-    res.status(err.status || 500).json({ error: err.message || 'Error interno' });
+  console.error(err);
+  res.status(err.status || 500).json({ error: err.message || 'Error interno' });
 });
 
+// para pruebas con thunder:
+
+
+
 module.exports = app;
+

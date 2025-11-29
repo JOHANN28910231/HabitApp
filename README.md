@@ -11,18 +11,23 @@ Cumple los RF/RNF definidos (autenticación, roles, búsqueda, reservas, pagos s
 A continuación, se presenta el documento de Requerimientos Funcionales(RF) y Requerimientos No Funcionales(RNF) del sistema AppTiziHause
 - [Especificación de Requerimientos de Software.pdf](https://github.com/user-attachments/files/23600934/Especificacion.de.Requerimientos.de.Software.pdf)
 
+## Diseño de la base de datos
+Se tiene como diseño de la estructura de la base de datos el siguiente archivo tipo pdf donde viene especificado cada tabla con respecto a sus atributos y tipos de datos. Los cuáles fueron respetados al 100% para el desarrollo del sistema:
+- [DiseñoBD.pdf](https://github.com/user-attachments/files/23774402/DisenoBD.pdf)
 
 ## Stack
 
-Frontend: HTML5, CSS3, JavaScript, Bootstrap (estático servido por Express)
+Frontend: HTML5, CSS3, JavaScript/Express, Bootstrap
 
 Backend: Node.js 20 LTS (ES Modules) + Express
 
-BD: MySQL 8.x (esquema habitapp)
+BD: MySQL 8.x 
 
 Utilidades: dotenv, bcrypt, express-session, helmet, cors, express-rate-limit, dayjs
 
 Dev: nvm, nodemon, ESLint, Prettier
+
+Pruebas : Jest
 
 ✅ Requisitos
 
@@ -206,7 +211,26 @@ Disponibilidad (RF014, RF017): comprobar solapes en reservaciones + habitacion_b
 A continuación, en el siguiente archivo pdf podrán encontrar de manera detallada lo que tienen que hacer, hay algunas secciones donde dice "opcional" pero de preferencia háganlo para mejorar el flujo de trabajo.
 - [DivisiónCargaTrabajo.pdf](https://github.com/user-attachments/files/23600819/DivisionCargaTrabajo.pdf)
 
-
+## Casos de Uso
+En este apartado podras encontrar los Casos de Uso 
+<img width="1415" height="461" alt="CU01 Registro de Huésped" src="https://github.com/user-attachments/assets/ab1c0ab7-9aa8-4094-896c-423f9ec1caea" />
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+<img width="1383" height="477" alt="CU02 Registro de Anfitrión" src="https://github.com/user-attachments/assets/08a5c583-4b0b-4276-a8f9-e1f2a1f2376d" />
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+<img width="1351" height="442" alt="CU03 Registro de Habitación" src="https://github.com/user-attachments/assets/e7936e66-99ab-4326-91ac-032eaaed0277" />
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+<img width="1066" height="432" alt="CU04 Búsqueda y visualización" src="https://github.com/user-attachments/assets/5fcd014d-5acb-40e1-90c7-f515d5980e46" />
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+<img width="1556" height="335" alt="CU05 Rerserva de Habitación" src="https://github.com/user-attachments/assets/547cf59a-10b3-43fa-aac4-2a5baad4cf56" />
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+<img width="1609" height="451" alt="CU06 Modificar habitación  " src="https://github.com/user-attachments/assets/b1c062f0-b783-44bd-bb48-8d86ecc6aa48" />
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+<img width="1397" height="463" alt="CU07 Proceso de pago" src="https://github.com/user-attachments/assets/7f9f9a37-e612-469d-84dd-c4d7b965cebc" />
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+<img width="1355" height="517" alt="CU08 Cancelación de reservación" src="https://github.com/user-attachments/assets/3ee59b3b-0a7f-430c-a7d3-9d01b15967b5" />
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+<img width="1237" height="474" alt="CU09 Gestión de usuarios " src="https://github.com/user-attachments/assets/5010deef-fe6f-4e55-9f28-abd3ffebbe8f" />
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ## Estilo y calidad
 

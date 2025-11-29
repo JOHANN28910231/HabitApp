@@ -1,11 +1,6 @@
 // ventas.js — carga las ventas del host autenticado (modo prueba)
-const testHostId = 2;
-// NO sobreescribimos `window.hostId` aquí: puede ser configurado por otros scripts (login/host-panel).
-// En DOMContentLoaded calculamos el hostId de forma robusta usando, en orden:
-// 1) sessionStorage.getItem('host_id')
-// 2) window.hostId (si ya fue establecido)
-// 3) input hidden #hostId en la plantilla (valor servidor)
-// 4) fallback a testHostId
+//const testHostId = 2;
+//window.hostId = testHostId;
 
 // Helper: formatea valores monetarios (misma lógica que en reports.js)
 function formatCurrency(value) {
@@ -16,17 +11,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     const ventasDiv = document.getElementById("ventasTable");
     if (!ventasDiv) return;
 
-    // Determinar hostId de forma segura
-    const hostIdEl = document.getElementById('hostId');
-    const hostId = sessionStorage.getItem('host_id') || window.hostId || (hostIdEl && hostIdEl.value) || testHostId;
-
+    const hostId = window.hostId;
     if (!hostId) {
         ventasDiv.innerHTML = "<p class='text-danger'>No se encontró host_id. ¿Iniciaste sesión?</p>";
         return;
     }
 
     try {
-        const res = await fetch(`/api/host/${hostId}/ventas`, { credentials: 'same-origin' });
+        const res = await fetch(`/api/host/${hostId}/ventas`);
 
         if (!res.ok) {
             ventasDiv.innerHTML = "<p class='text-danger'>Error cargando ventas.</p>";

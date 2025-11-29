@@ -9,20 +9,20 @@
     <!-- Bootstrap CSS (CDN) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom styles -->
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 
 <body class="bg-site">
     <header class="site-header py-3 shadow-sm">
         <nav class="container d-flex align-items-center">
             <a class="navbar-brand d-flex align-items-center" href="/" aria-label="TiziHause - Inicio">
-                <img src="./multimedia/tizihause.jpg" alt="TiziHause logo" class="brand-img me-2" style="height:44px">
-                <span class="fw-bold ms-1">TiziHause</span>
+                <img src="./multimedia/tizihause.jpg" alt="TiziHause logo" class="brand-img me-2">
             </a>
 
             <div id="headerActions" class="ms-auto d-flex align-items-center gap-2">
-                <a href="/register.html" class="btn btn-light btn-sm rounded-pill">Regístrate como Anfitrión</a>
-                <a href="/login.html" class="btn btn-outline-secondary btn-sm rounded-circle"
+                <a href="/register.html?role=host" class="btn btn-light btn-sm rounded-pill">Regístrate como
+                    Anfitrión</a>
+                <a href="/login.html" id="loginBtnHeader" class="btn btn-outline-secondary btn-sm rounded-circle"
                     title="Iniciar sesión">👤</a>
             </div>
         </nav>
@@ -39,11 +39,10 @@
                     <div class="col-12 col-md-4 position-relative">
                         <label class="form-label small">Destino</label>
                         <input class="form-control form-control-custom" id="destino" autocomplete="off"
-                               placeholder="¿A dónde vamos?">
+                            placeholder="¿A dónde vamos?">
                         <!-- aquí se inyectará la lista de sugerencias -->
-                        <div id="destinoSuggestions"
-                             class="list-group position-absolute w-100"
-                             style="z-index: 10; top: 100%; left: 0;"></div>
+                        <div id="destinoSuggestions" class="list-group position-absolute w-100"
+                            style="z-index: 10; top: 100%; left: 0;"></div>
                     </div>
                     <div class="col-6 col-md-2">
                         <label class="form-label small">Llegada</label>
@@ -55,8 +54,7 @@
                     </div>
                     <div class="col-6 col-md-2">
                         <label class="form-label small">Huéspedes</label>
-                        <input type="number" min="1" value="2"
-                               class="form-control form-control-custom" id="huespedes">
+                        <input type="number" min="1" value="2" class="form-control form-control-custom" id="huespedes">
                     </div>
                     <div class="col-6 col-md-2 d-grid">
                         <button class="btn btn-accent btn-lg" type="submit">Buscar</button>
@@ -66,8 +64,8 @@
         </section>
 
         <!-- Resultados de búsqueda -->
-        <section class="mt-4">
-            <h2 class="h5 mb-3">Resultados de búsqueda</h2>
+        <section id="resultsSection" class="mt-5 d-none">
+            <h2 class="h5 mb-4">Resultados de búsqueda</h2>
             <div id="searchResults" class="row g-4"></div>
         </section>
 
@@ -105,6 +103,48 @@
             </div>
         </section>
     </main>
+    <!-- Modal: Confirmar reservación -->
+    <div class="modal fade" id="reservationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar reservación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="resPropName" class="fw-semibold mb-1"></p>
+                    <p id="resLocation" class="text-muted small mb-2"></p>
+                    <p id="resRoomDesc" class="small mb-3"></p>
+                    <p id="resServices" class="small mb-2 text-muted"></p>
+
+                    <ul class="list-unstyled small mb-3">
+                        <li><strong>Fechas:</strong> <span id="resDates"></span></li>
+                        <li><strong>Huéspedes:</strong> <span id="resGuests"></span></li>
+                        <li><strong>Precio estimado:</strong> <span id="resTotal"></span></li>
+                    </ul>
+
+                    <div class="alert alert-info small">
+                        El precio final se calcula automáticamente según el tipo de alojamiento seleccionado.
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small" for="resTipoAlojamiento">Tipo de alojamiento</label>
+                        <select id="resTipoAlojamiento" class="form-select form-select-sm">
+                            <option value="noche">Por noche</option>
+                            <option value="semana">Por semana</option>
+                            <option value="mes">Por mes</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div id="resError" class="text-danger small me-auto d-none"></div>
+                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                        data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-accent btn-sm" id="resConfirmBtn">Confirmar reserva</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- ... Footer -->
     <footer class="footer py-4 bg-white mt-5 border-top">
@@ -116,11 +156,29 @@
 
     <!-- Bootstrap JS bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        /* Header avatar in small form */
+        #headerActions .header-avatar {
+            height: 32px;
+            width: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: inline-block;
+        }
 
+        /* logout button: green by default, red on hover */
+        #headerActions .btn-logout-success {
+            background-color: #198754;
+            color: white;
+            border: none;
+        }
+
+        #headerActions .btn-logout-success:hover {
+            background-color: #dc3545;
+        }
+    </style>
     <!-- Lógica de la página de inicio (buscador) -->
     <script src="/js/main.js" defer></script>
-
-    <!-- Header auth-status  script de sesión -->
     <script>
         // set year in footer
         document.addEventListener('DOMContentLoaded', () => {
@@ -130,54 +188,128 @@
             const form = document.getElementById('searchForm');
             if (form) form.addEventListener('submit', (e) => { e.preventDefault(); alert('Buscar: ' + (document.getElementById('destino').value || '—')); });
         });
-
+    </script>
+    <script>
         // Header auth-status: consulta /api/auth/me y actualiza botones del header
         (function () {
             async function updateHeader() {
+                const container = document.getElementById('headerActions');
+                if (!container) return;
                 try {
                     const res = await fetch('/api/auth/me', { credentials: 'same-origin' });
-                    const container = document.getElementById('headerActions');
-                    if (!container) return;
                     if (!res.ok) {
-                        // no autenticado: mostrar botones predeterminados
-                        container.innerHTML = `
-                            <a href="/register.html" class="btn btn-light btn-sm rounded-pill">Regístrate como Anfitrión</a>
-                            <a href="/login.html" class="btn btn-outline-secondary btn-sm rounded-circle" title="Iniciar sesión">👤</a>
-                        `;
+                        // not authenticated — leave default actions
                         return;
                     }
                     const data = await res.json().catch(() => ({}));
                     const user = data && (data.user || data);
-                    if (!user) {
-                        container.innerHTML = `<a href="/login.html" class="btn btn-outline-secondary btn-sm">Iniciar sesión</a>`;
-                        return;
+                    if (!user) return;
+
+                    // Determine avatar url from multiple possible keys and normalize to root-relative if needed
+                    let avatarUrl = user.foto_url || user.fotoUrl || user.avatar || user.foto || (user.user && (user.user.foto_url || user.user.fotoUrl));
+                    if (avatarUrl && !(avatarUrl.startsWith('/') || /^https?:\/\//i.test(avatarUrl))) {
+                        avatarUrl = '/' + avatarUrl;
                     }
-                    const name = user.nombre_completo || user.nombre || user.email || 'Usuario';
-                    const avatar = (user.foto_url) ? `<img src="${user.foto_url}" alt="avatar" style="height:32px;width:32px;border-radius:50%;object-fit:cover;margin-right:8px">` : '';
+
+                    const displayName = user.nombre_completo || user.nombre || user.email || 'Usuario';
+
+                    const avatarHtml = avatarUrl
+                        ? `<img src="${escapeHtmlAttr(avatarUrl)}" alt="avatar" class="header-avatar">`
+                        : `<span class="header-avatar bg-secondary d-inline-block" style="display:inline-block;text-align:center;line-height:32px;color:#fff">👤</span>`;
+
+                    // show host panel in menu when user has the 'anfitrion' role
+                    const isHost = Array.isArray(user.roles) && user.roles.includes('anfitrion');
+
                     container.innerHTML = `
                         <div class="d-flex align-items-center gap-2">
-                            ${avatar}
-                            <span class="d-none d-md-inline">${name}</span>
-                            <a href="/profile_edit.html" class="btn btn-sm btn-outline-secondary">Perfil</a>
-                            <button id="headerLogoutBtn" class="btn btn-sm btn-danger">Cerrar sesión</button>
+                            ${avatarHtml}
+                            <span class="d-none d-md-inline">${escapeHtml(displayName)}</span>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="headerMenuBtn" data-bs-toggle="dropdown" data-bs-offset="0,8" aria-expanded="false" aria-label="Menú de usuario">☰</button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="headerMenuBtn">
+                                    <li><a class="dropdown-item" href="/profile_edit.html">Perfil</a></li>
+                                    ${isHost ? `<li><a class="dropdown-item" href="/host/host-dashboard.html">Panel de Anfitrión</a></li>` : ''}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><button id="headerLogoutBtn" class="dropdown-item text-danger">Cerrar sesión</button></li>
+                                </ul>
+                            </div>
                         </div>
                     `;
+
+                    // (No inline header transform — restored to default styling)
+
                     const logoutBtn = document.getElementById('headerLogoutBtn');
                     if (logoutBtn) {
-                        logoutBtn.addEventListener('click', async () => {
+                        logoutBtn.addEventListener('click', async (e) => {
+                            e.preventDefault();
+
+                            async function ensureAppModal() {
+                                if (typeof window.showAppModal === 'function') return true;
+                                return new Promise((resolve) => {
+                                    const s = document.createElement('script');
+                                    s.src = '/js/app-modal.js';
+                                    s.onload = () => resolve(typeof window.showAppModal === 'function');
+                                    s.onerror = () => resolve(false);
+                                    document.head.appendChild(s);
+                                    setTimeout(() => resolve(typeof window.showAppModal === 'function'), 800);
+                                });
+                            }
+
+                            let confirmed = false;
                             try {
-                                await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
-                            } catch (e) { console.warn('logout failed', e); }
-                            window.location.href = '/';
+                                const hasModal = await ensureAppModal();
+                                if (hasModal) {
+                                    confirmed = await window.showAppModal({
+                                        title: 'Confirmar sesión',
+                                        message: '¿Deseas cerrar sesión?',
+                                        okText: 'Cerrar sesión',
+                                        cancelText: 'Cancelar'
+                                    });
+                                } else {
+                                    confirmed = confirm('¿Deseas cerrar sesión?');
+                                }
+                            } catch (err) {
+                                console.error('logout modal error', err);
+                                confirmed = confirm('¿Deseas cerrar sesión?');
+                            }
+
+                            if (!confirmed) return;
+
+                            try {
+                                const res = await fetch('/api/auth/logout', {
+                                    method: 'POST',
+                                    credentials: 'same-origin'
+                                });
+                                if (!res.ok) {
+                                    const err = await res.json().catch(() => ({}));
+                                    alert(err.error || 'No se pudo cerrar sesión');
+                                    return;
+                                }
+                                try { sessionStorage.removeItem('user_id'); sessionStorage.removeItem('user_name'); sessionStorage.removeItem('host_id'); } catch (e) { }
+                                window.location.href = '/login.html';
+                            } catch (err) {
+                                console.error('logout error', err);
+                                alert('Error al cerrar sesión');
+                            }
                         });
                     }
+
                 } catch (err) {
                     console.warn('updateHeader error', err);
                 }
             }
+
+            function escapeHtml(s) {
+                return String(s).replace(/[&<>\"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": "&#39;" }[c]; });
+            }
+
+            function escapeHtmlAttr(s) {
+                return String(s).replace(/"/g, '%22');
+            }
+
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', updateHeader); else updateHeader();
         })();
     </script>
 </body>
-</html>
 
+</html>

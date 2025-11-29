@@ -1,8 +1,8 @@
 // reports.js — funcional para reportes por periodo y rango
 document.addEventListener("DOMContentLoaded", () => {
     // Forzar hostId de prueba solo si no hay uno en el DOM
-    const testHostId = 2;
-    const hostId = document.getElementById("hostId")?.value || testHostId;
+//const testHostId = 4;
+//window.hostId = testHostId;
 
     if (!hostId) return;
 

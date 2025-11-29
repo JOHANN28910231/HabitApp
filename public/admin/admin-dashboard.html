@@ -1,33 +1,104 @@
 <!doctype html>
 <html lang="es">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin Dashboard — HabitApp</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Dashboard — HabitApp</title>
 
-    <link href="../css/styles.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/styles.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-
 <body class="bg-site">
 
-<!-- NAV -->
-<nav class="navbar navbar-expand-lg site-header">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="/">HabitApp</a>
-    </div>
-</nav>
 
-<main class="container py-4">
+<header class="site-header">
+  <nav class="container navbar navbar-expand-lg">
+    <a class="navbar-brand d-flex align-items-center" href="/" aria-label="TiziHause - Inicio">
+      <img src="/multimedia/tizihause.jpg" alt="TiziHause logo" class="brand-img">
+    </a>
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <span id="adminName" class="me-2"></span>
+      <button id="logoutBtn" class="btn btn-light btn-sm px-3">Cerrar sesión</button>
+    </div>
+  </nav>
+  <div class="container mt-2">
+    <ul class="nav nav-tabs" id="adminTabs">
+      <li class="nav-item">
+        <a class="nav-link active" id="tab-anfitriones" data-bs-toggle="tab" href="#anfitriones">Anfitriones</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="tab-reportes" data-bs-toggle="tab" href="#reportes">Reportes</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="tab-reservas" data-bs-toggle="tab" href="#reservas">Reservas</a>
+      </li>
+    </ul>
+  </div>
+</header>
+
+
+<main class="container py-4 tab-content">
+  <div class="tab-pane fade show active" id="anfitriones">
     <h3 class="section-title">Panel Admin Global</h3>
-
-    <div class="mt-4 d-flex gap-3">
-        <a href="/admin/admin-ventas.html" class="btn btn-accent px-4">Ventas</a>
-        <a href="/admin/admin-reportes.html" class="btn btn-outline-secondary px-4">Reportes</a>
+    <div class="row gy-3 align-items-center mt-3">
+      <div class="col-md-6">
+        <input id="filterInput" class="form-control" placeholder="Buscar anfitrión por nombre, email o id">
+      </div>
+      <div class="col-md-6 text-end">
+        <button id="btnReload" class="btn btn-outline-secondary">Recargar</button>
+      </div>
     </div>
+    <div class="card mt-3">
+      <div class="card-body">
+        <div id="summary" class="mb-3 d-flex gap-3 flex-wrap"></div>
+        <div id="hostsTableContainer" class="table-responsive"></div>
+      </div>
+    </div>
+  </div>
+  <div class="tab-pane fade" id="reportes">
+    <h3 class="section-title">Reportes de anfitriones</h3>
+    <div id="adminReportesContainer"></div>
+  </div>
+
+  <!-- NUEVA PESTAÑA RESERVAS ADMIN -->
+  <div class="tab-pane fade" id="reservas">
+    <h3 class="section-title">Reservas</h3>
+    <div id="reservasTableContainer" class="table-responsive"></div>
+  </div>
+  </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Modal ver propiedades -->
+<div class="modal fade" id="modalProps" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 id="modalPropsTitle" class="modal-title">Propiedades</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="modalPropsBody">Cargando...</div>
+      </div>
+    </div>
+  </div>
+</div>
 
+<!-- Modal ver habitaciones -->
+<div class="modal fade" id="modalRooms" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 id="modalRoomsTitle" class="modal-title">Habitaciones</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="modalRoomsBody">Cargando...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/admin-dashboard.js"></script>
 </body>
 </html>

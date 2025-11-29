@@ -1,7 +1,7 @@
 // src/routes/reservations.routes.js
 const express = require('express');
 const router = express.Router();
-const { requireAuth } = require('../middlewares/auth.middleware');
+const { requireAuth } = require('../middlewares/auth');
 const {
     createReservation,
     getMyReservations,
