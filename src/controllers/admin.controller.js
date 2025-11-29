@@ -1,3 +1,36 @@
+// =======================================================
+// GET /admin/reservas → Todas las reservas con info completa
+// =======================================================
+exports.getAllReservations = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT 
+                r.id_reservacion,
+                r.estado_reserva,
+                r.fecha_inicio AS fecha_entrada,
+                r.fecha_salida,
+                r.monto_total,
+                p.id_propiedad,
+                p.nombre_propiedad AS propiedad,
+                p.id_anfitrion,
+                a.nombre_completo AS anfitrion,
+                h.id_habitacion,
+                h.descripcion AS cuarto,
+                u.id_usuario AS id_cliente,
+                u.nombre_completo AS cliente
+            FROM reservaciones r
+            JOIN habitacion h ON h.id_habitacion = r.id_habitacion
+            JOIN propiedades p ON p.id_propiedad = h.id_propiedad
+            JOIN usuarios a ON a.id_usuario = p.id_anfitrion
+            JOIN usuarios u ON u.id_usuario = r.id_huesped
+            ORDER BY r.fecha_inicio DESC
+        `);
+        res.json(rows);
+    } catch (err) {
+        console.error('getAllReservations error:', err);
+        res.status(500).json({ error: 'Error obteniendo reservas' });
+    }
+};
 // src/controllers/admin.controller.js
 const db = require('../utils/db');
 
