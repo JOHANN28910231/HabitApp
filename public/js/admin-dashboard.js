@@ -1,5 +1,106 @@
+    // ========== SECCIÓN DE SERVICIOS GLOBALES (ADMIN) =============
+    const serviciosTab = document.getElementById('tab-servicios');
+    const serviciosPane = document.getElementById('servicios');
+    const serviciosTableContainer = document.getElementById('serviciosTableContainer');
+    const formAddServicio = document.getElementById('formAddServicio');
+    const serviciosSearchInput = document.getElementById('serviciosSearchInput');
+    let serviciosList = [];
+    if (serviciosTab && serviciosPane && serviciosTableContainer && formAddServicio && serviciosSearchInput) {
+        serviciosTab.addEventListener('shown.bs.tab', loadServicios);
+        serviciosSearchInput.addEventListener('input', renderServiciosTable);
+        formAddServicio.onsubmit = async (ev) => {
+            ev.preventDefault();
+            const nombre = (serviciosSearchInput.value || '').trim();
+            if (!nombre) return;
+            // Validar en frontend si ya existe (case-insensitive)
+            if (serviciosList.some(s => s.nombre.toLowerCase() === nombre.toLowerCase())) {
+                alert('Ese servicio ya existe.');
+                return;
+            }
+            // POST al backend
+            const res = await fetch('/api/admin/servicios', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre })
+            });
+            if (res.ok) {
+                formAddServicio.reset();
+                await loadServicios();
+            } else {
+                alert('Error al agregar servicio');
+            }
+        };
+        async function loadServicios() {
+            serviciosTableContainer.innerHTML = 'Cargando...';
+            try {
+                const res = await fetch('/api/admin/servicios');
+                if (!res.ok) throw new Error();
+                serviciosList = await res.json();
+                renderServiciosTable();
+            } catch {
+                serviciosTableContainer.innerHTML = '<p class="text-danger">Error cargando servicios.</p>';
+            }
+        }
+        function renderServiciosTable() {
+            let filtered = serviciosList;
+            const q = (serviciosSearchInput.value || '').trim().toLowerCase();
+            if (q) {
+                filtered = serviciosList.filter(s => s.nombre.toLowerCase().includes(q));
+            }
+            if (!filtered.length) {
+                serviciosTableContainer.innerHTML = '<p class="text-muted">No hay servicios registrados para ese criterio.</p>';
+                return;
+            }
+                        let html = `<div class="card shadow-sm">
+                            <div class="card-body p-0">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width:60%">Servicio</th>
+                                            <th style="width:40%" class="text-end">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
+                        filtered.forEach(s => {
+                                html += `<tr>
+                                    <td class="fw-semibold">${s.nombre}</td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-danger btn-del-servicio" data-id="${s.id_servicio}">
+                                            <i class="bi bi-trash"></i> Eliminar
+                                        </button>
+                                    </td>
+                                </tr>`;
+                        });
+                        html += `</tbody></table></div></div>`;
+                        serviciosTableContainer.innerHTML = html;
+                        document.querySelectorAll('.btn-del-servicio').forEach(btn => {
+                                btn.onclick = async function() {
+                                        if (!confirm('¿Eliminar este servicio?')) return;
+                                        const id = btn.dataset.id;
+                                        const res = await fetch(`/api/admin/servicios/${id}`, { method: 'DELETE' });
+                                        if (res.ok) {
+                                                await loadServicios();
+                                        } else {
+                                                alert('Error al eliminar servicio');
+                                        }
+                                };
+                        });
+        }
+    }
 // ========== SECCIÓN DE REPORTES PARA ADMIN ==========
 document.addEventListener('DOMContentLoaded', () => {
+    // === LOGOUT BUTTON HANDLER ===
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+            } catch {}
+            sessionStorage.clear();
+            localStorage.clear();
+            window.location.href = '/login.html';
+        });
+    }
         // ========== SECCIÓN DE RESERVAS PARA ADMIN =============
         const reservasTab = document.getElementById('tab-reservas');
         const reservasPane = document.getElementById('reservas');

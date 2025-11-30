@@ -423,7 +423,7 @@ function openRoomModalForCreate() {
   qs('precioSemana').value = '';
   qs('precioMes').value = '';
   qs('estado_habitacion').value = 'activa';
-  qs('roomPhotos').value = '';
+  // Eliminado input de fotos
   serviciosCatalog && serviciosCatalog.forEach(s => {
     const cb = qs(`svc_${s.id_servicio}`);
     if (cb) cb.checked = false;
@@ -456,7 +456,7 @@ function openRoomModalForEdit(room) {
     const cb = qs(`svc_${s.id_servicio}`);
     if (cb) cb.checked = (room.servicios || []).some(x => x.id_servicio == s.id_servicio);
   });
-  qs('roomPhotos').value = '';
+  // Eliminado input de fotos
   // cargar bloqueos existentes
   existingBlocks = Array.isArray(room.bloqueos) ? room.bloqueos : [];
   pendingBlocks = [];
@@ -529,18 +529,7 @@ async function saveRoomFromModal() {
     const data = await res.json().catch(() => ({}));
     const roomId = id || data.id_habitacion || data.id || data.insertId;
 
-    // Upload photos if any
-    const files = qs('roomPhotos').files;
-    if (files && files.length > 0) {
-      const form = new FormData();
-      for (const f of files) form.append('photos', f);
-      const up = await fetch(`${API}/api/rooms/${roomId}/photos`, {
-        method: 'POST',
-        credentials: 'include',
-        body: form
-      });
-      if (!up.ok) console.warn('Warning uploading photos');
-    }
+    // Eliminado manejo de fotos
 
     // Save services
     const checked = Array.from(document.querySelectorAll('#servicesContainer input[type=checkbox]:checked')).map(i => Number(i.value));

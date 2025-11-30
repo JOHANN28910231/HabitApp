@@ -10,8 +10,19 @@ const {
     getHostRooms,
     deleteProperty,
     deleteRoom,
-    getAllReservations
+    getAllReservations,
+    getServicios,
+    addServicio,
+    deleteServicio
 } = require('../controllers/admin.controller');
+
+// === SERVICIOS GLOBALES (ADMIN) ===
+// Listar servicios globales
+router.get('/admin/servicios', getServicios);
+// Agregar servicio global
+router.post('/admin/servicios', addServicio);
+// Eliminar servicio global
+router.delete('/admin/servicios/:id', deleteServicio);
 
 // === TODAS LAS RESERVAS (ADMIN) ===
 router.get('/admin/reservas', getAllReservations);

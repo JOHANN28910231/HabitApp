@@ -18,8 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       // Guardar información útil en sessionStorage para uso inmediato en el UI
+      let user;
       try {
-        const user = data.user || data;
+        user = data.user || data;
         if (user) {
           // id del usuario
           if (user.id) sessionStorage.setItem('user_id', String(user.id));
@@ -45,7 +46,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } catch (e) { console.warn('No se pudo guardar sessionStorage tras login', e); }
 
-      window.location.href = '/';
+      // Redirección según rol
+      const roles = (user && user.roles) ? user.roles.map(r => String(r).toLowerCase()) : [];
+      if (roles.some(r => r.includes('admin_global') || r.includes('admin_secundario'))) {
+        window.location.href = '/admin/admin-dashboard.html';
+      } else {
+        window.location.href = '/';
+      }
     } catch (err) {
       console.error(err);
       alert('Error de red');

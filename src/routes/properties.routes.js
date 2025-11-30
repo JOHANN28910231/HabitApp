@@ -204,17 +204,7 @@ router.put('/:id', requireAuth, upload.single('foto_propiedad'), async (req, res
 
         console.log("📥 [PUT /api/properties/:id] Editando propiedad ID:", id);
 
-        let foto = null;
-        if (req.file) {
-            foto = req.file.filename;
-        }
 
-        const [old] = await pool.query(
-            "SELECT url_fotos_p FROM propiedades WHERE id_propiedad = ?",
-            [id]
-        );
-
-        const finalPhoto = foto || old[0]?.url_fotos_p;
 
         await pool.query(
             `UPDATE propiedades 
