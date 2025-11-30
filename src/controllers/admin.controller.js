@@ -1,3 +1,39 @@
+// ================= SERVICIOS GLOBALES (ADMIN) =====================
+// GET /admin/servicios
+exports.getServicios = async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT id_servicio, nombre FROM servicios ORDER BY nombre ASC');
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: 'Error obteniendo servicios' });
+    }
+};
+
+// POST /admin/servicios
+exports.addServicio = async (req, res) => {
+    try {
+        const nombre = (req.body.nombre || '').trim();
+        if (!nombre) return res.status(400).json({ error: 'Nombre requerido' });
+        // Validar duplicado (case-insensitive)
+        const [rows] = await db.query('SELECT 1 FROM servicios WHERE LOWER(nombre) = LOWER(?)', [nombre]);
+        if (rows.length) return res.status(409).json({ error: 'El servicio ya existe' });
+        const [result] = await db.query('INSERT INTO servicios (nombre) VALUES (?)', [nombre]);
+        res.json({ ok: true, id_servicio: result.insertId, nombre });
+    } catch (err) {
+        res.status(500).json({ error: 'Error agregando servicio' });
+    }
+};
+
+// DELETE /admin/servicios/:id
+exports.deleteServicio = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const [result] = await db.query('DELETE FROM servicios WHERE id_servicio = ?', [id]);
+        res.json({ ok: true, deleted: result.affectedRows });
+    } catch (err) {
+        res.status(500).json({ error: 'Error eliminando servicio' });
+    }
+};
 // =======================================================
 // GET /admin/reservas → Todas las reservas con info completa
 // =======================================================
