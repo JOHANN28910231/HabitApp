@@ -14,15 +14,81 @@
 
     <!-- NAV -->
     <header class="site-header">
-        <nav class="container navbar navbar-expand-lg">
+        <nav class="container d-flex align-items-center">
             <a class="navbar-brand d-flex align-items-center" href="/" aria-label="TiziHause - Inicio">
-                <img src="../multimedia/tizihause.jpg" alt="TiziHause logo" class="brand-img">
+                <img src="../multimedia/tizihause.jpg" alt="TiziHause logo" class="brand-img me-2">
             </a>
-            <div class="ms-auto d-flex align-items-center gap-2">
-                <button id="logoutBtn" class="btn btn-light btn-sm px-3">Cerrar sesión</button>
+            <div id="hostHeaderActions" class="ms-auto d-flex align-items-center gap-2" style="display:none;">
+                <div class="d-flex align-items-center gap-2">
+                    <a id="hostAvatar" href="/profile_edit.html" class="header-avatar bg-secondary d-inline-block" style="height:32px;width:32px;border-radius:50%;object-fit:cover;text-align:center;line-height:32px;color:#fff;text-decoration:none;">👤</a>
+                    <span id="hostNameHeader" class="d-none d-md-inline"></span>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="hostMenuBtn" data-bs-toggle="dropdown" data-bs-offset="0,8" aria-expanded="false" aria-label="Menú de usuario">☰</button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="hostMenuBtn">
+                            <li><a class="dropdown-item" href="/">Inicio</a></li>
+                            <li><a class="dropdown-item" href="/profile_edit.html">Perfil</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><button id="hostLogoutBtn" class="dropdown-item text-danger">Cerrar sesión</button></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </nav>
     </header>
+    <!-- Botón regresar flotante sobre el contenido, igual que en editar perfil -->
+    <a id="backBtnHost" href="javascript:void(0)" class="btn-accent btn btn-sm"
+        style="display:none;position:fixed;top:18px;left:18px;z-index:9999;border-radius:20px;padding:10px 22px;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,0.13);font-weight:700;background:rgba(167,222,154,0.97);backdrop-filter:blur(2px);border:none;">
+        Regresar
+    </a>
+    <script>
+    // Mostrar menú y botón regresar solo si es anfitrión
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            const roles = JSON.parse(sessionStorage.getItem('user_roles') || '[]');
+            const isHost = Array.isArray(roles) && roles.some(r => String(r).toLowerCase().includes('anfitri'));
+            if (isHost) {
+                document.getElementById('hostHeaderActions').style.display = '';
+                document.getElementById('backBtnHost').style.display = '';
+                // Avatar y nombre
+                const avatarUrl = sessionStorage.getItem('user_photo');
+                if (avatarUrl) {
+                    const avatarEl = document.getElementById('hostAvatar');
+                    if (avatarEl) avatarEl.innerHTML = `<img src="${avatarUrl}" alt="avatar" style="height:32px;width:32px;border-radius:50%;object-fit:cover;">`;
+                }
+                const name = sessionStorage.getItem('user_name') || '';
+                if (name) {
+                    const nameEl = document.getElementById('hostNameHeader');
+                    if (nameEl) nameEl.textContent = name;
+                }
+            }
+        } catch {}
+        // Botón regresar: vuelve a la pantalla anterior
+        const backBtn = document.getElementById('backBtnHost');
+        if (backBtn) {
+            backBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (window.history.length > 1) {
+                    window.history.back();
+                } else {
+                    window.location.href = '/';
+                }
+            });
+        }
+        // Logout desde menú
+        const logoutBtn = document.getElementById('hostLogoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async function(e) {
+                e.preventDefault();
+                try {
+                    await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+                } catch {}
+                sessionStorage.clear();
+                localStorage.clear();
+                window.location.href = '/login.html';
+            });
+        }
+    });
+    </script>
 
     <main class="container py-4">
         <h3 class="section-title">Panel del anfitrión</h3>
