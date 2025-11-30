@@ -1,7 +1,7 @@
 // reservations.js — carga reservaciones próximas para el host, filtro por propiedad
 document.addEventListener('DOMContentLoaded', async () => {
   // Forzar hostId de prueba solo si no hay uno en el DOM
-//const testHostId = 4;
+//const testHostId = 2;
 //window.hostId = testHostId;
 
   const reservasContainer = document.getElementById('reservasTable');

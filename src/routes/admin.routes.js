@@ -4,16 +4,28 @@ const router = express.Router();
 const pool = require('../utils/db');
 
 const adminReports = require('../controllers/admin.reports.controller');
-
-
-
 const {
     getHosts,
     getHostProperties,
     getHostRooms,
     deleteProperty,
-    deleteRoom
+    deleteRoom,
+    getAllReservations,
+    getServicios,
+    addServicio,
+    deleteServicio
 } = require('../controllers/admin.controller');
+
+// === SERVICIOS GLOBALES (ADMIN) ===
+// Listar servicios globales
+router.get('/admin/servicios', getServicios);
+// Agregar servicio global
+router.post('/admin/servicios', addServicio);
+// Eliminar servicio global
+router.delete('/admin/servicios/:id', deleteServicio);
+
+// === TODAS LAS RESERVAS (ADMIN) ===
+router.get('/admin/reservas', getAllReservations);
 
 // === REPORTE PDF DE VENTAS GLOBAL ===
 router.get('/admin/reportes/ventas/pdf', adminReports.ventasPdf);

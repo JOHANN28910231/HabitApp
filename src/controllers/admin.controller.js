@@ -1,3 +1,72 @@
+// ================= SERVICIOS GLOBALES (ADMIN) =====================
+// GET /admin/servicios
+exports.getServicios = async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT id_servicio, nombre FROM servicios ORDER BY nombre ASC');
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: 'Error obteniendo servicios' });
+    }
+};
+
+// POST /admin/servicios
+exports.addServicio = async (req, res) => {
+    try {
+        const nombre = (req.body.nombre || '').trim();
+        if (!nombre) return res.status(400).json({ error: 'Nombre requerido' });
+        // Validar duplicado (case-insensitive)
+        const [rows] = await db.query('SELECT 1 FROM servicios WHERE LOWER(nombre) = LOWER(?)', [nombre]);
+        if (rows.length) return res.status(409).json({ error: 'El servicio ya existe' });
+        const [result] = await db.query('INSERT INTO servicios (nombre) VALUES (?)', [nombre]);
+        res.json({ ok: true, id_servicio: result.insertId, nombre });
+    } catch (err) {
+        res.status(500).json({ error: 'Error agregando servicio' });
+    }
+};
+
+// DELETE /admin/servicios/:id
+exports.deleteServicio = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const [result] = await db.query('DELETE FROM servicios WHERE id_servicio = ?', [id]);
+        res.json({ ok: true, deleted: result.affectedRows });
+    } catch (err) {
+        res.status(500).json({ error: 'Error eliminando servicio' });
+    }
+};
+// =======================================================
+// GET /admin/reservas → Todas las reservas con info completa
+// =======================================================
+exports.getAllReservations = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT 
+                r.id_reservacion,
+                r.estado_reserva,
+                r.fecha_inicio AS fecha_entrada,
+                r.fecha_salida,
+                r.monto_total,
+                p.id_propiedad,
+                p.nombre_propiedad AS propiedad,
+                p.id_anfitrion,
+                a.nombre_completo AS anfitrion,
+                h.id_habitacion,
+                h.descripcion AS cuarto,
+                u.id_usuario AS id_cliente,
+                u.nombre_completo AS cliente
+            FROM reservaciones r
+            JOIN habitacion h ON h.id_habitacion = r.id_habitacion
+            JOIN propiedades p ON p.id_propiedad = h.id_propiedad
+            JOIN usuarios a ON a.id_usuario = p.id_anfitrion
+            JOIN usuarios u ON u.id_usuario = r.id_huesped
+            ORDER BY r.fecha_inicio DESC
+        `);
+        res.json(rows);
+    } catch (err) {
+        console.error('getAllReservations error:', err);
+        res.status(500).json({ error: 'Error obteniendo reservas' });
+    }
+};
 // src/controllers/admin.controller.js
 const db = require('../utils/db');
 

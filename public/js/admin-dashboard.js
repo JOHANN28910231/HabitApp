@@ -1,5 +1,183 @@
+    // ========== SECCIÓN DE SERVICIOS GLOBALES (ADMIN) =============
+    const serviciosTab = document.getElementById('tab-servicios');
+    const serviciosPane = document.getElementById('servicios');
+    const serviciosTableContainer = document.getElementById('serviciosTableContainer');
+    const formAddServicio = document.getElementById('formAddServicio');
+    const serviciosSearchInput = document.getElementById('serviciosSearchInput');
+    let serviciosList = [];
+    if (serviciosTab && serviciosPane && serviciosTableContainer && formAddServicio && serviciosSearchInput) {
+        serviciosTab.addEventListener('shown.bs.tab', loadServicios);
+        serviciosSearchInput.addEventListener('input', renderServiciosTable);
+        formAddServicio.onsubmit = async (ev) => {
+            ev.preventDefault();
+            const nombre = (serviciosSearchInput.value || '').trim();
+            if (!nombre) return;
+            // Validar en frontend si ya existe (case-insensitive)
+            if (serviciosList.some(s => s.nombre.toLowerCase() === nombre.toLowerCase())) {
+                alert('Ese servicio ya existe.');
+                return;
+            }
+            // POST al backend
+            const res = await fetch('/api/admin/servicios', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre })
+            });
+            if (res.ok) {
+                formAddServicio.reset();
+                await loadServicios();
+            } else {
+                alert('Error al agregar servicio');
+            }
+        };
+        async function loadServicios() {
+            serviciosTableContainer.innerHTML = 'Cargando...';
+            try {
+                const res = await fetch('/api/admin/servicios');
+                if (!res.ok) throw new Error();
+                serviciosList = await res.json();
+                renderServiciosTable();
+            } catch {
+                serviciosTableContainer.innerHTML = '<p class="text-danger">Error cargando servicios.</p>';
+            }
+        }
+        function renderServiciosTable() {
+            let filtered = serviciosList;
+            const q = (serviciosSearchInput.value || '').trim().toLowerCase();
+            if (q) {
+                filtered = serviciosList.filter(s => s.nombre.toLowerCase().includes(q));
+            }
+            if (!filtered.length) {
+                serviciosTableContainer.innerHTML = '<p class="text-muted">No hay servicios registrados para ese criterio.</p>';
+                return;
+            }
+                        let html = `<div class="card shadow-sm">
+                            <div class="card-body p-0">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width:60%">Servicio</th>
+                                            <th style="width:40%" class="text-end">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
+                        filtered.forEach(s => {
+                                html += `<tr>
+                                    <td class="fw-semibold">${s.nombre}</td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-danger btn-del-servicio" data-id="${s.id_servicio}">
+                                            <i class="bi bi-trash"></i> Eliminar
+                                        </button>
+                                    </td>
+                                </tr>`;
+                        });
+                        html += `</tbody></table></div></div>`;
+                        serviciosTableContainer.innerHTML = html;
+                        document.querySelectorAll('.btn-del-servicio').forEach(btn => {
+                                btn.onclick = async function() {
+                                        if (!confirm('¿Eliminar este servicio?')) return;
+                                        const id = btn.dataset.id;
+                                        const res = await fetch(`/api/admin/servicios/${id}`, { method: 'DELETE' });
+                                        if (res.ok) {
+                                                await loadServicios();
+                                        } else {
+                                                alert('Error al eliminar servicio');
+                                        }
+                                };
+                        });
+        }
+    }
 // ========== SECCIÓN DE REPORTES PARA ADMIN ==========
 document.addEventListener('DOMContentLoaded', () => {
+    // === LOGOUT BUTTON HANDLER ===
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+            } catch {}
+            sessionStorage.clear();
+            localStorage.clear();
+            window.location.href = '/login.html';
+        });
+    }
+        // ========== SECCIÓN DE RESERVAS PARA ADMIN =============
+        const reservasTab = document.getElementById('tab-reservas');
+        const reservasPane = document.getElementById('reservas');
+        const reservasTableContainer = document.getElementById('reservasTableContainer');
+        // Nuevo: filtro por texto
+        let reservasList = [];
+        if (reservasTab && reservasPane && reservasTableContainer) {
+            reservasTab.addEventListener('shown.bs.tab', async () => {
+                reservasTableContainer.innerHTML = '<p>Cargando reservas...</p>';
+                // Input de búsqueda
+                let searchInput = document.getElementById('reservasSearchInput');
+                if (!searchInput) {
+                    const row = document.createElement('div');
+                    row.className = 'row mb-3';
+                    row.innerHTML = `<div class="col-md-6"><input id="reservasSearchInput" class="form-control" placeholder="Buscar por anfitrión, propiedad, cliente, cuarto, estado..."></div>`;
+                    reservasPane.insertBefore(row, reservasPane.children[1]);
+                    searchInput = document.getElementById('reservasSearchInput');
+                }
+                try {
+                    const res = await fetch('/api/admin/reservas', { credentials: 'same-origin' });
+                    if (!res.ok) throw new Error('No se pudo cargar reservas');
+                    reservasList = await res.json();
+                    renderReservasTable();
+                    searchInput.oninput = renderReservasTable;
+                } catch (err) {
+                    reservasTableContainer.innerHTML = '<p class="text-danger">Error cargando reservas.</p>';
+                }
+            });
+
+            function renderReservasTable() {
+                let filtered = reservasList;
+                const searchInput = document.getElementById('reservasSearchInput');
+                const q = searchInput && searchInput.value ? searchInput.value.toLowerCase() : '';
+                if (q) {
+                    filtered = filtered.filter(r => {
+                        return (
+                            (r.anfitrion || '').toLowerCase().includes(q) ||
+                            (r.propiedad || '').toLowerCase().includes(q) ||
+                            (r.cuarto || '').toLowerCase().includes(q) ||
+                            (r.cliente || '').toLowerCase().includes(q) ||
+                            (r.estado_reserva || '').toLowerCase().includes(q)
+                        );
+                    });
+                }
+                // Ordenar por fecha de entrada más próxima
+                filtered = filtered.slice().sort((a, b) => {
+                    const da = a.fecha_entrada ? new Date(a.fecha_entrada) : new Date(0);
+                    const db = b.fecha_entrada ? new Date(b.fecha_entrada) : new Date(0);
+                    return da - db;
+                });
+                if (!filtered.length) {
+                    reservasTableContainer.innerHTML = '<p class="text-muted">No hay reservas para el criterio de búsqueda.</p>';
+                    return;
+                }
+                let html = `<table class="table table-striped"><thead><tr><th>Anfitrión</th><th>Propiedad</th><th>Cuarto</th><th>Cliente</th><th>Entrada</th><th>Salida</th><th>Estado</th><th>Total</th></tr></thead><tbody>`;
+                filtered.forEach(r => {
+                    let badge = '-';
+                    if (r.estado_reserva) {
+                        if (r.estado_reserva === 'aprobada') badge = '<span class="badge bg-success">Aprobada</span>';
+                        else if (r.estado_reserva === 'cancelada') badge = '<span class="badge bg-danger">Cancelada</span>';
+                        else badge = `<span class="badge bg-secondary">${r.estado_reserva}</span>`;
+                    }
+                    html += `<tr>
+                        <td>${r.anfitrion || '-'}</td>
+                        <td>${r.propiedad || '-'}</td>
+                        <td>${r.cuarto || '-'}</td>
+                        <td>${r.cliente || '-'}</td>
+                        <td>${r.fecha_entrada ? new Date(r.fecha_entrada).toLocaleDateString('es-MX') : '-'}</td>
+                        <td>${r.fecha_salida ? new Date(r.fecha_salida).toLocaleDateString('es-MX') : '-'}</td>
+                        <td>${badge}</td>
+                        <td>$${parseFloat(r.monto_total || 0).toFixed(2)}</td>
+                    </tr>`;
+                });
+                html += '</tbody></table>';
+                reservasTableContainer.innerHTML = html;
+            }
+        }
     const reportesTab = document.getElementById('tab-reportes');
     const reportesPane = document.getElementById('reportes');
     const reportesContainer = document.getElementById('adminReportesContainer');
