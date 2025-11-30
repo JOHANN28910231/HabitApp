@@ -91,16 +91,38 @@ async function createReservationWithLock({
  */
 async function getReservationsByGuest(id_huesped) {
     const [rows] = await pool.query(
-        `SELECT r.*, h.descripcion, p.nombre_propiedad
+        `SELECT
+             r.*,
+             h.descripcion,
+             p.nombre_propiedad,
+             p.municipio,
+             p.estado,
+             (
+                 SELECT pa.referencia
+                 FROM pagos pa
+                 WHERE pa.id_reservacion = r.id_reservacion
+                   AND pa.estado_pago = 'aprobado'
+                 ORDER BY pa.fecha_pago DESC
+                 LIMIT 1
+             ) AS folio_pago,
+             (
+                 SELECT pa.monto
+                 FROM pagos pa
+                 WHERE pa.id_reservacion = r.id_reservacion
+                   AND pa.estado_pago = 'aprobado'
+                 ORDER BY pa.fecha_pago DESC
+                 LIMIT 1
+             ) AS monto_pagado
          FROM reservaciones r
                   JOIN habitacion h ON h.id_habitacion = r.id_habitacion
                   JOIN propiedades p ON p.id_propiedad = h.id_propiedad
          WHERE r.id_huesped = ?
-         ORDER BY r.fecha_reserva DESC`,
+         ORDER BY r.fecha_inicio ASC`,
         [id_huesped]
     );
     return rows;
 }
+
 
 /**
  * Una reservación por id

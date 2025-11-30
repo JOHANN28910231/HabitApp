@@ -34,7 +34,7 @@
         <!-- Hero / buscador -->
         <section class="hero mb-5">
             <div class="bg-light search-panel rounded-4 p-3 position-relative">
-                <h1 class="h3 mb-3">Encuentra el lugar perfecto para tu próxima escapada</h1>
+                <h1 class="h3 mb-3">Encuentra el lugar perfecto para tu próximo destino</h1>
                 <form id="searchForm" class="row g-3 align-items-end">
                     <div class="col-12 col-md-4 position-relative">
                         <label class="form-label small">Destino</label>
@@ -217,24 +217,38 @@
                         ? `<img src="${escapeHtmlAttr(avatarUrl)}" alt="avatar" class="header-avatar">`
                         : `<span class="header-avatar bg-secondary d-inline-block" style="display:inline-block;text-align:center;line-height:32px;color:#fff">👤</span>`;
 
-                    // show host panel in menu when user has the 'anfitrion' role
-                    const isHost = Array.isArray(user.roles) && user.roles.includes('anfitrion');
+                    // Muestra el panel de host cuando el usuario tiene rol de host
+                    // Normalizar roles a minúsculas
+                    const rawRoles = Array.isArray(user.roles) ? user.roles : [];
+                    const roles = rawRoles.map(r => String(r).toLowerCase());
+
+                    const isHost  = roles.includes('anfitrion');
+                    // Consideramos "huésped" a cualquier usuario con rol huesped o anfitrión.
+                    // Además, si por alguna razón no hay roles, igual puede ver sus reservaciones.
+                    const isGuest = roles.includes('huesped') || isHost || roles.length === 0;
 
                     container.innerHTML = `
-                        <div class="d-flex align-items-center gap-2">
-                            ${avatarHtml}
-                            <span class="d-none d-md-inline">${escapeHtml(displayName)}</span>
-                            <div class="dropdown">
-                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="headerMenuBtn" data-bs-toggle="dropdown" data-bs-offset="0,8" aria-expanded="false" aria-label="Menú de usuario">☰</button>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="headerMenuBtn">
-                                    <li><a class="dropdown-item" href="/profile_edit.html">Perfil</a></li>
-                                    ${isHost ? `<li><a class="dropdown-item" href="/host/host-dashboard.html">Panel de Anfitrión</a></li>` : ''}
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><button id="headerLogoutBtn" class="dropdown-item text-danger">Cerrar sesión</button></li>
-                                </ul>
-                            </div>
-                        </div>
-                    `;
+                     <div class="d-flex align-items-center gap-2">
+                        ${avatarHtml}
+                    <span class="d-none d-md-inline">${escapeHtml(displayName)}</span>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                            id="headerMenuBtn"
+                            data-bs-toggle="dropdown"
+                            data-bs-offset="0,8"
+                            aria-expanded="false"
+                            aria-label="Menú de usuario">☰</button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="headerMenuBtn">
+                        <li><a class="dropdown-item" href="/profile_edit.html">Perfil</a></li>
+                        ${isHost ? `<li><a class="dropdown-item" href="/host/host-dashboard.html">Panel de Anfitrión</a></li>` : ''}
+                        ${isGuest ? `<li><a class="dropdown-item" href="/my-reservations.html">Mis reservaciones</a></li>` : ''}
+                        <li><hr class="dropdown-divider"></li>
+                        <li><button id="headerLogoutBtn" class="dropdown-item text-danger">Cerrar sesión</button></li>
+                        </ul>
+                    </div>
+                </div>
+`;
+
 
                     // (No inline header transform — restored to default styling)
 
@@ -243,7 +257,7 @@
                         logoutBtn.addEventListener('click', async (e) => {
                             e.preventDefault();
 
-                            async function ensureAppModal() {
+                            async function ensureAppModal() {url
                                 if (typeof window.showAppModal === 'function') return true;
                                 return new Promise((resolve) => {
                                     const s = document.createElement('script');
