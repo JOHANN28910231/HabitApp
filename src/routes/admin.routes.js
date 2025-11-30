@@ -4,6 +4,7 @@ const router = express.Router();
 const pool = require('../utils/db');
 
 const adminReports = require('../controllers/admin.reports.controller');
+
 const {
     getHosts,
     getHostProperties,

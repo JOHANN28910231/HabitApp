@@ -87,6 +87,12 @@ body {
     z-index: 1030;
 }
 
+/* Ensure header sits above main content so dropdowns don't get clipped/overlapped */
+.site-header {
+    position: relative;
+    z-index: 1030;
+}
+
 .navbar .brand-img {
     height: 90px;
     width: auto;
