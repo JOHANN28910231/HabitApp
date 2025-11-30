@@ -1,4 +1,5 @@
-﻿const pool = require('../utils/db');
+﻿// models/user.js
+const pool = require('../utils/db');
 
 async function findById(id) {
   const [rows] = await pool.query(

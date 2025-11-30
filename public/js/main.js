@@ -404,7 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
             resultsContainer.innerHTML = `
         <div class="col-12">
           <div class="alert alert-warning">
-            No se encontraron alojamientos disponibles para esos criterios.
+            No se encontraron alojamientos disponibles para las fechas indicadas.
           </div>
         </div>`;
             return;
