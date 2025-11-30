@@ -89,6 +89,18 @@
     }
 // ========== SECCIÓN DE REPORTES PARA ADMIN ==========
 document.addEventListener('DOMContentLoaded', () => {
+    // === LOGOUT BUTTON HANDLER ===
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+            } catch {}
+            sessionStorage.clear();
+            localStorage.clear();
+            window.location.href = '/login.html';
+        });
+    }
         // ========== SECCIÓN DE RESERVAS PARA ADMIN =============
         const reservasTab = document.getElementById('tab-reservas');
         const reservasPane = document.getElementById('reservas');
