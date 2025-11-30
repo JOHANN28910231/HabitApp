@@ -8,6 +8,7 @@ const {
     createReviewFromToken,
     listReviewsByProperty,
     listReviewsByRoom,
+    listAllReviews,
 } = require('../controllers/reviews.controller');
 
 router.get('/from-token', getReviewFromToken);
