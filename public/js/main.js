@@ -293,7 +293,84 @@ document.addEventListener('DOMContentLoaded', () => {
             resTotal.textContent = 'Se calculará al confirmar';
         }
 
+        // Cargar reseñas de la habitación
+        loadRoomReviews(room.id_habitacion);
+
         resModalInstance.show();
+    }
+
+    // =====================================
+    // 4.1) Cargar y mostrar reseñas de la habitación
+    // =====================================
+    async function loadRoomReviews(idHabitacion) {
+        const reviewsContainer = document.getElementById('roomReviews');
+        if (!reviewsContainer) return;
+
+        // Mostrar estado de carga
+        reviewsContainer.innerHTML = '<p class="text-muted small text-center mb-0">Cargando reseñas...</p>';
+
+        try {
+            const res = await fetch(`/api/reviews/room/${idHabitacion}`);
+            if (!res.ok) {
+                throw new Error(`Error HTTP ${res.status}`);
+            }
+
+            const reviews = await res.json();
+
+            if (!Array.isArray(reviews) || reviews.length === 0) {
+                reviewsContainer.innerHTML = '<p class="text-muted small text-center mb-0 fst-italic">Aún no hay reseñas para esta habitación.</p>';
+                return;
+            }
+
+            // Renderizar reseñas
+            let html = '';
+            reviews.forEach((review, index) => {
+                const stars = '★'.repeat(review.rating || 0) + '☆'.repeat(5 - (review.rating || 0));
+                const fecha = formatReviewDate(review.fecha);
+                const nombre = review.nombre_completo || 'Huésped';
+
+                html += `
+                    <div class="border-bottom pb-2 mb-2 ${index === reviews.length - 1 ? 'border-0 pb-0 mb-0' : ''}">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <strong class="small">${escapeHtml(review.titulo || 'Sin título')}</strong>
+                            <span class="text-warning small">${stars}</span>
+                        </div>
+                        <p class="small mb-1 text-muted">${escapeHtml(review.comentario || '')}</p>
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">${escapeHtml(nombre)}</small>
+                            <small class="text-muted">${fecha}</small>
+                        </div>
+                    </div>
+                `;
+            });
+
+            reviewsContainer.innerHTML = html;
+
+        } catch (err) {
+            console.error('Error cargando reseñas:', err);
+            reviewsContainer.innerHTML = '<p class="text-danger small text-center mb-0">Error al cargar reseñas.</p>';
+        }
+    }
+
+    // Helper: formatear fecha de reseña
+    function formatReviewDate(dateString) {
+        if (!dateString) return '—';
+        try {
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        } catch (e) {
+            return '—';
+        }
+    }
+
+    // Helper: escapar HTML para prevenir XSS
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     // =====================================
