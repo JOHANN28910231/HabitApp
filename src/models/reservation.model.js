@@ -50,6 +50,7 @@ async function createReservationWithLock({
             `SELECT *
              FROM reservaciones
              WHERE id_habitacion = ?
+               AND estado_reserva = 'reservado'
                AND NOT (fecha_salida <= ? OR fecha_inicio >= ?)
                  FOR UPDATE`,
             [id_habitacion, fecha_inicio, fecha_salida]
@@ -112,7 +113,14 @@ async function getReservationsByGuest(id_huesped) {
                    AND pa.estado_pago = 'aprobado'
                  ORDER BY pa.fecha_pago DESC
                  LIMIT 1
-             ) AS monto_pagado
+             ) AS monto_pagado,
+             (
+                 SELECT pa.estado_pago
+                 FROM pagos pa
+                 WHERE pa.id_reservacion = r.id_reservacion
+                 ORDER BY pa.fecha_pago DESC
+                 LIMIT 1
+             ) AS estado_pago
          FROM reservaciones r
                   JOIN habitacion h ON h.id_habitacion = r.id_habitacion
                   JOIN propiedades p ON p.id_propiedad = h.id_propiedad
@@ -122,6 +130,8 @@ async function getReservationsByGuest(id_huesped) {
     );
     return rows;
 }
+
+
 
 
 /**
