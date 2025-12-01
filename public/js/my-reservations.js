@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return data.user || data;
     }
 
+    // Estado de la RESERVA (fechas / cancelado / etc.)
     function computeStatus(reserva) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -36,6 +37,31 @@ document.addEventListener('DOMContentLoaded', () => {
             return { code: 'upcoming', label: 'Próxima', className: 'badge bg-warning text-dark' };
         }
         return { code: 'ongoing', label: 'En curso', className: 'badge bg-success' };
+    }
+
+    // 🔹 NUEVO: mapear estado del PAGO a etiqueta + clase
+    function mapPaymentStatus(rawEstadoPago) {
+        const s = (rawEstadoPago || '').toLowerCase();
+
+        if (s === 'aprobado') {
+            return {
+                label: 'Aprobado',
+                className: 'badge status-badge status-pago-aprobado'
+            };
+        }
+
+        if (s === 'rechazado') {
+            return {
+                label: 'No aprobado',
+                className: 'badge status-badge status-pago-no-aprobado'
+            };
+        }
+
+        // pendiente o null → en proceso
+        return {
+            label: 'En proceso',
+            className: 'badge status-badge status-pago-pendiente'
+        };
     }
 
     function canCancel(reserva) {
@@ -129,7 +155,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const start = new Date(r.fecha_inicio);
                 const end = new Date(r.fecha_salida);
 
-                const status = computeStatus(r);
+                const statusReserva = computeStatus(r);
+                const paymentStatus = mapPaymentStatus(r.estado_pago); // 🔹 NUEVO
 
                 const montoBase = (r.monto_pagado != null ? Number(r.monto_pagado) : Number(r.monto_total)) || 0;
                 const montoFormatted = `$${montoBase.toLocaleString('es-MX', {
@@ -142,13 +169,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const tr = document.createElement('tr');
 
+                // 👇 Aquí agregamos la nueva columna "Estatus pago"
                 tr.innerHTML = `
           <td>${r.id_reservacion}</td>
           <td>${r.folio_pago || '-'}</td>
           <td>${montoFormatted}</td>
           <td>${periodo}</td>
           <td>${ubicacion || '-'}</td>
-          <td><span class="${status.className}">${status.label}</span></td>
+          <td><span class="${statusReserva.className}">${statusReserva.label}</span></td>
+          <td><span class="${paymentStatus.className}">${paymentStatus.label}</span></td>
           <td class="text-end"></td>
         `;
 
