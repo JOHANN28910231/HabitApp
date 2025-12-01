@@ -1,12 +1,16 @@
 require('dotenv').config();
 const app = require('./app');
 const http = require('http');
+const { initReviewCron } = require('./utils/reviewCron');
 
 const PORT = Number(process.env.PORT || 3000);
 const server = http.createServer(app);
 
 server.listen(PORT, () => {
   console.log(`Servidor escuchando en puerto ${PORT}`);
+  
+  // Inicializar cron job para envío automático de reseñas
+  initReviewCron();
 });
 
 // Apagado ordenado (graceful shutdown)

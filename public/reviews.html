@@ -1,101 +1,112 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8" />
-    <title>Reseñas | AppTiziHause</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tu Reseña | TiziHause</title>
     <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
-<body class="bg-site">
-    <!-- Header de tu sitio aquí, si ya existe -->
-    <!-- <header class="site-header">...</header> -->
-
-    <main class="container my-4">
-        <!-- MODO DEJAR RESEÑA (TOKEN) -->
-        <section id="review-mode" class="auth-card p-4 hidden">
-            <h1 class="section-title mb-3">Dejar reseña de tu estancia</h1>
-
-            <!-- Aquí va tu formulario REAL de reseñas con estos IDs:
-                 - reviewForm
-                 - errorBox
-                 - tokenInfoSection
-                 - tokenInfoText
-                 - rating
-                 - titulo
-                 - comentario
-            -->
-            <!-- EJEMPLO SOLO ILUSTRATIVO (no reemplaza tu código real):
-            <div id="errorBox" class="alert alert-danger d-none"></div>
-
-            <section id="tokenInfoSection" class="mb-3 d-none">
-                <p id="tokenInfoText" class="mb-0"></p>
-            </section>
-
-            <form id="reviewForm" class="d-none">
-                <div class="mb-3">
-                    <label class="form-label" for="rating">Calificación (1–5)</label>
-                    <input type="number" min="1" max="5" id="rating" name="rating"
-                           class="form-control-custom w-100" required />
-                </div>
-                <div class="mb-3">
-                    <label class="form-label" for="titulo">Título</label>
-                    <input type="text" id="titulo" name="titulo"
-                           class="form-control-custom w-100" required />
-                </div>
-                <div class="mb-3">
-                    <label class="form-label" for="comentario">Comentario</label>
-                    <textarea id="comentario" name="comentario" rows="4"
-                              class="form-control-custom w-100" required></textarea>
-                </div>
-                <button type="submit" class="btn-accent">Enviar reseña</button>
-            </form>
-            -->
-        </section>
-
-        <!-- MODO VER RESEÑAS (SIN TOKEN) -->
-        <section id="view-mode" class="reviews-layout mt-3 hidden">
-            <div class="auth-card p-4 mb-3">
-                <h1 class="section-title mb-3">Reseñas por propiedad y habitación</h1>
-                <p class="mb-3" style="color: var(--muted);">
-                    Ingresa el <strong>ID de propiedad</strong> para listar todas las reseñas
-                    registradas, agrupadas por habitación.
+<body>
+    <div class="reviews-page-container">
+        <div class="reviews-page-card">
+            <!-- MODO: DEJAR RESEÑA (CON TOKEN) -->
+            <section id="review-mode" class="hidden">
+                <h1 class="reviews-page-title">¡Comparte tu experiencia!</h1>
+                <p class="reviews-page-subtitle">
+                    Tu opinión es muy valiosa y ayuda a otros viajeros a tomar mejores decisiones.
                 </p>
 
-                <form id="search-form" class="row g-2 align-items-center">
-                    <div class="col-sm-6">
-                        <label for="property-id" class="form-label">ID de propiedad</label>
-                        <input type="number" id="property-id" name="propertyId" min="1"
-                               class="form-control-custom w-100"
-                               placeholder="Ej. 1" required />
+                <!-- Mensaje de error -->
+                <div id="errorBox" class="review-alert review-alert-error hidden"></div>
+
+                <!-- Información de la reserva -->
+                <div id="tokenInfoSection" class="reservation-info-box hidden">
+                    <p id="tokenInfoText"></p>
+                </div>
+
+                <!-- Formulario de reseña -->
+                <form id="reviewForm" class="hidden">
+                    <!-- Calificación con estrellas -->
+                    <div class="star-rating-container">
+                        <label class="star-rating-label">¿Cómo calificarías tu estancia?</label>
+                        <div class="star-rating" id="starRating">
+                            <span data-value="1">★</span>
+                            <span data-value="2">★</span>
+                            <span data-value="3">★</span>
+                            <span data-value="4">★</span>
+                            <span data-value="5">★</span>
+                        </div>
+                        <input type="hidden" id="rating" name="rating" value="0" required />
+                        <span class="star-rating-hint">Haz clic en las estrellas para calificar (1 = Malo, 5 = Excelente)</span>
                     </div>
-                    <div class="col-sm-6 d-flex align-items-end">
-                        <button type="submit" id="load-btn" class="btn-accent ms-sm-2 mt-2 mt-sm-0">
-                            Cargar reseñas
+
+                    <!-- Título de la reseña -->
+                    <div class="review-form-group">
+                        <label class="review-form-label" for="titulo">Título de tu reseña</label>
+                        <input 
+                            type="text" 
+                            id="titulo" 
+                            name="titulo"
+                            class="review-form-input" 
+                            placeholder="Resume tu experiencia en pocas palabras"
+                            maxlength="100" 
+                            required 
+                        />
+                        <span class="review-form-hint">Máximo 100 caracteres</span>
+                    </div>
+
+                    <!-- Comentario detallado -->
+                    <div class="review-form-group">
+                        <label class="review-form-label" for="comentario">Cuéntanos más sobre tu estancia</label>
+                        <textarea 
+                            id="comentario" 
+                            name="comentario" 
+                            class="review-form-textarea" 
+                            placeholder="¿Qué te gustó más? ¿Qué podríamos mejorar? Comparte los detalles de tu experiencia..."
+                            maxlength="500" 
+                            required
+                        ></textarea>
+                        <span class="review-form-hint">
+                            <span class="review-char-count"><span id="charCount">0</span>/500</span>
+                            Describe tu experiencia con detalle
+                        </span>
+                    </div>
+
+                    <!-- Botón de envío -->
+                    <div class="review-form-group">
+                        <button type="submit" class="review-submit-btn" id="submitBtn">
+                            Enviar mi reseña
                         </button>
                     </div>
                 </form>
+            </section>
 
-                <div id="status" class="reviews-status mt-2"></div>
-            </div>
-
-            <div class="auth-card p-4">
-                <h2 class="section-title mb-3">Resultados</h2>
-                <div id="results" class="tables-container">
-                    <p class="empty-message">
-                        Ingresa un ID de propiedad y haz clic en <strong>“Cargar reseñas”</strong>.
-                    </p>
+            <!-- MODO: ACCESO NO VÁLIDO (SIN TOKEN) -->
+            <section id="no-token-mode" class="hidden">
+                <h1 class="reviews-page-title">Acceso Restringido</h1>
+                <div class="review-alert review-alert-info">
+                    <p><strong>⚠️ Esta página es solo para huéspedes invitados</strong></p>
+                    <p>Para dejar una reseña, necesitas un enlace especial que se envía automáticamente a tu correo electrónico después de tu estancia.</p>
+                    <p>Si completaste una reservación recientemente, revisa tu bandeja de entrada (y la carpeta de spam).</p>
                 </div>
-            </div>
-        </section>
-    </main>
+                
+                <div style="text-align: center; margin-top: 32px;">
+                    <a href="/" class="review-submit-btn" style="display: inline-block; text-decoration: none; width: auto; padding: 14px 32px;">
+                        Volver al inicio
+                    </a>
+                </div>
+            </section>
+        </div>
 
-    <footer class="footer text-center">
-        Panel de reseñas · AppTiziHause
-    </footer>
+        <!-- Footer -->
+        <footer class="reviews-page-footer">
+            <p>&copy; <span id="currentYear"></span> TiziHause - Todos los derechos reservados</p>
+            <p style="margin-top: 8px; font-size: 12px;">Gracias por confiar en nosotros</p>
+        </footer>
+    </div>
 
     <script src="/js/reviews.js"></script>
 </body>
-
 </html>

@@ -51,3 +51,6 @@ tmp/
 GuíaGitParaHabitApp.md
 SoluciónGit.md
 
+# Review invites tracking (local only)
+.review-invites-sent.json
+

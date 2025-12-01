@@ -1,22 +1,25 @@
 // public/js/reviews.js
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Año actual en el footer
+    const yearEl = document.getElementById('currentYear');
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
+
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
 
     const reviewModeSection = document.getElementById('review-mode');
-    const viewModeSection = document.getElementById('view-mode');
+    const noTokenModeSection = document.getElementById('no-token-mode');
 
     if (token) {
-        // MODO DEJAR RESEÑA (con token)
+        // MODO DEJAR RESEÑA (con token válido)
         if (reviewModeSection) reviewModeSection.classList.remove('hidden');
-        if (viewModeSection) viewModeSection.classList.add('hidden');
+        if (noTokenModeSection) noTokenModeSection.classList.add('hidden');
         initReviewMode(token);
     } else {
-        // MODO SOLO LECTURA (sin token)
+        // MODO SIN TOKEN (acceso no autorizado)
         if (reviewModeSection) reviewModeSection.classList.add('hidden');
-        if (viewModeSection) viewModeSection.classList.remove('hidden');
-        initViewMode();
+        if (noTokenModeSection) noTokenModeSection.classList.remove('hidden');
     }
 });
 
@@ -32,8 +35,8 @@ async function initReviewMode(token) {
 
     if (!token) {
         if (errorBox) {
-            errorBox.textContent = 'Token no proporcionado.';
-            errorBox.classList.remove('d-none');
+            errorBox.textContent = '❌ No se proporcionó un token válido.';
+            errorBox.classList.remove('hidden');
         }
         return;
     }
@@ -44,33 +47,99 @@ async function initReviewMode(token) {
 
         if (!res.ok || !data.ok) {
             if (errorBox) {
-                errorBox.textContent = data.error || 'Token inválido o expirado.';
-                errorBox.classList.remove('d-none');
+                errorBox.textContent = data.error || '❌ El enlace es inválido o ha expirado. Por favor, contacta con soporte si crees que esto es un error.';
+                errorBox.classList.remove('hidden');
             }
             return;
         }
 
         // Mostrar info de la estancia si viene
         if (data.reserva && tokenInfoSection && tokenInfoText) {
-            tokenInfoSection.classList.remove('d-none');
+            tokenInfoSection.classList.remove('hidden');
             const r = data.reserva;
-            tokenInfoText.textContent =
-                `Estancia finalizada (reservación #${r.id_reservacion}) ` +
-                `en la propiedad ${r.id_propiedad}, habitación ${r.id_habitacion}.`;
+            tokenInfoText.innerHTML = 
+                `<strong>✓ Reservación verificada</strong><br>` +
+                `Reservación #${r.id_reservacion} - Propiedad ${r.id_propiedad}, Habitación ${r.id_habitacion}`;
         }
 
         // Token válido: habilitar formulario
         if (form) {
-            form.classList.remove('d-none');
+            form.classList.remove('hidden');
+            setupStarRating();
+            setupCharCounter();
             form.addEventListener('submit', makeOnSubmitHandler(token));
         }
     } catch (err) {
         console.error(err);
         if (errorBox) {
-            errorBox.textContent = 'Error al validar el token.';
-            errorBox.classList.remove('d-none');
+            errorBox.textContent = '❌ Error al validar el token. Por favor, intenta de nuevo más tarde.';
+            errorBox.classList.remove('hidden');
         }
     }
+}
+
+// Configurar sistema de calificación por estrellas
+function setupStarRating() {
+    const starContainer = document.getElementById('starRating');
+    const ratingInput = document.getElementById('rating');
+    
+    if (!starContainer || !ratingInput) return;
+    
+    const stars = starContainer.querySelectorAll('span');
+    
+    stars.forEach((star) => {
+        // Hover effect
+        star.addEventListener('mouseenter', () => {
+            const value = parseInt(star.getAttribute('data-value'));
+            highlightStars(stars, value);
+        });
+        
+        // Click to select
+        star.addEventListener('click', () => {
+            const value = parseInt(star.getAttribute('data-value'));
+            ratingInput.value = value;
+            selectStars(stars, value);
+        });
+    });
+    
+    // Reset al salir del contenedor
+    starContainer.addEventListener('mouseleave', () => {
+        const currentValue = parseInt(ratingInput.value) || 0;
+        selectStars(stars, currentValue);
+    });
+}
+
+function highlightStars(stars, count) {
+    stars.forEach((star, index) => {
+        if (index < count) {
+            star.classList.add('hover');
+        } else {
+            star.classList.remove('hover');
+        }
+    });
+}
+
+function selectStars(stars, count) {
+    stars.forEach((star, index) => {
+        star.classList.remove('hover');
+        if (index < count) {
+            star.classList.add('active');
+        } else {
+            star.classList.remove('active');
+        }
+    });
+}
+
+// Configurar contador de caracteres
+function setupCharCounter() {
+    const textarea = document.getElementById('comentario');
+    const charCount = document.getElementById('charCount');
+    
+    if (!textarea || !charCount) return;
+    
+    textarea.addEventListener('input', () => {
+        charCount.textContent = textarea.value.length;
+    });
 }
 
 function makeOnSubmitHandler(token) {
@@ -80,13 +149,44 @@ function makeOnSubmitHandler(token) {
         const ratingEl = document.getElementById('rating');
         const tituloEl = document.getElementById('titulo');
         const comentarioEl = document.getElementById('comentario');
+        const submitBtn = document.getElementById('submitBtn');
+        const errorBox = document.getElementById('errorBox');
+
+        // Validar calificación
+        const rating = Number(ratingEl?.value);
+        if (!rating || rating < 1 || rating > 5) {
+            if (errorBox) {
+                errorBox.textContent = '⚠️ Por favor selecciona una calificación de 1 a 5 estrellas.';
+                errorBox.classList.remove('hidden');
+            }
+            return;
+        }
 
         const body = {
             token,
-            rating: Number(ratingEl?.value),
-            titulo: tituloEl?.value,
-            comentario: comentarioEl?.value,
+            rating,
+            titulo: tituloEl?.value.trim(),
+            comentario: comentarioEl?.value.trim(),
         };
+
+        // Validación adicional
+        if (!body.titulo || !body.comentario) {
+            if (errorBox) {
+                errorBox.textContent = '⚠️ Por favor completa todos los campos del formulario.';
+                errorBox.classList.remove('hidden');
+            }
+            return;
+        }
+
+        // Deshabilitar botón durante el envío
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enviando...';
+        }
+
+        if (errorBox) {
+            errorBox.classList.add('hidden');
+        }
 
         try {
             const resp = await fetch('/api/reviews/from-token', {
@@ -98,168 +198,61 @@ function makeOnSubmitHandler(token) {
             const out = await resp.json();
 
             if (!resp.ok) {
-                alert(out.error || 'Error al guardar la reseña');
+                if (errorBox) {
+                    errorBox.textContent = '❌ ' + (out.error || 'Error al guardar la reseña. Intenta de nuevo.');
+                    errorBox.classList.remove('hidden');
+                }
                 return;
             }
 
-            alert('¡Gracias por tu reseña!');
-            window.location.href = '/';
+            // Éxito - Mostrar mensaje y redirigir
+            document.querySelector('.reviews-page-card').innerHTML = `
+                <div style="text-align: center; padding: 40px 20px;">
+                    <div style="font-size: 64px; margin-bottom: 20px;">🎉</div>
+                    <h2 style="color: var(--brand-color); margin-bottom: 16px; font-size: 26px;">¡Gracias por tu reseña!</h2>
+                    <p style="color: var(--muted); font-size: 16px; line-height: 1.6; margin-bottom: 32px;">
+                        Tu opinión ha sido registrada exitosamente y será muy útil para otros viajeros.
+                    </p>
+                    <a href="/" class="review-submit-btn" style="display: inline-block; text-decoration: none; width: auto; padding: 14px 32px;">
+                        Volver al inicio
+                    </a>
+                </div>
+            `;
+
+            // Redirigir después de 3 segundos
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 3000);
+
         } catch (err) {
             console.error(err);
-            alert('Error de red al enviar tu reseña.');
+            if (errorBox) {
+                errorBox.textContent = '❌ Error de conexión. Por favor verifica tu internet e intenta de nuevo.';
+                errorBox.classList.remove('hidden');
+            }
+        } finally {
+            // Rehabilitar botón
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar mi reseña';
+            }
         }
     };
 }
 
 /* ============================================
-   MODO SIN TOKEN: Ver reseñas por propiedad
+   Helpers y utilidades
    ============================================ */
 
-function initViewMode() {
-    const form = document.getElementById('search-form');
-    const statusEl = document.getElementById('status');
-    const resultsEl = document.getElementById('results');
-    const loadBtn = document.getElementById('load-btn');
-
-    if (!form || !resultsEl) return;
-
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const propertyIdInput = document.getElementById('property-id');
-        const propertyId = propertyIdInput?.value.trim();
-        if (!propertyId) return;
-
-        await loadReviewsByProperty(propertyId, { statusEl, resultsEl, loadBtn });
-    });
-}
-
-async function loadReviewsByProperty(propertyId, { statusEl, resultsEl, loadBtn }) {
-    clearStatus(statusEl);
-    setStatus(statusEl, `Cargando reseñas de la propiedad ${propertyId}...`, 'neutral');
-    setLoading(loadBtn, true);
-    resultsEl.innerHTML = '';
-
-    try {
-        const resp = await fetch(`/api/reviews/property/${encodeURIComponent(propertyId)}`);
-        if (!resp.ok) {
-            throw new Error(`Error HTTP ${resp.status}`);
-        }
-
-        const data = await resp.json();
-
-        if (!Array.isArray(data) || data.length === 0) {
-            setStatus(statusEl, 'No se encontraron reseñas para esta propiedad.', 'ok');
-            resultsEl.innerHTML =
-                '<p class="empty-message">No hay reseñas registradas para esta propiedad.</p>';
-            return;
-        }
-
-        // Agrupar por id_habitacion
-        const grouped = {};
-        for (const review of data) {
-            const roomId = review.id_habitacion ?? 'Sin habitación';
-            if (!grouped[roomId]) {
-                grouped[roomId] = [];
-            }
-            grouped[roomId].push(review);
-        }
-
-        renderGroupedTables(grouped, resultsEl);
-        setStatus(statusEl,
-            `Se encontraron ${data.length} reseña(s) para la propiedad ${propertyId}.`,
-            'ok'
-        );
-    } catch (err) {
-        console.error(err);
-        setStatus(statusEl, 'Ocurrió un error al cargar las reseñas. Revisa la consola.', 'error');
-        resultsEl.innerHTML = '<p class="empty-message">Error al obtener las reseñas.</p>';
-    } finally {
-        setLoading(loadBtn, false);
-    }
-}
-
-function renderGroupedTables(groupedReviews, resultsEl) {
-    resultsEl.innerHTML = '';
-    const roomIds = Object.keys(groupedReviews);
-
-    roomIds.forEach((roomId) => {
-        const reviews = groupedReviews[roomId];
-
-        const roomTitle = document.createElement('h3');
-        roomTitle.className = 'room-title';
-        roomTitle.textContent =
-            roomId === 'Sin habitación'
-                ? 'Sin habitación asociada'
-                : `Habitación ${roomId}`;
-        resultsEl.appendChild(roomTitle);
-
-        if (!reviews.length) {
-            const p = document.createElement('p');
-            p.className = 'empty-message';
-            p.textContent = 'No hay reseñas para esta habitación.';
-            resultsEl.appendChild(p);
-            return;
-        }
-
-        // columnas dinámicas basadas en el primer objeto
-        const columns = Object.keys(reviews[0]);
-
-        const table = document.createElement('table');
-        const thead = document.createElement('thead');
-        const headerRow = document.createElement('tr');
-
-        columns.forEach((col) => {
-            const th = document.createElement('th');
-            th.textContent = col;
-            headerRow.appendChild(th);
-        });
-
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-
-        const tbody = document.createElement('tbody');
-
-        reviews.forEach((review) => {
-            const tr = document.createElement('tr');
-            columns.forEach((col) => {
-                const td = document.createElement('td');
-                const value = review[col];
-                td.textContent = formatValue(value);
-                tr.appendChild(td);
-            });
-            tbody.appendChild(tr);
-        });
-
-        table.appendChild(tbody);
-        resultsEl.appendChild(table);
-    });
-}
-
-/* Helpers modo vista */
-
+// Formatear fecha para mostrar en formato legible
 function formatValue(value) {
     if (value == null) return '';
-    if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}/)) {
-        return value;
+    if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}T/)) {
+        const date = new Date(value);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
     }
     return String(value);
-}
-
-function setStatus(statusEl, message, type) {
-    if (!statusEl) return;
-    statusEl.textContent = message;
-    statusEl.className = 'reviews-status';
-    if (type === 'error') statusEl.classList.add('reviews-status--error');
-    if (type === 'ok') statusEl.classList.add('reviews-status--ok');
-}
-
-function clearStatus(statusEl) {
-    if (!statusEl) return;
-    statusEl.textContent = '';
-    statusEl.className = 'reviews-status';
-}
-
-function setLoading(btn, isLoading) {
-    if (!btn) return;
-    btn.disabled = isLoading;
 }

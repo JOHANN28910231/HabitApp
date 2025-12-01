@@ -213,6 +213,10 @@ app.use('/api/reviews', reviewsRoutes);
 const notificationsRoutes = require('./routes/notifications.routes');
 app.use('/api/notifications', notificationsRoutes);
 
+// Ruta pública para reviews.html (no requiere autenticación)
+app.get('/reviews.html', (req, res) => {
+  res.sendFile(path.join(publicDir, 'reviews.html'));
+});
 
 // Fallback SPA / 404
 const indexPath = path.join(publicDir, 'login.html');

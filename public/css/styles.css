@@ -87,6 +87,12 @@ body {
     z-index: 1030;
 }
 
+/* Ensure header sits above main content so dropdowns don't get clipped/overlapped */
+.site-header {
+    position: relative;
+    z-index: 1030;
+}
+
 .navbar .brand-img {
     height: 90px;
     width: auto;
@@ -300,6 +306,256 @@ body {
     }
 }
 
+/* =============================================================================
+   REVIEWS PAGE (reviews.html) - Estilos para la página de captura de reseñas
+   ============================================================================= */
+
+/* Contenedor principal de la página de reseñas */
+.reviews-page-container {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #f8fafb 0%, #ffffff 100%);
+    padding: 40px 20px;
+}
+
+.reviews-page-card {
+    background: var(--card);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(11, 59, 23, 0.08);
+    padding: 40px;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* Título principal */
+.reviews-page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--brand-color);
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.reviews-page-subtitle {
+    font-size: 16px;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 32px;
+    line-height: 1.5;
+}
+
+/* Alertas personalizadas */
+.review-alert {
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    font-size: 15px;
+    line-height: 1.6;
+    border-left: 4px solid;
+}
+
+.review-alert-success {
+    background: #f0f9f4;
+    color: #1e7e34;
+    border-color: var(--accent);
+}
+
+.review-alert-error {
+    background: #fef5f5;
+    color: #c53030;
+    border-color: #e53e3e;
+}
+
+.review-alert-info {
+    background: #f0f4ff;
+    color: #2c5282;
+    border-color: #4299e1;
+}
+
+/* Sistema de estrellas mejorado */
+.star-rating-container {
+    margin-bottom: 24px;
+}
+
+.star-rating-label {
+    display: block;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--brand-color);
+    margin-bottom: 12px;
+}
+
+.star-rating {
+    display: inline-flex;
+    gap: 6px;
+    font-size: 36px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.star-rating span {
+    color: #e0e0e0;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.star-rating span:hover,
+.star-rating span.hover {
+    color: #fbbf24;
+    transform: scale(1.15);
+}
+
+.star-rating span.active {
+    color: #fbbf24;
+}
+
+.star-rating-hint {
+    display: block;
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+/* Formulario */
+.review-form-group {
+    margin-bottom: 24px;
+}
+
+.review-form-label {
+    display: block;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--brand-color);
+    margin-bottom: 8px;
+}
+
+.review-form-input,
+.review-form-textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e8e8e8;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    background: #fafafa;
+}
+
+.review-form-input:focus,
+.review-form-textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(155, 212, 106, 0.1);
+}
+
+.review-form-textarea {
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.6;
+}
+
+.review-form-hint {
+    display: block;
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.review-char-count {
+    float: right;
+    font-weight: 500;
+    color: var(--accent-dark);
+}
+
+/* Botón de envío */
+.review-submit-btn {
+    width: 100%;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    color: var(--brand-color);
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(155, 212, 106, 0.3);
+}
+
+.review-submit-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(155, 212, 106, 0.4);
+}
+
+.review-submit-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.review-submit-btn:disabled {
+    background: #d0d0d0;
+    color: #888;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Información de la reserva */
+.reservation-info-box {
+    background: var(--bg-header);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 32px;
+    border-left: 4px solid var(--accent);
+}
+
+.reservation-info-box p {
+    margin: 0;
+    font-size: 15px;
+    color: var(--brand-color);
+    line-height: 1.6;
+}
+
+.reservation-info-box strong {
+    color: var(--brand-color);
+}
+
+/* Footer de la página */
+.reviews-page-footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid #e8e8e8;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .reviews-page-card {
+        padding: 28px 24px;
+    }
+    
+    .reviews-page-title {
+        font-size: 24px;
+    }
+    
+    .star-rating {
+        font-size: 32px;
+    }
+}
+
+@media (max-width: 480px) {
+    .reviews-page-container {
+        padding: 20px 12px;
+    }
+    
+    .reviews-page-card {
+        padding: 24px 16px;
+    }
+    
+    .star-rating {
+        font-size: 28px;
+        gap: 4px;
+    }
 .status-badge {
     border-radius: 999px;
     padding: 0.25rem 0.75rem;
