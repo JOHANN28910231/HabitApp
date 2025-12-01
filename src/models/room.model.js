@@ -297,6 +297,7 @@ async function searchAvailableRooms({ destino, from, to, guests }) {
                 SELECT 1
                 FROM reservaciones r
                 WHERE r.id_habitacion = h.id_habitacion
+                  AND r.estado_reserva = 'reservado'
                   AND NOT (r.fecha_salida <= ? OR r.fecha_inicio >= ?)
             )
               AND NOT EXISTS (
