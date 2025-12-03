@@ -112,6 +112,34 @@ Y abrir un Pull Request hacia main
 
 <img width="754" height="500" alt="image" src="https://github.com/user-attachments/assets/a7b7ba5c-5036-48c4-9456-7f08c3164ab9" />
 
+Rutas de las carpetas
+
+public/ Contiene el Frondent Estático, lo que el servidor entrega directamente al navegador 
+   - /css/ Aquí están los archivos de Bootstrap y los estilos personalizados
+   - /js/ Archivos JavaScript. Contiene la lógica que se ejecuta directamente en el navegador del usuario
+   - /index.html/ Página principal que carga el usuario. 
+
+db/ Contiene todo los archivos relacionado con la base de datos
+   - /init.sql/ Contiene la creación de las tablas, columnas, relaciones y estructuras necesarias
+   - /seed.sql/ Las semillas de datos Contiene sentencias SQL para insertar datos iniciales, roles, usuarios de prueba.
+
+src/ Todo el código del backend, esta es la carpeta principal de la lógica de negocio de Express y Node.js
+   - /app.js/ Archivo que configura toda la aplicación Express.
+En él se activan middlewares, rutas, archivos estáticos y manejo de errores.
+   - /server.js/ Punto de arranque del servidor. Inicia la aplicación, es donde se llama a app.js y se inicia el servido
+   - /middlewares/ Pequeñas funciones que se ejecutan antes de que una ruta reciba una petición. Incluye la lógica de autenticación
+   - /utils/  Funciones auxiliares, bibliotecas comunes que no encajan en otras categorías. 
+   - /models/ interactúa directamente con la base de datos. Cada archivo representa una entidad del sistema (usuarios, propiedades etc.).
+   - /controllers/ Contienen la Lógica de Endpoints que responde a las peticiones del cliente. Cada controlador se encarga de la lógica de un módulo (usuarios, inicio de sesión, propiedades, etc.).
+   - /routes/ Define los endpoints de la API. Cada archivo representa un grupo de rutas (usuarios, autenticación, hábitos, etc.).
+
+scripts/  Utilidades ejecutables del proyecto
+  - /.nvmrc/ Archivo de configuración para Node Version Manager, especifica la versión de Node.js que se usa en el proyecto.
+  - /.env.example/ Un ejemplo de archivo de configuración de variables de entorno
+  - /.gitignore/ Define qué archivos NO deben subirse al repositorio
+  - /package.json/ Archivo principal de configuración del proyecto Node.js. Define dependencias, scripts para ejecutar la app y metadatos del proyecto.
+  - /.env/El archivo .env es un archivo privado que contiene datos importantes y sensibles que la aplicación necesita para funcionar, pero que no deben subirse al repositorio por motivos de seguridad. Es un archivo usado para configurar el proyecto sin tener que escribir valores directamente en el código.
+
 HabitApp/
 ├─ public/                 # Frontend estático (Bootstrap, JS del cliente)
 │  ├─ css/
