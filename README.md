@@ -140,27 +140,7 @@ scripts/  Utilidades ejecutables del proyecto
   - /package.json/ Archivo principal de configuración del proyecto Node.js. Define dependencias, scripts para ejecutar la app y metadatos del proyecto.
   - /.env/El archivo .env es un archivo privado que contiene datos importantes y sensibles que la aplicación necesita para funcionar, pero que no deben subirse al repositorio por motivos de seguridad. Es un archivo usado para configurar el proyecto sin tener que escribir valores directamente en el código.
 
-HabitApp/
-├─ public/                 # Frontend estático (Bootstrap, JS del cliente)
-│  ├─ css/
-│  ├─ js/
-│  └─ login.html
-├─ db/
-│  ├─ init.sql             # Esquema "habitapp" (pega aquí el SQL del proyecto)
-│  └─ seed.sql             # Semillas: roles y datos mínimos
-├─ src/
-│  ├─ app.js               # Config principal de Express (middlewares, rutas, estáticos)
-│  ├─ server.js            # Punto de entrada
-│  ├─ middlewares/         # auth.js (sesión, roles)
-│  ├─ utils/               # db.js (pool MySQL), calc.js (cálculos noche/semana/mes)
-│  ├─ models/              # Acceso a MySQL por entidad (usuarios, propiedades, etc.)
-│  ├─ controllers/         # Lógica de endpoints
-│  └─ routes/              # Definición de endpoints (por módulo)
-├─ scripts/                # utilidades (reset BD, etc.)
-├─ .nvmrc
-├─ .env.example
-├─ .gitignore
-└─ package.json
+
 
 🔧 Configuración de entorno
 
