@@ -277,7 +277,7 @@ async function searchAvailableRooms({ destino, from, to, guests }) {
                 p.municipio,
                 p.estado,
                 COALESCE(
-                        MIN(hf.url),
+                        CONCAT('/fotosHabitaciones/', MIN(hf.url)),
                         '/fotosPropiedades/placeholder.jpg'
                 ) AS foto_principal,
                 GROUP_CONCAT(DISTINCT s.nombre ORDER BY s.nombre SEPARATOR ', ') AS servicios

@@ -496,18 +496,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? `$${Number(item.precio_por_noche).toLocaleString()} / noche`
                 : 'Consulta precios';
 
-            // Aseguramos una URL válida para la imagen
-            let imgSrc = item.foto_principal && item.foto_principal.trim()
+            // ✅ Usar foto_principal que viene de searchAvailableRooms
+            // (ya debería venir como "/fotosHabitaciones/archivo.jpg"
+            //  o "/fotosPropiedades/placeholder.jpg")
+            let imgSrc = (item.foto_principal && item.foto_principal.trim())
                 ? item.foto_principal.trim()
                 : '/fotosPropiedades/placeholder.jpg';
 
-            // Si por algún motivo no empieza con "/" (por cambios futuros), se lo agregamos
+            // Defensa extra: si no empieza con "/" ni "http", le ponemos "/"
             if (!imgSrc.startsWith('/') && !/^https?:\/\//i.test(imgSrc)) {
                 imgSrc = '/' + imgSrc;
             }
 
             const imgHtml = `
-            <img src="${imgSrc}" class="card-img-top" alt="Foto de la habitación">
+            <img 
+                src="${imgSrc}" 
+                class="card-img-top"
+                alt="Foto de la habitación"
+                style="height: 200px; object-fit: cover;">
         `;
 
             col.innerHTML = `

@@ -1,4 +1,4 @@
-// properties.js — manejador de la interfaz de propiedades
+// public/js/properties.js — manejador de la interfaz de propiedades
 
 // Obtener hostId del sessionStorage (configurado al hacer login)
 window.hostId = sessionStorage.getItem('host_id') || sessionStorage.getItem('user_id') || 2;

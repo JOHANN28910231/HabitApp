@@ -423,6 +423,10 @@ function openRoomModalForCreate() {
   qs('precioSemana').value = '';
   qs('precioMes').value = '';
   qs('estado_habitacion').value = 'activa';
+
+  //Limpiar input de fotos
+  const photosInput = qs('roomPhotos');
+  if (photosInput) photosInput.value = '';
   // Eliminado input de fotos
   serviciosCatalog && serviciosCatalog.forEach(s => {
     const cb = qs(`svc_${s.id_servicio}`);
@@ -452,6 +456,11 @@ function openRoomModalForEdit(room) {
   qs('precioSemana').value = room.precio_por_semana || '';
   qs('precioMes').value = room.precio_por_mes || '';
   qs('estado_habitacion').value = room.estado_habitacion || 'activa';
+
+  //Limpiar input de fotos
+  const photosInput = qs('roomPhotos');
+  if (photosInput) photosInput.value = '';
+
   serviciosCatalog && serviciosCatalog.forEach(s => {
     const cb = qs(`svc_${s.id_servicio}`);
     if (cb) cb.checked = (room.servicios || []).some(x => x.id_servicio == s.id_servicio);
@@ -529,7 +538,31 @@ async function saveRoomFromModal() {
     const data = await res.json().catch(() => ({}));
     const roomId = id || data.id_habitacion || data.id || data.insertId;
 
-    // Eliminado manejo de fotos
+    // Guardar fotos(siempre y cuando haya foto)
+      const photosInput = qs('roomPhotos');
+      if (photosInput && photosInput.files && photosInput.files.length > 0) {
+          const fd = new FormData();
+          Array.from(photosInput.files).forEach(file => {
+              fd.append('photos', file); // coincide con upload.array('photos', 12)
+          });
+
+          try {
+              const photoRes = await fetch(`${API}/api/rooms/${roomId}/photos`, {
+                  method: 'POST',
+                  credentials: 'include',
+                  body: fd // SIN headers manuales
+              });
+
+              if (!photoRes.ok) {
+                  const errText = await photoRes.text().catch(() => '');
+                  console.warn('Error al subir fotos de habitación:', photoRes.status, errText);
+                  alert('La habitación se guardó, pero hubo un problema subiendo las fotos.');
+              }
+          } catch (err) {
+              console.error('Error de red al subir fotos de habitación:', err);
+              alert('La habitación se guardó, pero hubo un error de red al subir las fotos.');
+          }
+      }
 
     // Save services
     const checked = Array.from(document.querySelectorAll('#servicesContainer input[type=checkbox]:checked')).map(i => Number(i.value));

@@ -9,6 +9,8 @@ const session = require('express-session');
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 // =====================================
 // 🗄 BD & ROUTES
 // =====================================
@@ -92,16 +94,17 @@ if (process.env.NODE_ENV !== 'test') {
 
 
 app.use(session({
-  name: process.env.SESSION_NAME || 'habitapp.sid',
-  secret: process.env.SESSION_SECRET || 'dev-secret-change',
-  resave: false,
-  saveUninitialized: false,
-  store: sessionStore,
-  cookie: {
-      maxAge: Number(process.env.SESSION_MAX_AGE || 24 * 60 * 60 * 1000),
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      secure: process.env.NODE_ENV === 'production'
-  }
+    name: process.env.SESSION_NAME || 'habitapp.sid',
+    secret: process.env.SESSION_SECRET || 'dev-secret-change',
+    resave: false,
+    saveUninitialized: false,
+    store: sessionStore,
+    cookie: {
+        maxAge: Number(process.env.SESSION_MAX_AGE || 24 * 60 * 60 * 1000),
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: false
+    }
 }));
 
 // =====================================
