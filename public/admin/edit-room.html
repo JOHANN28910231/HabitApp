@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Editar habitación — Admin</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body class="bg-site">
+
+<header class="site-header py-2 shadow-sm">
+    <nav class="container d-flex align-items-center justify-content-between">
+        <a class="navbar-brand d-flex align-items-center" href="/" aria-label="TiziHause - Inicio">
+            <img src="/multimedia/tizihause.jpg" alt="TiziHause logo" class="brand-img">
+        </a>
+
+        <div class="d-flex gap-2">
+            <!-- Botón de regresar al panel admin -->
+            <a href="/admin/admin-dashboard.html" class="btn btn-outline-secondary btn-sm">
+                ← Volver al panel
+            </a>
+            <!-- Botón de logout en esta pantalla -->
+            <button id="logoutBtn" class="btn btn-light btn-sm">Cerrar sesión</button>
+        </div>
+    </nav>
+</header>
+
+<main class="container py-4">
+    <div class="row">
+        <div class="col-12 col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h1 id="pageTitle" class="h4 mb-3">Editar habitación</h1>
+                    <p id="statusBox" class="small text-muted mb-3"></p>
+
+                    <form id="roomForm" class="row g-3">
+                        <div class="col-12">
+                            <label for="descripcion" class="form-label">Descripción</label>
+                            <input type="text" id="descripcion" name="descripcion" class="form-control" required>
+                        </div>
+
+                        <div class="col-6">
+                            <label for="capacidad_maxima" class="form-label">Capacidad máxima</label>
+                            <input type="number" min="1" id="capacidad_maxima" name="capacidad_maxima" class="form-control" required>
+                        </div>
+
+                        <div class="col-6">
+                            <label for="estado_habitacion" class="form-label">Estado</label>
+                            <select id="estado_habitacion" name="estado_habitacion" class="form-select">
+                                <option value="">(sin cambio)</option>
+                                <option value="disponible">Disponible</option>
+                                <option value="ocupada">Ocupada</option>
+                                <option value="mantenimiento">En mantenimiento</option>
+                                <option value="inactiva">Inactiva</option>
+                            </select>
+                        </div>
+
+                        <div class="col-4">
+                            <label for="precio_por_noche" class="form-label">Precio por noche</label>
+                            <input type="number" step="0.01" min="0" id="precio_por_noche" name="precio_por_noche" class="form-control">
+                        </div>
+
+                        <div class="col-4">
+                            <label for="precio_por_semana" class="form-label">Precio por semana</label>
+                            <input type="number" step="0.01" min="0" id="precio_por_semana" name="precio_por_semana" class="form-control">
+                        </div>
+
+                        <div class="col-4">
+                            <label for="precio_por_mes" class="form-label">Precio por mes</label>
+                            <input type="number" step="0.01" min="0" id="precio_por_mes" name="precio_por_mes" class="form-control">
+                        </div>
+
+                        <div class="col-12 d-flex justify-content-between mt-3">
+                            <!-- Otro botón de regresar por si el usuario ya está abajo -->
+                            <button type="button" id="backBtn" class="btn btn-outline-secondary">
+                                ← Volver sin guardar
+                            </button>
+                            <button type="submit" class="btn btn-accent">
+                                Guardar cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/admin-edit-room.js"></script>
+</body>
+</html>

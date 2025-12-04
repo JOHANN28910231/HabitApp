@@ -1,4 +1,6 @@
 // ================= SERVICIOS GLOBALES (ADMIN) =====================
+const db = require('../utils/db');
+
 // GET /admin/servicios
 exports.getServicios = async (req, res) => {
     try {
@@ -67,8 +69,6 @@ exports.getAllReservations = async (req, res) => {
         res.status(500).json({ error: 'Error obteniendo reservas' });
     }
 };
-// src/controllers/admin.controller.js
-const db = require('../utils/db');
 
 // =======================================================
 // GET /admin/hosts  → Lista de anfitriones (con filtro opcional q)
@@ -221,4 +221,111 @@ exports.deleteRoom = async (req, res) => {
         res.status(500).json({ error: 'Error eliminando habitación' });
     }
 };
+
+// =======================================================
+// GET /admin/habitaciones/:id  → Detalle de una habitación (ADMIN)
+// =======================================================
+exports.getRoomById = async (req, res) => {
+    const id = req.params.id;
+    try {
+        const [rows] = await db.query(
+            `SELECT 
+                id_habitacion,
+                id_propiedad,
+                descripcion,
+                capacidad_maxima,
+                precio_por_noche,
+                precio_por_semana,
+                precio_por_mes,
+                estado_habitacion
+             FROM habitacion
+             WHERE id_habitacion = ?`,
+            [id]
+        );
+        if (!rows.length) {
+            return res.status(404).json({ error: 'Habitación no encontrada' });
+        }
+        res.json(rows[0]);
+    } catch (err) {
+        console.error('getRoomById error:', err);
+        res.status(500).json({ error: 'Error obteniendo habitación' });
+    }
+};
+
+// =======================================================
+// PUT /admin/habitaciones/:id  → Actualizar habitación (ADMIN)
+// =======================================================
+exports.updateRoomAdmin = async (req, res) => {
+    const id = req.params.id;
+    const {
+        descripcion,
+        capacidad_maxima,
+        precio_por_noche,
+        precio_por_semana,
+        precio_por_mes,
+        estado_habitacion
+    } = req.body;
+
+    try {
+        const fields = [];
+        const params = [];
+
+        if (descripcion !== undefined) {
+            fields.push('descripcion = ?');
+            params.push(descripcion);
+        }
+        if (capacidad_maxima !== undefined) {
+            fields.push('capacidad_maxima = ?');
+            params.push(Number(capacidad_maxima) || 1);
+        }
+        if (precio_por_noche !== undefined) {
+            fields.push('precio_por_noche = ?');
+            params.push(precio_por_noche === null || precio_por_noche === '' ? null : Number(precio_por_noche));
+        }
+        if (precio_por_semana !== undefined) {
+            fields.push('precio_por_semana = ?');
+            params.push(precio_por_semana === null || precio_por_semana === '' ? null : Number(precio_por_semana));
+        }
+        if (precio_por_mes !== undefined) {
+            fields.push('precio_por_mes = ?');
+            params.push(precio_por_mes === null || precio_por_mes === '' ? null : Number(precio_por_mes));
+        }
+        if (estado_habitacion !== undefined && estado_habitacion !== null && estado_habitacion !== '') {
+            fields.push('estado_habitacion = ?');
+            params.push(estado_habitacion);
+        }
+
+        if (!fields.length) {
+            return res.status(400).json({ error: 'No hay campos para actualizar' });
+        }
+
+        params.push(id);
+
+        await db.query(
+            `UPDATE habitacion SET ${fields.join(', ')} WHERE id_habitacion = ?`,
+            params
+        );
+
+        const [rows] = await db.query(
+            `SELECT 
+                id_habitacion,
+                id_propiedad,
+                descripcion,
+                capacidad_maxima,
+                precio_por_noche,
+                precio_por_semana,
+                precio_por_mes,
+                estado_habitacion
+             FROM habitacion
+             WHERE id_habitacion = ?`,
+            [id]
+        );
+
+        res.json(rows[0] || {});
+    } catch (err) {
+        console.error('updateRoomAdmin error:', err);
+        res.status(500).json({ error: 'Error actualizando habitación' });
+    }
+};
+
 

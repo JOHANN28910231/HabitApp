@@ -229,12 +229,11 @@
                 // Normalizar roles a minúsculas
                 const rawRoles = Array.isArray(user.roles) ? user.roles : [];
                 const roles = rawRoles.map(r => String(r).toLowerCase());
-
                 const isHost  = roles.includes('anfitrion');
                 // Consideramos "huésped" a cualquier usuario con rol huesped o anfitrión.
                 // Además, si por alguna razón no hay roles, igual puede ver sus reservaciones.
                 const isGuest = roles.includes('huesped') || isHost || roles.length === 0;
-
+                const canBecomeHost = isGuest && !isHost;
                 container.innerHTML = `
                  <div class="d-flex align-items-center gap-2">
                     ${avatarHtml}
@@ -250,6 +249,7 @@
                     <li><a class="dropdown-item" href="/profile_edit.html">Perfil</a></li>
                     ${isHost ? `<li><a class="dropdown-item" href="/host/host-dashboard.html">Panel de Anfitrión</a></li>` : ''}
                     ${isGuest ? `<li><a class="dropdown-item" href="/my-reservations.html">Mis reservaciones</a></li>` : ''}
+                    ${canBecomeHost ? `<li><a class="dropdown-item" href="/register.html?role=host">Convertirme en anfitrión</a></li>` : ''}
                     <li><hr class="dropdown-divider"></li>
                     <li><button id="headerLogoutBtn" class="dropdown-item text-danger">Cerrar sesión</button></li>
                     </ul>

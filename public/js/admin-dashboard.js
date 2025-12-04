@@ -437,6 +437,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // === ver propiedades de un anfitrión (modal) ===
   async function onViewProps(e) {
+      //Obtenemos el id del anfitrión
+      const id = getRowIdFromBtn(e.currentTarget);
+      if (!id) return alert('ID no encontrado');
                 // Agregar propiedad (formulario simple)
                 const addPropBtn = document.createElement('button');
                 addPropBtn.className = 'btn btn-success mb-3';
@@ -466,8 +469,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     addPropBtn.disabled = true;
                 };
                 document.getElementById('modalPropsBody').prepend(addPropBtn);
-        const id = getRowIdFromBtn(e.currentTarget);
-        if (!id) return alert('ID no encontrado');
         document.getElementById('modalPropsTitle').innerText = `Propiedades del anfitrión ${id}`;
         document.getElementById('modalPropsBody').innerHTML = 'Cargando...';
         modalProps.show();
@@ -499,6 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <button class="btn btn-sm btn-outline-primary btn-view-rooms-prop" data-id="${p.id_propiedad}" data-name="${p.nombre_propiedad}">Habitaciones</button>
                                     <button class="btn btn-sm btn-success btn-add-room" data-id="${p.id_propiedad}" data-name="${p.nombre_propiedad}">Agregar Habitación</button>
                                 </div>
+                                <div class="add-room-form-container mt-2"></div>
                             </div>
                         </div>
                     </div>

@@ -37,11 +37,14 @@ async function update(req, res, next) {
                 const oldPath = prevUser.foto_url;
                 // Solo borrar si está dentro de /uploads/avatars/
                 if (typeof oldPath === 'string' && oldPath.startsWith('/uploads/avatars/')) {
-                    const full = path.join(__dirname, '..', '..', oldPath);
+                    // Calcular siempre sobre la carpeta real de uploads/avatars
+                    const uploadsDir = path.join(__dirname, '..', '..', 'uploads', 'avatars');
+                    const fileName = path.basename(oldPath);
+                    const full = path.join(uploadsDir, fileName);                              // MODIFICADO
+
                     await fs.unlink(full).catch(() => { /* ignore if not exist */ });
                 }
             } catch (e) {
-                // No bloquear la respuesta si falla el borrado
                 console.error('Error borrando avatar anterior:', e.message || e);
             }
         }
@@ -68,3 +71,4 @@ async function remove(req, res, next) {
 }
 
 module.exports = { getProfile, update, list, remove };
+

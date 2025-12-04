@@ -14,7 +14,9 @@ const {
     getAllReservations,
     getServicios,
     addServicio,
-    deleteServicio
+    deleteServicio,
+    getRoomById,
+    updateRoomAdmin
 } = require('../controllers/admin.controller');
 
 // === SERVICIOS GLOBALES (ADMIN) ===
@@ -77,5 +79,15 @@ router.delete('/admin/properties/:id', deleteProperty);
 
 // === ELIMINAR HABITACIÓN ===
 router.delete('/admin/rooms/:id', deleteRoom);
+
+// Detalle de habitación
+router.get('/admin/habitaciones/:id', getRoomById);
+
+// Actualizar habitación
+router.put('/admin/habitaciones/:id', updateRoomAdmin);
+
+// Alias para eliminar usando /habitaciones
+router.delete('/admin/habitaciones/:id', deleteRoom);
+
 
 module.exports = router;
