@@ -1,4 +1,12 @@
-const { findById, updateProfile, setPassword, listAll, removeUser } = require('../models/user');
+const {
+    findById,
+    updateProfile,
+    setPassword,
+    listAll,
+    removeUser,
+    addRole,
+    getPasswordHash
+} = require('../models/user');
 const bcrypt = require('bcryptjs');
 const fs = require('fs').promises;
 const path = require('path');
@@ -70,5 +78,46 @@ async function remove(req, res, next) {
     } catch (err) { next(err); }
 }
 
-module.exports = { getProfile, update, list, remove };
+async function becomeHost(req, res, next) {
+    try {
+        const id = req.user && req.user.id;
+        if (!id) return res.status(401).json({ error: 'No autenticado' });
+
+        const password = (req.body.password || '').trim();
+        if (!password) {
+            return res.status(400).json({ error: 'Contraseña requerida' });
+        }
+
+        // Verificar contraseña actual
+        const hash = await getPasswordHash(id);
+        if (!hash) {
+            return res.status(400).json({ error: 'No se encontró contraseña para este usuario' });
+        }
+
+        const ok = await bcrypt.compare(password, hash);
+        if (!ok) {
+            return res.status(401).json({ error: 'Contraseña incorrecta' });
+        }
+
+        // Validar que exista archivo de identificación
+        if (!req.file) {
+            return res.status(400).json({ error: 'Debes subir tu identificación' });
+        }
+
+        // Opcional: podrías guardar la ruta en la BD si tienes una columna para ello
+        // const idPath = `/uploads/ids/${req.file.filename}`;
+        // try { await setUserIdDocumentPath(id, idPath); } catch (e) { /* opcional */ }
+
+        // Añadir rol 'anfitrion' (si no lo tiene ya)
+        await addRole(id, 'anfitrion');
+
+        const user = await findById(id);
+        res.json({ ok: true, user });
+    } catch (err) {
+        next(err);
+    }
+}
+
+
+module.exports = { getProfile, update, list, remove, becomeHost };
 

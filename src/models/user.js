@@ -10,6 +10,14 @@ async function findById(id) {
   return rows[0] || null;
 }
 
+async function getPasswordHash(id) {
+    const [rows] = await pool.query(
+        `SELECT password_hash FROM usuarios WHERE id_usuario = ?`,
+        [id]
+    );
+    return rows[0] ? rows[0].password_hash : null;
+}
+
 async function findByEmail(email) {
   const [rows] = await pool.query(
     `SELECT * FROM usuarios WHERE email = ?`,
@@ -87,4 +95,4 @@ async function setAccountState(id, state) {
   return findById(id);
 }
 
-module.exports = { findById, findByEmail, create, updateProfile, setPassword, getRoles, addRole, listAll, removeUser, setAccountState };
+module.exports = { findById, getPasswordHash, findByEmail, create, updateProfile, setPassword, getRoles, addRole, listAll, removeUser, setAccountState };

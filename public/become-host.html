@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Conviértete en anfitrión — TiziHause</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-site">
+
+<header class="site-header py-3 shadow-sm">
+    <nav class="container d-flex align-items-center">
+        <a class="navbar-brand d-flex align-items-center" href="/" aria-label="TiziHause - Inicio">
+            <img src="/multimedia/tizihause.jpg" alt="TiziHause logo" class="brand-img me-2">
+        </a>
+        <div class="ms-auto">
+            <a href="/" class="btn btn-outline-secondary btn-sm">Volver al inicio</a>
+        </div>
+    </nav>
+</header>
+
+<main class="container py-5">
+    <div class="row">
+        <div class="col-12 col-lg-7 mx-auto">
+            <article class="card p-4 shadow-sm">
+                <h1 class="h4 fw-bold mb-3 text-center">Conviértete en anfitrión</h1>
+                <p class="text-muted small mb-4 text-center">
+                    Usaremos tu misma cuenta actual. Tu correo y contraseña seguirán siendo los mismos;
+                    solo añadiremos el rol de <strong>anfitrión</strong> a tu usuario.
+                </p>
+
+                <form id="becomeHostForm" novalidate enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="email">Correo electrónico</label>
+                        <input id="email" type="email" class="form-control form-control-custom" disabled>
+                        <div class="form-text small">
+                            Este es el correo de tu cuenta actual. No se puede cambiar aquí.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="nombre">Nombre completo</label>
+                        <input id="nombre" type="text" class="form-control form-control-custom" disabled>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="idFile">Identificación oficial</label>
+                        <input id="idFile" name="idFile" type="file"
+                               class="form-control form-control-custom"
+                               accept=".jpg,.jpeg,.png,.pdf" required>
+                        <div class="form-text small">
+                            Aceptamos JPG, PNG o PDF. Máximo 5MB.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="password">
+                            Confirma tu contraseña
+                        </label>
+                        <input id="password" name="password" type="password"
+                               class="form-control form-control-custom"
+                               autocomplete="current-password" required>
+                        <div class="form-text small">
+                            Necesitamos tu contraseña para confirmar que eres el titular de la cuenta.
+                        </div>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="termsCheck">
+                        <label class="form-check-label small" for="termsCheck">
+                            Confirmo que deseo usar mi cuenta actual para hospedar huéspedes
+                            y que la información proporcionada es verdadera.
+                        </label>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button id="submitBtn" type="submit" class="btn btn-accent btn-lg">
+                            Solicitar cambio a anfitrión
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </article>
+        </div>
+    </div>
+</main>
+
+<footer class="footer py-4 bg-white mt-5 border-top">
+    <div class="container d-flex justify-content-between small text-muted">
+        <div>© <span id="year-become-host"></span> TiziHause</div>
+        <div>Cuenta única — huésped y anfitrión</div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.getElementById('year-become-host').textContent = new Date().getFullYear();
+</script>
+<script src="/js/become-host.js" defer></script>
+</body>
+</html>

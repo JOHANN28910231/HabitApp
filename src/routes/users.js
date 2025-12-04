@@ -23,6 +23,24 @@ const upload = multer({
   }
 });
 
+//Storage para IDs
+const idsStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, '..', '..', 'uploads', 'ids'));
+    },
+    filename: (req, file, cb) => {
+        const ext = file.originalname.split('.').pop();
+        const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        cb(null, `id_${unique}.${ext}`);
+    }
+});
+
+const uploadId = multer({
+    storage: idsStorage,
+    limits: { fileSize: 5 * 1024 * 1024 } // 5MB
+});
+
+
 // GET / -> lista usuarios (solo admin_global)
 router.get('/', requireAuth, requireRole('admin_global'), async (req, res, next) => {
   try {
@@ -60,5 +78,11 @@ router.delete('/:id', requireAuth, requireRole('admin_global'), async (req, res,
     return usersCtrl.remove(req, res, next);
   } catch (err) { next(err); }
 });
+
+router.post(
+    '/me/become-host',
+    uploadId.single('idFile'),
+    usersCtrl.becomeHost
+);
 
 module.exports = router;
