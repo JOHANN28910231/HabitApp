@@ -81,6 +81,7 @@ router.delete('/:id', requireAuth, requireRole('admin_global'), async (req, res,
 
 router.post(
     '/me/become-host',
+    requireAuth,
     uploadId.single('idFile'),
     usersCtrl.becomeHost
 );
