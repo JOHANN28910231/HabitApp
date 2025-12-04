@@ -378,3 +378,7 @@ feat:, fix:, chore:, docs:, refactor:, etc.
 ## Manual de usuario
 
 A continuación, en el siguiente archivo PDF podrá encontrar el manual de usuario, un docuemnto que explica de manera sencilla como usar AppTiziHause. Se describe cómo navegar por las diferentes secciones, cómo realizar búsquedas, gestionar reservaciones y otras funciones que ofrece TiziHause. Su propósito es guiar al usuario para que pueda utilizar el sistema de manera correcta, eficiente y sin complicaciones.
+
+[MANUAL DE USUARIO (1).pdf](https://github.com/user-attachments/files/23924500/MANUAL.DE.USUARIO.1.pdf)
+
+
