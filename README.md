@@ -364,7 +364,15 @@ Flujo Alternativo (Cambio de Estado):
 Desde la consulta, el Administrador tiene la opción de Cambiar estado de usuario. Esta acción siempre resulta obligatoriamente en Guardar en BD para actualizar el estado funcional de la cuenta.
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
+## Diagrama de paquetes
 
+<img width="5673" height="4374" alt="Diagrama de paquetes" src="https://github.com/user-attachments/assets/e156e813-da9c-4697-9fb2-48a3f445f1d7" />
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
 ## Estilo y calidad
 
 ESLint + Prettier incluidos.
