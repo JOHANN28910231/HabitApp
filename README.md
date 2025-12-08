@@ -383,6 +383,194 @@ feat:, fix:, chore:, docs:, refactor:, etc.
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+## Plan de pruebas
+La verificación de la funcionalidad del sistema se realizará mediante una combinación de pruebas automatizadas (unitarias e integración) y pruebas manuales de usuario. El objetivo es asegurar que los módulos críticos (autenticación, disponibilidad, reservas, pagos, reseñas y notificaciones) funcionen correctamente y mantengan la consistencia de los datos.
+________________________________________
+### Estrategia general
+1.	Configurar un entorno de pruebas separado, utilizando una base de datos específica (habitapp_test) y un archivo de entorno dedicado (.env.test), de modo que la ejecución de pruebas no afecte los datos reales.
+2.	Implementar pruebas automatizadas con Jest (y Supertest para E2E) sobre los controladores y utilidades centrales del sistema.
+3.	Complementar con pruebas manuales mediante herramientas como Thunder Client para verificar flujos de correo y tokens de reseñas.
+4.	Realizar pruebas de usuario sobre la interfaz para validar la experiencia real de huéspedes, anfitriones y administradores.
+________________________________________
+### Pruebas unitarias
+Las pruebas unitarias se centran en funciones y controladores individuales, utilizando modelos simulados (mocks) para aislar la lógica de negocio:
+	-Cálculo de precios:
+  
+Se prueba la función que calcula el monto total de la reserva según tipo de alojamiento (por noche, por semana o por mes), número de noches y tarifas configuradas.
+Se validan casos como:
+-	Estancias cortas por noche.
+-	Estancias semanales y mensuales con días extra.
+-	Manejo de tipos de tarifa inválidos.
+-	Comportamiento ante fechas inválidas.
+  -Controlador de disponibilidad
+  
+Se verifica que el controlador de disponibilidad:
+-	Devuelva error 400 cuando faltan parámetros obligatorios (from, to, guests).
+-	Valide que la fecha de salida sea al menos un día posterior a la fecha de entrada.
+-	Valide que el número de huéspedes sea mayor o igual a 1.
+-	Llame correctamente al modelo de habitaciones y devuelva los resultados esperados cuando los datos son válidos.
+  
+  -Controlador de reservas
+  
+Se comprueba que la creación de reservas:
+-	Requiera que el usuario esté autenticado (error 401 si no existe req.user).
+-	Valide la presencia de todos los datos necesarios (error 400 si faltan campos obligatorios).
+-	Devuelva error 404 cuando la habitación no existe.
+-	Devuelva error 409 cuando existe un traslape de fechas (reservación ya existente en el mismo rango), utilizando un método de creación con bloqueo (createReservationWithLock).
+-	Cree correctamente la reservación cuando no hay traslapes, devolviendo estado 201, identificador de la reserva y monto total calculado.
+ -Controlador de pagos (pago simulado)
+Se evalúa el flujo de cobro simulado para:
+-	Retornar error 400 cuando faltan datos como reservation_id o amount.
+-	Retornar error 404 si la reservación no existe.
+-	En caso de pago aprobado, crear el registro de pago y actualizar el estado de la reserva a “reservado”, devolviendo además una referencia de pago simulada.
+Para estas pruebas se utilizan modelos simulados (mocks) y respuestas simuladas (mockRes) que permiten verificar exclusivamente la lógica del controlador, sin depender directamente de la base de datos.
+________________________________________
+### Pruebas de integración y end-to-end
+Para comprobar el funcionamiento conjunto de varios componentes se emplean pruebas de integración y E2E con Jest y Supertest:
+
+- Prueba E2E básica de autenticación
+Se prueba el comportamiento de la ruta /api/auth/me cuando no existe sesión activa, esperando una respuesta 401 y un mensaje de error, lo que garantiza que las rutas protegidas no se puedan acceder sin autenticación.
+- Integración reservas–pagos
+El flujo de pruebas contempla la secuencia: creación de reserva válida, simulación de pago, actualización de estado de la reserva y verificación de la respuesta del controlador de pagos, asegurando que los módulos de reservas y pagos funcionen de forma coherente (sin dejar reservas en estados inconsistentes).
+- Reinicio de base de datos en entorno de pruebas
+Para garantizar que las pruebas se ejecuten siempre sobre un estado conocido, se dispone de un helper que reinicia la base de datos de pruebas a partir del script init.sql, ejecutando la creación de tablas y datos iniciales antes de los casos de prueba.
+________________________________________
+### Pruebas de usuario y pruebas manuales
+Además de las pruebas automatizadas, se realizan pruebas manuales con enfoque de usuario final:
+
+ -Pruebas con Thunder Client
+ 
+Se utilizan colecciones de solicitudes HTTP para:
+-	Verificar el envío de correos a las propiedades que tienen reservaciones sin reseña registrada.
+-	Probar la generación de tokens para invitación a reseñas.
+-	Confirmar que los correos se envían correctamente a las direcciones registradas en el sistema.
+-	Validar el comportamiento ante tokens válidos, expirados o manipulados, asegurando que el sistema no permita reseñas no autorizadas.
+-	
+ -Pruebas de flujo de usuario
+ 	
+Se recorren los principales escenarios desde la interfaz:
+-	Huésped que busca una propiedad, realiza una reservación, completa el pago simulado y posteriormente recibe un correo para dejar una reseña.
+-	Anfitrión que consulta sus propiedades, revisa sus reservas y visualiza las reseñas recibidas.
+-	Administrador que accede al panel, consulta reportes y verifica la consistencia entre reservas, pagos y reseñas.
+Estas pruebas manuales permiten detectar problemas de usabilidad, errores de validación no cubiertos por las pruebas automatizadas y posibles inconsistencias en la interacción entre módulos.
+________________________________________
+Con este plan de pruebas, el proyecto contempla distintos niveles de verificación (unidad, integración y usuario), cubriendo tanto la lógica interna del sistema como la experiencia real de uso y los flujos críticos de reservas, pagos y reseñas.
+
+
+## Arquitectura de la aplicación
+La aplicación se desarrolla con una arquitectura monolítica en capas, siguiendo el patrón MVC (Modelo–Vista–Controlador). Todo el sistema servidor (backend) se implementa en una sola aplicación Node.js/Express que concentra los módulos de autenticación, propiedades, habitaciones, reservaciones, pagos, reseñas, notificaciones y panel de administración.
+
+Esta elección es adecuada para el alcance del proyecto, ya que simplifica el despliegue, la coordinación entre módulos y el trabajo colaborativo del equipo.
+________________________________________
+ ### Patrón arquitectónico: MVC en una arquitectura monolítica
+Dentro del monolito, la organización lógica sigue el patrón Modelo–Vista–Controlador:
+ -Modelo (Model):
+ 
+Contiene la lógica de acceso y manipulación de datos.
+Incluye las estructuras y funciones relacionadas con:
+- Usuarios y roles.
+-	Propiedades y habitaciones.
+-	Reservaciones y estados de pago.
+-	Reseñas y notificaciones.
+Los modelos se encargan de comunicarse con la base de datos (por ejemplo, MySQL), ejecutando consultas y devolviendo la información en forma de objetos o registros.
+ -Vista (View):
+Corresponde a las páginas y plantillas que se entregan al usuario (HTML, recursos estáticos y componentes de interfaz).
+En esta capa se presentan:
+-	Formularios de registro e inicio de sesión.
+-	Listado de propiedades y habitaciones.
+-	Paneles de huésped, anfitrión y administrador.
+-	Vistas para consultar y enviar reseñas.
+  -Controlador (Controller):
+Gestiona las peticiones HTTP y coordina la lógica de negocio.
+Sus responsabilidades principales son:
+-	Recibir y validar los datos enviados por el cliente.
+-	Invocar a los modelos para consultar o modificar información.
+-	Seleccionar la vista o respuesta adecuada (render de página o JSON).
+De esta forma, el patrón MVC separa la presentación, la lógica y el acceso a datos, facilitando el mantenimiento y la evolución del sistema.
+________________________________________
+### Estructura de capas de la aplicación
+Además del patrón MVC, la aplicación se organiza conceptualmente en capas, cada una con un rol bien definido:
+1.	Capa de presentación (Frontend dentro del monolito):
+-	Incluye las vistas, plantillas y recursos estáticos servidos por la aplicación.
+-	Gestiona la interacción directa con el usuario (formularios, botones, tablas, mensajes).
+-	Realiza validaciones básicas en el lado del cliente (por ejemplo, formatos de correo, campos obligatorios).
+2.	Capa de aplicación o lógica de negocio:
+ -Implementa las reglas de negocio del sistema:
+-	Flujo de registro e inicio de sesión.
+-	Lógica de creación, modificación y cancelación de reservaciones.
+-	Reglas para pagos simulados y políticas de reembolso.
+-	Condiciones para generar y procesar reseñas y notificaciones por correo.
+	-Se materializa principalmente en los controladores y servicios que coordinan las operaciones entre presentación y datos.
+3.	Capa de acceso a datos:
+-	Encargada de la comunicación con la base de datos.
+-	Define las consultas SQL, inserciones, actualizaciones y eliminaciones.
+-	Se implementa mediante los modelos y utilidades asociadas a la conexión (pool de conexiones, manejo de errores de base de datos).
+4.	Capa de infraestructura y soporte:
+	-Abarca la configuración del servidor Express, las rutas, el manejo de sesiones, la carga de variables de entorno y los servicios transversales.
+ -Incluye, por ejemplo:
+-	Middleware de autenticación y autorización.
+-	Configuración de envío de correos electrónicos para notificaciones e invitaciones a reseña.
+-	Registro de logs y manejo genérico de errores.
+________________________________________
+### Justificación de la arquitectura seleccionada
+La elección de una arquitectura monolítica en capas con patrón MVC resulta adecuada para este proyecto porque:
+-	Permite integrar todos los módulos (autenticación, propiedades, reservas, pagos, reseñas y notificaciones) en una sola aplicación coherente.
+-	Facilita el trabajo del equipo, ya que todo el código se encuentra en un mismo repositorio y en una estructura homogénea.
+-	Reduce la complejidad técnica en comparación con una arquitectura distribuida, lo que es conveniente para un proyecto académico con tiempo limitado.
+En conjunto, esta arquitectura ofrece un equilibrio entre claridad, simplicidad y capacidad de crecimiento para futuras extensiones del sistema.
+
+________________________________________
+## Cronograma y Planificación del Proyecto
+1. Organización del equipo y responsabilidades
+El desarrollo del sistema se planificó con un enfoque modular, asignando a cada integrante un conjunto de responsabilidades específicas. Esto permitió trabajar en paralelo desde las primeras semanas, favoreciendo la integración progresiva de los componentes.
+
+Integrante A – Autenticación y gestión de usuarios
+Encargado de la lógica de registro, inicio de sesión, manejo de sesiones, roles de usuario y edición de perfil.
+
+Integrante B – Propiedades y habitaciones
+Responsable del CRUD de propiedades y habitaciones, servicios generales, manejo de fotografías y estructura de datos relacionada.
+
+Integrante C – Reservaciones y flujo de pago
+Diseño e implementación del flujo completo de reservaciones, disponibilidad, simulación de pagos y panel de anfitrión.
+
+Integrante D – Panel de administración y reportes
+Desarrollo del panel administrativo, estadísticas, reportes y herramientas de gestión para anfitriones y administradores.
+
+Integrante E – Reseñas y notificaciones
+Implementación del módulo de reseñas, generación y consumo de tokens, envío de notificaciones por correo y flujo de invitación a reseña.
+
+2. Fases del proyecto
+Semana 1: Análisis y diseño general (10–16 de noviembre)
+Revisión de requerimientos, diseño de arquitectura y base de datos, estructuración del repositorio y asignación de responsabilidades.
+
+Semana 2: Desarrollo inicial por módulo (17–23 de noviembre)
+A – Autenticación; B – Propiedades; C – Reservas; D – Panel administrativo; E – Reseñas y notificaciones.
+
+Semana 3: Integración y ampliación de funcionalidades (24–30 de noviembre)
+Integración entre módulos, ampliación de funcionalidades y primeras pruebas cruzadas.
+
+Semana 4: Mejoras de interfaz, pruebas y validaciones (1–7 de diciembre)
+Optimización de interfaces, ampliación de validaciones y pruebas funcionales por módulo.
+
+Semana 5: Estabilización, documentación y entrega (8–14 de diciembre)
+Integración final, corrección de errores, pruebas finales y documentación técnica.
+
+3.	Cronograma resumido tipo Gantt
+
+<img width="1012" height="476" alt="Image" src="https://github.com/user-attachments/assets/07b03466-0e07-46ab-86f0-d3271b81a95f" />
+
+- Cuadros negros (■■■■■■■):
+Representan las semanas en las que una actividad estuvo programada o en ejecución. Cada bloque indica que durante ese periodo se trabajó en esa fase o módulo del proyecto.
+- Celdas vacías:
+Indican que durante esa semana la actividad no estaba prevista o no formaba parte del plan de trabajo.
+- Filas:
+Cada fila corresponde a una fase o módulo específico del proyecto, como autenticación, reservas, administración, reseñas, etc.
+- Columnas:
+Cada columna representa una semana dentro del periodo total del proyecto. El cronograma está dividido en cinco semanas para mostrar la distribución del trabajo.
+- Lectura del cronograma:
+Para interpretar cada línea, basta con observar qué semanas contienen cuadros negros. Cuantos más cuadros tenga una fase, mayor es la duración estimada del trabajo en ese módulo.
+
+
 ## Manual de usuario
 
 A continuación, en el siguiente archivo PDF podrá encontrar el manual de usuario, un docuemnto que explica de manera sencilla como usar AppTiziHause. Se describe cómo navegar por las diferentes secciones, cómo realizar búsquedas, gestionar reservaciones y otras funciones que ofrece TiziHause. Su propósito es guiar al usuario para que pueda utilizar el sistema de manera correcta, eficiente y sin complicaciones.
